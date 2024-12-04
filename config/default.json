@@ -11,6 +11,7 @@
     "BASE_URL": "",
     "BASE_STORAGE": "session",
     "SECRET_KEY": "ASSURE_OF_SECRET_KEY",
+	"VALIDATE_TOKEN": "false",
     "VALIDATE_ANOMYMOUS_TOKEN": "false",
     "ALWAYS_ACTIVATE_ACCOUNT": "false",
     "ALWAYS_DB_TRACKING": "false",
