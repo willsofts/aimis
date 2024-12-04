@@ -1,6 +1,6 @@
-## AI DB Project
+## AI Serve Project
 
-This is project using Google Gemini AI to generate query and then execute statement for result to answer
+This is project provide AI API services
 
 ## Installation
 
