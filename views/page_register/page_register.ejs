@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Registration</title>	
+		<%- include('../asset/meta') %>		
+		<%- include('../asset/styles') %>		
+		<%- include('../asset/scripts') %>		
+		<link rel="stylesheet" type="text/css" href="<%=meta.base_url%>/pages/page_register.css" />
+		<script type="text/javascript" src="<%=meta.base_url%>/pages/page_register.js"></script>
+	</head>
+	<body class="portalbody portalbody-off">
+		<div class="pt-page register-page">
+			<h1 class="page-header-title" title="Register"><%=label.get('caption','Registration')%></h1>		
+			<%- include('../partials/page_waiting') %>		
+			<%- include('./page_register_form') %>		
+			<%- include('./page_register_success') %>		
+		</div>
+</body>
+</html>

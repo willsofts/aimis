@@ -1,0 +1,42 @@
+    <div id="page_register" class="entry-layer page-layer">
+		<form id="register_form" name="register_form" method="post">
+			<input type="hidden" id="site" name="site" value="<%=meta.info?.site%>" />
+			<div class="portal-area sub-entry-layer">
+				<div class="row row-heighter center-block">
+					<div class="col-md-12">
+						<label id="register_info" class="info-label"><%=label.get('register_info','Please identify your information')%></label>
+					</div>
+				</div>
+				<div class="row row-heighter center-block">
+					<div class="col-md-7 col-height form-group" id="email_layer">
+						<label id="email_label"><%=label.get('email_label','Email/User')%></label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text" title="Email"><i class="fa fa-envelope-o" aria-hidden="true"></i></span>
+							</div>
+							<input type="email" class="form-control input-md my-input alert-input" id="email" name="email" placeholder="<%=label.get('email_placeholder','Email/User')%>" maxlength="50" />
+						</div>		
+						<span id="email_alert" role="alert" class="has-error fa-hidden"><%=label.get('email_alert','You can not leave this empty')%></span>
+					</div>
+				</div>
+				<div class="row row-heighter center-block">
+					<div class="col-md-7 col-height form-group" id="usernaming_layer">
+						<label id="usernaming_label"><%=label.get('usernaming_label','User Name (First & Last Name)')%></label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text" title="User Name"><i class="fa fa-user" aria-hidden="true"></i></span>
+							</div>
+							<input type="text" class="form-control input-md my-input alert-input" id="usernaming" placeholder="<%=label.get('usernaming_placeholder','User Name')%>" maxlength="100" />
+						</div>	
+						<span id="usernaming_alert" role="alert" class="has-error fa-hidden"><%=label.get('usernaming_alert','You can not leave this empty')%></span>
+					</div>
+				</div>
+				<hr/>
+				<div class="row row-heighter">
+					<div class="col-md-9 col-height text-center">
+						<input type="button" id="submitbutton" class="btn btn-dark btn-sm" value="<%=label.get('submitbutton','Submit')%>"/>
+					</div>
+				</div>			
+			</div>
+		</form>
+	</div>

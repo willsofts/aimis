@@ -1,0 +1,13 @@
+/*#(10000) programmer code begin;*/
+#searchbutton { margin-top: 10px; margin-left: 5px; }
+#insertbutton { margin-top: 10px; margin-right: 5px; }
+#entrylayerarea { padding-top: 0px; }
+#entrylayer { margin-top: 0px; }
+#groupworkingframe { border: none; margin: 0px; }
+#groupdialoglayer { margin-top: 5px; }
+.filter-linker { cursor: pointer; }
+.filter-linker label { cursor: pointer; }
+.category-setting:hover { text-decoration: underline; }
+.category-group:hover { text-decoration: underline; }
+.category-group { padding-left: 15px; }
+/*#(10000) programmer code end;*/

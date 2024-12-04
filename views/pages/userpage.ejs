@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>System Management</title>
+		<%- include('../asset/meta') %>		
+		<%- include('../asset/styleserror') %>	
+		<style nonce="YXNzdXJl"> 
+			a.back-link { font-size: 1.5rem; text-decoration: none; } 
+			h3.info { text-align: center; color:red; }
+			.text-center { text-align: center; }
+			.portal-body { margin:0px; font-size:1rem; font-weight:400;line-height:1.5; }
+			.pt-page-header { margin-top:0px; margin-bottom:0.5rem; }
+			.toggle-layer { float: right; padding-right: 15px; }
+			#togglelinker { font-weight: bold; }
+			#userinfolayer { display: none; padding: 10px; }
+			#datatable { width: 100%; }
+		</style>
+		<script nonce="YXNzdXJl">
+			function doGoBack() {
+				window.open("/","_top");
+			}
+			function doToggle() {
+				if(userinfolayer.style.display=="none" || userinfolayer.style.display=="") {
+					userinfolayer.style.display = "block";
+				} else {
+					userinfolayer.style.display = "none";
+				}
+			}
+			window.onload = function() {
+				togglelinker.onclick = doToggle;
+				homelinker.onclick = doGoBack;
+			}
+		</script>
+	</head>
+	<body class="portal-body portalbody-off">
+		<div class="pt-page pt-page-current pt-page-controller">
+			<div class="header-layer">
+				<h1 class="pt-page-header page-header-title">
+					<label>User</label>
+				</h1>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-right toggle-layer">
+					<a href="#" id="togglelinker" class="back-link">&#9432;</a>
+				</div>
+			</div>
+			<div id="userinfolayer">
+			<h3>User Information</h3>
+			<table id="datatable" class="table table-bordered table-hover table-striped">
+			    <thead class="pt-page-header">
+			    <tr>
+			        <th>User Name</th>
+			        <th>Environment</th>
+			        <th>Tenant</th>
+			    </tr>
+			    </thead>
+			    <tbody>
+			    	<tr>
+				        <td><%=auth.account?.username || auth.account?.idTokenClaims?.given_name%></td>
+				        <td><%=auth.account?.environment%></td>
+				        <td><%=auth.account?.idTokenClaims?.iss || auth.account?.tenantId%></td>
+			        </tr>
+			    </tbody>
+			</table>
+			</div>
+			<br/>
+			<br/>
+			<%if(error) {%>
+			<h3 class="info text-center"><%=error%></h3>		
+			<%}%>
+			<%if(info) {%>
+			<h3 class="info text-center"><%=info%></h3>		
+			<%}%>
+			<br/>		
+			<div class="text-center">
+				<a href="#" id="homelinker" class="back-link">Go Home</a>
+			</div>
+		</div>
+	</body>
+</html>

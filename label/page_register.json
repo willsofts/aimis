@@ -1,0 +1,36 @@
+[
+	{
+		"language": "TH",
+		"label": [
+			{"name": "caption", "value": "ลงทะเบียน"},
+			{"name": "register_info", "value": "โปรดระบุข้อมูลผู้ใช้งาน"},
+			{"name": "email_label", "value": "อีเมล์/ผู้ใช้"},
+			{"name": "usernaming_label", "value": "ชื่อและนามสกุลผู้ใช้งาน"},
+			{"name": "email_placeholder", "value": "อีเมล์/ผู้ใช้"},
+			{"name": "usernaming_placeholder", "value": "ชื่อผู้ใช้งาน"},
+			{"name": "email_alert", "value": "ท่านต้องไม่ปล่อยให้เป็นค่าว่าง"},
+			{"name": "usernaming_alert", "value": "ท่านต้องไม่ปล่อยให้เป็นค่าว่าง"},
+			{"name": "submitbutton", "value": "ยอมรับ"},			
+			{"name": "registnew_label", "value": "การลงทะเบียนผู้ใช้ใหม่สำเร็จ"},
+			{"name": "registermsg_label", "value": "โปรดตรวจสอบ ระบบได้ส่งการยืนยันคำร้องไปยังอีเมล์ของท่าน"},
+			{"name": "registlogin_label", "value": "เข้าสู่ระบบ"}
+		]
+	},
+	{
+		"language": "EN",
+		"label": [
+			{"name": "caption", "value": "Registration"},
+			{"name": "register_info", "value": "Please identify your information"},
+			{"name": "email_label", "value": "Email/User"},
+			{"name": "usernaming_label", "value": "User Name (First & Last Name)"},			
+			{"name": "email_placeholder", "value": "Email/User"},
+			{"name": "usernaming_placeholder", "value": "User Name"},			
+			{"name": "email_alert", "value": "You can not leave this empty"},
+			{"name": "usernaming_alert", "value": "You can not leave this empty"},
+			{"name": "submitbutton", "value": "Submit"},
+			{"name": "registnew_label", "value": "New account register success"},
+			{"name": "registermsg_label", "value": "Please verify your email for new accessor"},
+			{"name": "registlogin_label", "value": "Log In"}
+		]
+	}
+]

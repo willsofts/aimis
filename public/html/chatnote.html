@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Q&amp;A</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="Cache-Control" content="no-store">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+	<link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css" />
+	<link rel="stylesheet" type="text/css" href="/main/chatnote.css" />
+    <script src="/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="/cryptojs/dh/jsbn.js" defer></script>
+	<script type="text/javascript" src="/cryptojs/dh/jsbn2.js" defer></script>
+	<script type="text/javascript" src="/cryptojs/rollups/aes.js" defer></script>
+	<script type="text/javascript" src="/cryptojs/rollups/sha256.js" defer></script>
+	<script type="text/javascript" src="/cryptojs/components/mode-ecb.js" defer></script>
+	<script type="text/javascript" src="/cryptojs/secure-ls.min.js" defer></script>
+	<script type="text/javascript" src="/js/dh.js"></script>
+	<script type="text/javascript" src="/js/fsutil-min.js"></script>
+	<script type="text/javascript" src="/js/fslib-min.js"></script>
+    <script src="/main/chatnote.js"></script>
+  </head>
+  <body>
+	<div id="headlayer">
+		<div id="headtitle"><span class="q">Chat</span> &amp; <span class="a">Note</span></div>
+	</div>
+	<div id="bodylayer">
+		<div id="categorylayer">
+			<h4 class="system">Category<a href="#0" id="addforumlinker" title="Add Category" tabindex="-1"><em class="fa fa-plus"></em></a></h4>
+			<div id="categorylist">
+				<ul id="categorylisting" class="category-list">
+				</ul>
+			</div>
+		</div>
+		<div id="questlayer">
+			<div id="settinglayer">
+				<div id="questsetting" class="menu dropdown setting-menu">
+					<span class="m dropbtn setting"><em class="fa fa-gear"></em></span>
+					<div class="dropdown-content setting-content">
+						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_1" value="gemini-1.5-flash" data-agent="GEMINI" checked /><label for="mobel_1">Gemini 1.5 Flash</label></a>
+						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_2" value="gemini-pro" data-agent="GEMINI"/><label for="mobel_2">Gemini Pro</label></a>
+						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_3" value="gemini-1.5-pro" data-agent="GEMINI"/><label for="mobel_3">Gemini 1.5 Pro</label></a>
+						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_4" value="llama3.1" data-agent="LLAMA" disabled/><label for="mobel_4">LLama 3.1 8B</label></a>
+						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_5" value="gemma2" data-agent="GEMMA" disabled/><label for="mobel_4">Gemma 2 9B</label></a>
+						<a href="#0" tabindex="-1" class="separator-linker"><input type="checkbox" id="datasetbox" checked /><label for="datasetbox">Data Set</label></a>
+						<a href="#0" tabindex="-1" class="separator-linker" id="clearlinker"><span><em class="fa fa-trash"></em></span><label id="clearlabel">Clear</label></a>
+					</div>
+		  		</div>
+			</div>
+			<div id="questmessages">
+				<ul id="listmessages">
+				</ul>
+			</div>
+			<div id="waitlayer"><img id="waitimg" src="/img/waiting.gif" width="50px" height="50px" alt="" /></div>
+			<div id="formlayer">
+					<form id="questform" name="questform" action="" onsubmit="return false;">
+						<div id="inputlayer">
+							<div id="queryinputlayer" class="input-normal">
+								<textarea rows="1" id="query" name="query" class="input input-md input-ask" autocomplete="off" placeholder="Question here"></textarea>
+								<div id="queryspeechlayer">
+									<a href="#0" id="queryspeechlang" tabindex="-1">TH</a>
+									<a href="#0" id="speechbutton" class="input-ask btn" title="Speech" tabindex="-1"><img id="blinker" src="/img/mic.svg" ></a>
+								</div>
+							</div>
+							<button id="sendbutton" class="input-ask btn"><em class="fa fa-send"></em> Send</button>
+						</div>
+					</form>
+			</div>
+		</div>
+		<div id="examplelayer">
+			<h4 class="example">Example</h4>
+			<div id="examplelist">
+				<ul id="examplelisting" class="example-list">
+				</ul>
+			</div>
+		</div>
+	</div>	
+  </body>
+</html>

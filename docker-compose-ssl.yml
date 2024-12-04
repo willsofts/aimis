@@ -1,0 +1,33 @@
+version: '3.6'
+services:
+  aimisdb:
+    image: mysql:8.0.26
+    container_name: aimisdb
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    restart: always
+    ports:
+      - 13306:3306
+    volumes:
+      - ./db/cf/my.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./db/mysql:/var/lib/mysql
+
+  aimis:
+    image: willsofts/aimis:1.0.0
+    container_name: aimis
+    environment:
+      - TZ=Asia/Bangkok
+      - EXPRESS_HTTPS=true
+      - EXPRESS_KEY=./cert/key.pem
+      - EXPRESS_CERT=./cert/cert.pem
+      - GOOGLE_APPLICATION_CREDENTIALS=/usr/node/app/key/service_account_key.json
+      - OLLAMA_HOST=http://172.31.199.54:11434
+      - OLLAMA_PORT=11434
+    restart: always
+    volumes:
+      - ./config/default-docker.json:/usr/src/app/config/default.json
+    ports:
+      - 8077:8080
+      - 7443:8443
+    depends_on:
+      - aimisdb

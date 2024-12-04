@@ -1,0 +1,63 @@
+{
+  "name": "aimis",
+  "version": "1.0.0",
+  "description": "This project introduction to use AI API Interface",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --project ./",
+    "dev": "ts-node-dev src/server.ts ./dist/services ./dist/workers ./dist/operators",
+    "start": "node dist/server.js ./dist/services ./dist/workers ./dist/operators",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Gemini"
+  ],
+  "author": "tassan_oro@freewillsolutions.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^20.11.25",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/uuid": "^10.0.0",
+    "axios": "^1.7.7",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.26.1",
+    "@google-cloud/storage": "^7.10.2",
+    "@google-cloud/vision": "^4.2.0",
+    "@google/generative-ai": "^0.19.0",
+    "@willsofts/will-api": "^1.0.13",
+    "@willsofts/will-core": "^1.1.26",
+    "@willsofts/will-db": "^1.0.57",
+    "@willsofts/will-lib": "^1.0.28",
+    "@willsofts/will-run": "^1.0.13",
+    "@willsofts/will-serv": "^1.0.51",
+    "@willsofts/will-sql": "^1.0.31",
+    "@willsofts/will-util": "^1.0.20",
+    "config": "^3.3.11",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "moleculer": "^0.14.32",
+    "moleculer-web": "^0.10.7",
+    "mssql": "^11.0.1",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.3",
+    "odbc": "^2.4.9",
+    "ollama": "^0.5.6",
+    "oracledb": "^6.6.0",
+    "path": "^0.12.7",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.13.1",
+    "sharp": "^0.33.3",
+    "tesseract.js": "^5.1.1",
+    "uuid": "^11.0.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

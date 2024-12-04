@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Error</title>
+		<style nonce="YXNzdXJl">
+			body {
+				font-family: Tahoma, "Helvetica Neue", Helvetica, Arial, sans-serif, "Courier New"; 
+  				line-height: 1.42857143;
+  				background-color: #FFDAB9;
+			}
+			.sub-entry-layer {
+				margin-left: 0px;
+				margin-right: 3px;
+				margin-top: 10px; padding-top: 10px; padding-left: 5px; padding-bottom:15px;
+			}
+			.portal-area {
+				background-color: ghostwhite;
+			}
+			.info-area { text-align:center; color: red; font-size: 20px; }
+			#errorlayer { text-align:center; font-size: 16px; }
+			.text-center { text-align:center; }
+		</style>
+		<script nonce="YXNzdXJl">
+			function doGoBack() {
+				window.history.back();
+			}
+			window.onload = function() {
+				gobacklinker.onclick = doGoBack;
+			}
+		</script>
+	</head>
+	<body>
+		<div class="row portal-area sub-entry-layer">
+			<br></br><br></br>
+			<div class="info-area">
+					Sorry, Account activation on your request has fail
+			</div>
+			<br></br>
+			<div class="text-center">
+				<a href="#" id="gobacklinker">Go Back</a>
+			</div>
+			<br></br>
+			<div id="errorlayer">			
+				<%=error%>
+			</div>
+			<br/>
+		</div>
+	</body>
+</html>

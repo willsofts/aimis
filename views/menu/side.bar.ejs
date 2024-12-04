@@ -1,0 +1,55 @@
+<ul id="menuitemlist" class="nav flex-column sidebar-nav navbar-nav list-sidebar bg-default" role="menu">
+<%
+    const sidelist = {
+        "CHATER":[
+        {programid: "quest", progname: "Q&A", prognameth: "Q&A", progpath: "/show/html/quest", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "ask", progname: "Ask Me", prognameth: "Ask Me", progpath: "/show/html/ask", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "vision", progname: "Vision Me", prognameth: "Vision Me", progpath: "/show/html/vision", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "ocr", progname: "OCR Me", prognameth: "OCR Me", progpath: "/show/html/ocr", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "chatpdf", progname: "Chat PDF", prognameth: "Chat PDF", progpath: "/show/html/chatpdf", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "chatdoc", progname: "Chat Doc", prognameth: "Chat Doc", progpath: "/show/html/chatdoc", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "chatnote", progname: "Chat Note", prognameth: "Chat Note", progpath: "/show/html/chatnote", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "chatimage", progname: "Chat Image", prognameth: "Chat Image", progpath: "/show/html/chatimage", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "chatimageollama", progname: "Chat Image Vision", prognameth: "Chat Image Vision", progpath: "/show/html/chatimageollama", url: "", iconstyle: "fa fa-desktop"},
+        {programid: "filterdoc", progname: "Classify Doc", prognameth: "Classify Doc", progpath: "", url: "", iconstyle: "fa fa-desktop"}
+        ]
+    };
+    const sidemap = {"CHATER": {nameen: "Menu", nameth: "Menu", groupstyle: "fa fa-tasks"}};
+    let counter = 0;
+    let lang = meta.language; 
+    for (let mk in sidemap) {
+        let mv = sidemap[mk];
+        counter++;
+        let groupstyle = mv["groupstyle"];
+        if(!groupstyle || groupstyle=="") groupstyle = "fa fa-tasks";
+        let groupname = "TH"==lang?mv["nameth"]:mv["nameen"];
+        let list = sidelist[mk];
+        if(list.length>0) { %>
+        <li class="dropdown">
+            <a class="nav-menu-group dropdown-toggle collapsed active" data-toggle="collapse" data-target="#submenu_<%=counter%>" href="javascript:void(0);">
+                <em class="<%=groupstyle%>"></em>
+                <span class="nav-label"><%=groupname%></span>
+                <span class="menu-group-icon fa fa-chevron-left pull-right"></span>
+            </a>
+            <ul id="submenu_<%=counter%>" class="sub-menu panel-collapse collapse" role="menu">    
+            <%
+            for(let i=0,isz=list.length;i<isz;i++) {
+                let element = list[i];
+                if(element) {
+                    let progname = "TH"==lang?element["prognameth"]:element["progname"];
+                    let iconstyle = element["iconstyle"];
+                    let progid = element["programid"];
+                    let url = element["url"];
+                    let path = element["progpath"];
+                    %>
+                    <li><a href="javascript:void(0)" class="fa-link-menu-item menu-desktop <%=iconstyle%>" data-pid="<%=progid%>" data-url="<%=url%>" data-path="<%=path%>" title="<%=progid%>"><%=progname %></a></li>
+                    <%	    
+                }
+            }%>
+            </ul>
+        </li>
+<%
+        }
+    }
+%>
+</ul>

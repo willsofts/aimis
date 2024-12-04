@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Table Info</title>
+		<%- include('../asset/meta') %>		
+		<%- include('../asset/styles') %>		
+		<style nonce="YXNzdXJl">
+			h4 { margin: 5px; }
+			#tableinfo { margin-left: 10px; margin-right: 10px; width: 99%; }	
+			#ptsearchpager { height: 100%; }
+		</style>
+	</head>
+	<body class="portalbody portalbody-off">
+		<h4>Table Information</h4>
+		<div id="ptsearchpager" class="pt-page pt-page-current pt-page-controller">
+			<textarea id="tableinfo" rows="20" cols="100" readonly>
+<%= data.dataset.tableinfo %>
+			</textarea>			
+		</div>
+	</body>
+</html>

@@ -1,0 +1,25 @@
+/*#(10000) programmer code begin;*/
+#searchbutton { margin-top: 10px; margin-left: 5px; }
+#insertbutton { margin-top: 10px; margin-right: 5px; }
+.alert-color { color: red; }
+tr:has(td a em.alert-color) td { color: red; }
+tr:has(td a em.alert-color) td label { color: red; }
+tr:has(td a em.alert-color) td a { color: red; }
+tr:has(td a em.alert-color) td button { color: red; }
+.fa-btn {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	width: 17px;
+	height: 17px;
+	border: 0px;
+	cursor: pointer;
+	outline: 0;
+	background-size: 17px 17px;
+	margin: 3px;
+}
+.fa-btn:hover {
+	background-repeat: no-repeat;
+	background-color: transparent;
+	color: darkgray;
+}
+/*#(10000) programmer code end;*/

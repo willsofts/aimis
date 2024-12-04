@@ -1,0 +1,44 @@
+[
+	{
+		"language": "TH",
+		"label": [
+			{"name": "caption", "value": "การกำหนดโทเค็น"},
+			{"name": "keynames_label", "value": "ชื่อ"},
+			{"name": "fromdates_label", "value": "จากวันที่"},
+			{"name": "todates_label", "value": "ถึงวันที่"},
+			{"name": "keyname_headerlabel", "value": "ชื่อ"},
+			{"name": "createdate_headerlabel", "value": "วันที่"},
+			{"name": "createtime_headerlabel", "value": "เวลา"},
+			{"name": "expiredate_headerlabel", "value": "หมดอายุวันที่"},
+			{"name": "expiretime_headerlabel", "value": "หมดอายุเวลา"},
+			{"name": "expireflag_headerlabel", "value": "หมดอายุ"},
+			{"name": "keyname_label", "value": "ชื่อ"},
+			{"name": "expireflag_label", "value": "ชนิด"},
+			{"name": "expireday_label", "value": "จำนวนวันหมดอายุ"},
+			{"name": "keypass_label", "value": "โทเค็ํน"},
+			{"name": "expiredate_label", "value": "หมดอายุวันที่"},
+			{"name": "expiretime_label", "value": "หมดอายุเวลา"}
+		]
+	},
+	{
+		"language": "EN",
+		"label": [
+			{"name": "caption", "value": "Access Token"},
+			{"name": "keynames_label", "value": "Name"},
+			{"name": "fromdates_label", "value": "From Date"},
+			{"name": "todates_label", "value": "To Date"},
+			{"name": "keyname_headerlabel", "value": "Name"},
+			{"name": "createdate_headerlabel", "value": "Create Date"},
+			{"name": "createtime_headerlabel", "value": "Create Time"},
+			{"name": "expiredate_headerlabel", "value": "Expire Date"},
+			{"name": "expiretime_headerlabel", "value": "Expire Time"},
+			{"name": "expireflag_headerlabel", "value": "Expired"},
+			{"name": "keyname_label", "value": "Name"},
+			{"name": "expireflag_label", "value": "Expire Type"},
+			{"name": "expireday_label", "value": "Expire Day"},
+			{"name": "keypass_label", "value": "Token"},
+			{"name": "expiredate_label", "value": "Expire Date"},
+			{"name": "expiretime_label", "value": "Expire Time"}
+		]
+	}
+]

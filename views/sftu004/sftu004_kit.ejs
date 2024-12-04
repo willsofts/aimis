@@ -1,0 +1,77 @@
+<% let display = page.isUpdateMode()?"":"fa-hidden"; %>
+<% if(page.isInsertMode()) { %>
+	<div class="row row-height">
+		<div class="col-md-12 col-height">
+				<div class="table-layer-class">
+					<div class="row row-height">
+						<div class="col-height col-md-4">
+<label for="expireflag" id="expireflag_label" class="control-label"><%=label.get('expireflag_label','Expire Type')%></label><div class="input-group">
+<%-page.html('select',{map: data.entity?.tkexpire, value: data.dataset?.expireflag, id: "expireflag", name: "expireflag", class: "form-control input-md"})%>
+<div class="input-group-required"><label class="required">*</label></div></div><div id="inactive_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('expireflag_alert','You can not leave this empty')%></div>
+						</div>
+						<div class="col-height col-md-4">
+<label for="expireday" id="expireday_label" class="control-label"><%=label.get('expireday_label','Expire Day')%></label><div class="input-group">
+<%-page.html('int',{value: data.dataset?.expireday, id: "expireday", name: "expireday", class: "form-control input-md alert-input"})%>
+<div class="input-group-required"><label class="required">*</label></div></div><div id="expireday_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('expireday_alert','You can not leave this empty')%></div>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+<% } else { %>
+	<div class="row row-height">
+		<div class="col-md-12 col-height">
+				<div class="table-layer-class">
+					<div class="row row-height">
+						<div class="col-height col-md-4">
+<label for="expireflag" id="expireflag_label" class="control-label"><%=label.get('expireflag_label','Expire Type')%></label>
+<fieldset disabled>
+<%-page.html('select',{map: data.entity?.tkexpire, value: data.dataset?.expireflag, id: "expireflag", name: "expireflag", class: "form-control input-md"})%>
+</fieldset>
+						</div>
+						<div class="col-height col-md-4" id="expiredaylayer">
+<label for="expireday" id="expireday_label" class="control-label"><%=label.get('expireday_label','Expire Day')%></label>
+<input type="text" id="expireday" class="form-control input-md" value="<%=data.dataset?.expireday%>" disabled />
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+<% } %>
+	<div class="row row-height hidden-layer copy-layer <%=display%>">
+		<div class="col-md-12 col-height">
+				<div class="table-layer-class">
+					<div class="row row-height">
+						<div class="col-height col-md-11">
+<label for="keypass" id="keypass_label" class="control-label"><%=label.get('keypass_label','Token')%></label>
+<div class="input-group"><textarea id="keypass" class="form-control input-md" rows="5" readonly><%=data.dataset?.keypass%></textarea>
+<div class="input-group-required input-group-addon input-group-append">
+	<table>
+		<tr><td valign="top">
+		<a href="javascript:void(0);" class="input-group-text key-link" id="copykeylinker" tabindex="-1"><i class="fa fa-copy" aria-hidden="true"></i></a>
+		<a href="javascript:void(0);" class="input-group-text key-link" id="downloadkeylinker" tabindex="-1"><i class="fa fa-download" aria-hidden="true"></i></a>
+		</td></tr>
+	</table>
+</div>
+</div>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+	<div class="row row-height hidden-layer copy-layer <%=display%>">
+		<div class="col-md-12 col-height">
+				<div class="table-layer-class">
+					<div class="row row-height">
+						<div class="col-height col-md-4">
+<label for="expiredate" id="expiredate_label" class="control-label"><%=label.get('expiredate_label','Expire Date')%></label>
+<input type="text" id="expiredate" class="form-control input-md" value="<%=data.dataset?.expiredate%>" disabled />
+						</div>
+						<div class="col-height col-md-4">
+<label for="expiretime" id="expiretime_label" class="control-label"><%=label.get('expiretime_label','Expire Time')%></label>
+<input type="text" id="expiretime" class="form-control input-md" value="<%=data.dataset?.expiretime%>" disabled />
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>

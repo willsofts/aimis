@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Note Setting</title>
+		<%- include('../asset/meta') %>		
+		<%- include('../asset/styles') %>		
+		<style nonce="YXNzdXJl">
+			h4 { margin: 5px; }
+			#infotext { margin-right: 10px; width: 99%; }	
+			#ptsearchpager { margin-left: 10px; height: 100%; }
+		</style>
+	</head>
+	<body class="portalbody portalbody-off">
+		<h4>Document Info</h4>
+		<div id="ptsearchpager" class="pt-page pt-page-current pt-page-controller">
+			<label class="topic-title"><%=data.dataset?.caption%></label>
+			<textarea id="infotext" name="infotext" class="form-control input-md" rows="20" cols="100" readonly>
+				<%= data.dataset?.prompt %>
+			</textarea>
+		</div>
+	</body>
+</html>
