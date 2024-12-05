@@ -17,6 +17,7 @@ function setupComponents() {
 	$("#loginlink").click(function() { loginLinkClick(); });
 }
 function clearingFields() {
+	$("#registmail_label").html("");
 	register_form.reset();
 }
 function validForm() {
@@ -61,7 +62,8 @@ function send(aform) {
 		usertname : name,
 		usertsurname : surname,
 		userename : name,
-		useresurname: surname
+		useresurname: surname,
+		displayname: naming,
 	};
 	console.log("register data:",formdata);
 	//confirmSend(function() {
@@ -77,6 +79,7 @@ function send(aform) {
 			},
 			success: function(data,status,transport){ 
 				stopWaiting();
+				$("#registmail_label").html(email);
 				$("#page_register").hide();
 				$("#page_register_success").show();
 				/*
