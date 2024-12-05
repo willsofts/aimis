@@ -1,17 +1,17 @@
-1. create docker images
+1. create docker image
     1.1 command
-    docker build -t willsofts/aimis .
-    1.2 check images
-    docker images
+        docker build -t willsofts/aimis .
+    1.2 check image
+        docker images
 
-2. test run docker images
+2. test run docker image
     2.1 run
-    docker run --name aimis --env VALIDATE_TOKEN=false -p 8080:8080 willsofts/aimis    
+        docker run --name aimis --env VALIDATE_TOKEN=false -p 8080:8080 willsofts/aimis
     2.2 try to simulate test by calling api:
-    curl http://localhost:8080/api/config/list
+        curl http://localhost:8080/api/config/list
     2.3 stop & remove container
-    docker stop aimis
-    docker rm aimis
+        docker stop aimis
+        docker rm aimis
 
 3. push image to docker hub
     3.1 login
@@ -27,9 +27,11 @@
     remark: can using docker_push.bat
     goto: https://hub.docker.com search willsofts
     ex. https://hub.docker.com/r/willsofts/aimis
+    caution: try to check latest version before tag and push
 
 4. pull image
-    docker pull willsofts/aimis:latest
-    run test
-    docker run --name aimis --env VALIDATE_TOKEN=false -p 8080:8080 willsofts/aimis
+    4.1 pull
+        docker pull willsofts/aimis:latest
+    4.2 run test
+        docker run --name aimis --env VALIDATE_TOKEN=false -p 8080:8080 willsofts/aimis
     remark: can using docker-compose.yml
