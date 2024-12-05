@@ -57,7 +57,8 @@
 		function showUserDetail(json) {
 			$("#main_useruuid").val(json.body.useruuid);
 			$("#main_user").val(json.body.userid);
-			let userdetail = json.body.name+" "+json.body.surname;
+			let userdetail = json.body.displayname;
+			if(!userdetail || userdetail.trim().length==0) userdetail = json.body.name+" "+json.body.surname;
 			$("#accessor_label").html(userdetail);
 			$("#accessor_label").data("NEW",json.body.newflag);
 			$("#lastdate_label").html(json.body.accessdate+" "+json.body.accesstime);
