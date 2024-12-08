@@ -1,7 +1,7 @@
 var os = require("os");
 
 module.exports = {
-    nodeID: "aidb-"+os.hostname().toLowerCase() + "-" + process.pid,
+    nodeID: "aimis-"+os.hostname().toLowerCase() + "-" + process.pid,
     logger: [
         {
             type: "Console",
@@ -10,7 +10,8 @@ module.exports = {
                 color: true,
                 formatter: "full",
             } 
-        },                   
+        },
+		/*
         {
             type: "File",
             options: {
@@ -21,7 +22,7 @@ module.exports = {
                 eol: "\n",
                 interval: 1000,
             }
-        }
+        }*/
     ],
     registry: {
         strategy: "RoundRobin"
