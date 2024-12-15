@@ -16,8 +16,7 @@ function createMenuTree(menu,progmap,counter) {
     <li class="dropdown">
     <a class="nav-menu-group dropdown-toggle collapsed active" data-toggle="collapse" data-target="#submenu_<%=counter%>" href="javascript:void(0);">
         <em class="fa fa-list-alt"></em>
-        <span class="nav-label"><%=progname%></span>
-        <span class="menu-group-icon fa fa-chevron-left pull-right"></span>
+        <span class="nav-label group-label"><%=progname%></span>
     </a>
     <% if(hasItems) { %>
     <ul id="submenu_<%=counter%>" class="sub-menu panel-collapse collapse" role="menu">    
@@ -63,8 +62,7 @@ if(data.dataset?.sidemap && data.dataset?.sidelist) {
             <li class="dropdown">
                 <a class="nav-menu-group dropdown-toggle collapsed active" data-toggle="collapse" data-target="#submenu_<%=counter%>" href="javascript:void(0);">
                     <em class="<%=groupstyle%>"></em>
-                    <span class="nav-label"><%=groupname%></span>
-                    <span class="menu-group-icon fa fa-chevron-left pull-right"></span>
+                    <span class="nav-label group-label"><%=groupname%></span>
                 </a>
                 <ul id="submenu_<%=counter%>" class="sub-menu panel-collapse collapse" role="menu">
                 <% for(let item of jsonmenu?.items) {            
@@ -126,8 +124,7 @@ if(data.dataset?.sidemap && data.dataset?.sidelist) {
                     <li class="dropdown">
                         <a class="nav-menu-group dropdown-toggle collapsed active" data-toggle="collapse" data-target="#submenu_<%=counter%>" href="javascript:void(0);">
                             <em class="<%=groupstyle%>"></em>
-                            <span class="nav-label"><%=groupname%></span>
-                            <span class="menu-group-icon fa fa-chevron-left pull-right"></span>
+                            <span class="nav-label group-label"><%=groupname%></span>
                         </a>
                         <ul id="submenu_<%=counter%>" class="sub-menu panel-collapse collapse" role="menu">    
                         <%
