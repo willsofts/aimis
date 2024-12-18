@@ -30,6 +30,8 @@ export interface ForumConfig extends KnDBConfig {
     setting?: string; //forumsetting
     prompt?: string; //forumprompt
     version?: string; //forumdbversion
+    webhook?: string; 
+    hookflag?: string; 
 }
 
 export interface ImageInfo {

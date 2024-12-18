@@ -5,7 +5,7 @@ import { ChatSession } from "@google/generative-ai";
 import { API_ANSWER, API_ANSWER_RECORD_NOT_FOUND, API_MODEL_CLAUDE, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { PromptUtility } from "./PromptUtility";
 import { QuestionHandler } from "./QuestionHandler";
-import { QuestInfo, InquiryInfo } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
 import { ChatRepository } from "./ChatRepository";
 import { claudeProcess } from "../claude/generateClaudeSystem";
 import { PromptOLlamaUtility } from "./PromptOLlamaUtility";
@@ -75,9 +75,10 @@ export class ChatHandler extends QuestionHandler {
         const aimodel = this.getAIModel(context);
         let input = quest.question;
         let db = this.getPrivateConnector(model);
+        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;
@@ -102,6 +103,7 @@ export class ChatHandler extends QuestionHandler {
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -112,6 +114,7 @@ export class ChatHandler extends QuestionHandler {
                 this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";
+                    this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                     return Promise.resolve(info);
                 }
             } catch(ex: any) {
@@ -128,9 +131,11 @@ export class ChatHandler extends QuestionHandler {
                     if(!sql || sql.trim().length==0) {
                         info.error = true;
                         info.answer = this.getDBError(ex).message;
+                        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                         return Promise.resolve(info);    
                     }
                     if(!this.isValidQuery(sql,info)) {
+                        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                         return Promise.resolve(info);
                     }
                     info.query = sql;
@@ -139,6 +144,7 @@ export class ChatHandler extends QuestionHandler {
                         this.logger.debug(this.constructor.name+".processQuest: catch rs:",rs);
                         if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                             info.answer = "Record not found.";
+                            this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                             return Promise.resolve(info);
                         }
                     } catch(exc: any) {
@@ -146,12 +152,14 @@ export class ChatHandler extends QuestionHandler {
                         info.error = true;
                         info.answer = this.getDBError(exc).message;
                         this.sendError(chat,info.answer);
+                        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                         return Promise.resolve(info);                    
                     }
                 } else {
                     info.error = true;
                     info.answer = this.getDBError(ex).message;
                     this.sendError(chat,info.answer);
+                    this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                     return Promise.resolve(info);
                 }
             }
@@ -176,6 +184,7 @@ export class ChatHandler extends QuestionHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -190,8 +199,9 @@ export class ChatHandler extends QuestionHandler {
         if(!category || category.trim().length==0) category = "AIDB";
         let input = quest.question;
         let db = this.getPrivateConnector(model);
+        let forum : ForumConfig | undefined = undefined;
         try {
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
@@ -207,6 +217,7 @@ export class ChatHandler extends QuestionHandler {
             let sql = this.parseAnswer(result,false);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -215,6 +226,7 @@ export class ChatHandler extends QuestionHandler {
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.dataset = rs.rows;
@@ -235,6 +247,7 @@ export class ChatHandler extends QuestionHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -246,14 +259,13 @@ export class ChatHandler extends QuestionHandler {
             return Promise.resolve(info);
         }
         let category = quest.category;
-        if(!category || category.trim().length==0) category = "AIDB";
-        
+        if(!category || category.trim().length==0) category = "AIDB";        
         let input = quest.question;
         let db = this.getPrivateConnector(model);
-        try 
-        {
+        let forum : ForumConfig | undefined = undefined;
+        try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;            
@@ -274,6 +286,7 @@ export class ChatHandler extends QuestionHandler {
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -284,13 +297,14 @@ export class ChatHandler extends QuestionHandler {
                 this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";
+                    this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                     return Promise.resolve(info);
                 }
             } catch(ex: any) {
                 this.logger.error(this.constructor.name,ex);
                 info.error = true;
                 info.answer = this.getDBError(ex).message;
-                //this.sendError(chat,info.answer);
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.dataset = rs.rows;
@@ -313,6 +327,7 @@ export class ChatHandler extends QuestionHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 

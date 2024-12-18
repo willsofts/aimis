@@ -20,6 +20,8 @@ const forum : ForumConfig = {
     host: "localhost",
     port: 3306,
     version: "",
+    webhook: "",
+    hookflag: "",
 };
 const handler = new QuestionHandler();
 handler.processAPI(input,coid,forum).then((result) => {

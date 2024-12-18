@@ -159,7 +159,9 @@ export class InquiryHandler extends TknOperateHandler {
             password: context.params.password,
             host: context.params.host,
             port: context.params.port,
-            database: context.params.database,        
+            database: context.params.database, 
+            webhook: context.params.webhook,       
+            hookflag: context.params.hookflag,
         };
     }
 

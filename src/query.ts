@@ -18,6 +18,8 @@ let cfg : ForumConfig = {
     port: 3306,
     database: "aidb",
     version: "",
+    webhook: "",
+    hookflag: "",
 };
 
 let args = process.argv.slice(2);

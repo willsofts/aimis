@@ -37,6 +37,8 @@ export class ForumHandler extends TknOperateHandler {
             forumremark: { type: "STRING" },
             forumprompt: { type: "STRING", created: true, updated: true },
             inactive: { type: "STRING", selected: true, created: false, updated: false, defaultValue: "0" },
+            hookflag: { type: "STRING", updated: true, defaultValue: "0" },
+            webhook: { type: "STRING" },
             editflag: { type: "STRING", selected: true, created: true, updated: false, defaultValue: "1" },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
@@ -434,6 +436,7 @@ export class ForumHandler extends TknOperateHandler {
         let db = this.getPrivateConnector(model);
         try {
             let rs =  await this.performRetrieving(db, context.params.forumid, context);
+            console.log(">>>>>>>>>>>>>>> performRetrieving",rs);
             if(rs.rows.length>0) {
                 let row = await this.retrieveDataSet(context,db,rs);
                 let dt = await this.performCategories(context, model, db);
@@ -459,6 +462,7 @@ export class ForumHandler extends TknOperateHandler {
         dt.action = KnOperation.ADD;
         dt.renderer = this.progid+"/"+this.progid+"_dialog";
         dt.dataset["forumid"] = uuid();
+        dt.dataset["hookflag"] = "0";
         return dt;
     }
     
@@ -682,7 +686,9 @@ export class ForumHandler extends TknOperateHandler {
                 api: row.forumapi,
                 setting: row.forumsetting,
                 prompt: row.forumprompt,
-                version: row.forumdbversion
+                version: row.forumdbversion,
+                webhook: row.webhook,
+                hookflag: row.hookflag,
             };            
         }
         return result;

@@ -159,8 +159,9 @@ export class QuestionHandler extends TknOperateHandler {
         const aimodel = this.getAIModel(context);
         let input = quest.question;
         let db = this.getPrivateConnector(model);
+        let forum : ForumConfig | undefined = undefined;
         try {
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
@@ -176,6 +177,7 @@ export class QuestionHandler extends TknOperateHandler {
             let sql = this.parseAnswer(text,false);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -184,6 +186,7 @@ export class QuestionHandler extends TknOperateHandler {
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.dataset = rs.rows;
@@ -206,6 +209,7 @@ export class QuestionHandler extends TknOperateHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -220,8 +224,9 @@ export class QuestionHandler extends TknOperateHandler {
         if(!category || category.trim().length==0) category = "AIDB";
         let input = quest.question;
         let db = this.getPrivateConnector(model);
+        let forum : ForumConfig | undefined = undefined;
         try {
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
@@ -237,6 +242,7 @@ export class QuestionHandler extends TknOperateHandler {
             let sql = this.parseAnswer(result,false);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -245,6 +251,7 @@ export class QuestionHandler extends TknOperateHandler {
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.dataset = rs.rows;
@@ -265,6 +272,7 @@ export class QuestionHandler extends TknOperateHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -280,8 +288,9 @@ export class QuestionHandler extends TknOperateHandler {
         const aimodel = this.getAIModel(context);
         let input = quest.question;
         let db = this.getPrivateConnector(model);
+        let forum : ForumConfig | undefined = undefined;
         try {
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
@@ -297,6 +306,7 @@ export class QuestionHandler extends TknOperateHandler {
             let sql = this.parseAnswer(text,false);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.query = sql;
@@ -305,6 +315,7 @@ export class QuestionHandler extends TknOperateHandler {
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
+                this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
             }
             info.dataset = rs.rows;
@@ -327,6 +338,7 @@ export class QuestionHandler extends TknOperateHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -572,4 +584,25 @@ export class QuestionHandler extends TknOperateHandler {
         return [];
     }
     
+    public async notifyMessage(info: InquiryInfo, forum?: ForumConfig) : Promise<void> {
+        if(forum && (forum.webhook && forum.webhook.trim().length>0) && (forum.hookflag=="1")) {
+            this.sendMessage(info,forum);
+        }
+    }
+
+    protected async sendMessage(info: InquiryInfo, forum: ForumConfig) : Promise<void> {
+        let body = JSON.stringify(info);
+        let url = forum.webhook as string;
+        let params = {};
+        let settings = {};
+        this.logger.debug(this.constructor.name+".sendMessage: post url=",url);
+        try {
+            await fetch(url, Object.assign(Object.assign({}, params), { method: "POST", headers: {
+                    "Content-Type": "application/json", ...settings
+                }, body }));
+        } catch (ex: any) {
+            this.logger.error(this.constructor.name+".sendMessage: error:",ex);
+        }         
+    }
+
 }
