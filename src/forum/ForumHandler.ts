@@ -436,7 +436,6 @@ export class ForumHandler extends TknOperateHandler {
         let db = this.getPrivateConnector(model);
         try {
             let rs =  await this.performRetrieving(db, context.params.forumid, context);
-            console.log(">>>>>>>>>>>>>>> performRetrieving",rs);
             if(rs.rows.length>0) {
                 let row = await this.retrieveDataSet(context,db,rs);
                 let dt = await this.performCategories(context, model, db);
@@ -537,8 +536,10 @@ export class ForumHandler extends TknOperateHandler {
             knsql.append("and forumid = ?forumid ");
             knsql.set("forumid",forumid);
         }
+        knsql.append("and ( createuser = ?userid or createuser is null ) ");
         knsql.append("order by createmillis ");
         knsql.set("forumgroup",group);
+        knsql.set("userid",this.userToken?.userid);
         this.logger.debug(this.constructor.name+".performListing",knsql);
         let rs = await knsql.executeQuery(db,context);
         return this.createRecordSet(rs);
