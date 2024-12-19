@@ -233,6 +233,7 @@ ex. http://localhost:8080/gui/forumdoc/entry
 
 | Parameter | Description |
 | -------- | ----------- |
+| correlation | this is correlation id default is session id|
 | category | this is your key from forum insert |
 | query | this is your question to ask |
 | type | fixed type must define IMG |
