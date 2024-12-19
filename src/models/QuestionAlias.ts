@@ -5,7 +5,7 @@ export interface QuestInfo {
     question: string;
     mime: string;
     image: string;
-    category?: string;
+    category: string;
     agent?: string;
     model?: string;
     imageocr?: string;
@@ -14,6 +14,7 @@ export interface QuestInfo {
 
 export interface InquiryInfo {
     correlation: string;
+    category: string;
     error: boolean;
     question: string;
     query: string;

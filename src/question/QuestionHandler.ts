@@ -148,7 +148,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -214,7 +214,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -277,7 +277,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -343,7 +343,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestGemma(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         return info;
     }
 
@@ -356,7 +356,7 @@ export class QuestionHandler extends TknOperateHandler {
 
     public async processQuestionGemini(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         //old fashion by file system handler
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -431,7 +431,7 @@ export class QuestionHandler extends TknOperateHandler {
 
     public async processAskGemini(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid()};
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -458,7 +458,7 @@ export class QuestionHandler extends TknOperateHandler {
 
     public async processAskOllama(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid()};
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -483,7 +483,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processReset(category: string, correlation: string) : Promise<InquiryInfo> {
-        return Promise.resolve({ correlation: correlation, error: false, question: "reset", query: category, answer: "OK", dataset: [] });
+        return Promise.resolve({ correlation: correlation, category: category, error: false, question: "reset", query: category, answer: "OK", dataset: [] });
     }
 
     public isValidQuery(sql: string, info: InquiryInfo) : boolean {

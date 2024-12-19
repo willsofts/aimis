@@ -7,7 +7,7 @@ const mime = Arguments.getString(args,"image/png","-mime") as string;
 const imgfile = Arguments.getString(args,"MyImage.png","-img") as string;
 const handler = new VisionHandler();
 const image = handler.getImageData(imgfile);
-handler.processQuestion({question: input, mime: mime, image: image, correlation: "12345"}).then((result) => {
+handler.processQuestion({question: input, mime: mime, image: image, correlation: "12345", category: "TEST"}).then((result) => {
     console.log("Result:",result);
 }).catch((err) => {
     console.error("Error:",err);

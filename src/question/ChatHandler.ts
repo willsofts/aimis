@@ -64,7 +64,7 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -189,7 +189,7 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -252,7 +252,7 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -368,11 +368,11 @@ export class ChatHandler extends QuestionHandler {
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
         if(!chat) {
-            return Promise.resolve({ correlation: correlation, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
+            return Promise.resolve({ correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
         this.logger.debug(this.constructor.name+".processReset: remove category:",category);
-        return Promise.resolve({ correlation: correlation, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
+        return Promise.resolve({ correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 
 }

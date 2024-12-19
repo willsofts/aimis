@@ -1,6 +1,6 @@
 {
   "name": "aimis",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "This project introduction to use AI API Interface",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,6 @@
     "@types/node": "^20.11.25",
     "@types/pdf-parse": "^1.1.4",
     "@types/uuid": "^10.0.0",
-    "axios": "^1.7.7",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.2"
