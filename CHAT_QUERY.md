@@ -22,6 +22,7 @@ After setting, try to obtain forum `ID` from entry in order to use in next step
 
 | Parameter | Description |
 | -------- | ----------- |
+| correlation | this is correlation id default is session id|
 | category | this is your key from forum insert |
 | query | this is your question to ask |
 | agent | this is AI agent usage default is `GEMINI` |
