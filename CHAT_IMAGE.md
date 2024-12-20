@@ -12,7 +12,11 @@ Ask/Question With Image using forum docucment API setting, then it need category
 | -------- | ----------- |
 | url | http://localhost:8080/api/forumdoc/insert|
 | method | post |
-| content-type | application/json |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 ex. \
 request:
@@ -76,7 +80,11 @@ response:
 | -------- | ----------- |
 | url | http://localhost:8080/api/forumdoc/retrieve |
 | method | post |
+
+| Header | Description |
+| -------- | ----------- |
 | content-type | query string or application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 ex. \
 request
@@ -153,7 +161,11 @@ reponse:
 | -------- | ----------- |
 | url | http://localhost:8080/api/forumdoc/update |
 | method | post |
-| content-type | application/json |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 ex. \
 request
@@ -189,8 +201,11 @@ response:
 | -------- | ----------- |
 | url | http://localhost:8080/api/forumdoc/remove |
 | method | post |
-| content-type | query string or application/json |
 
+| Header | Description |
+| -------- | ----------- |
+| content-type | query string or application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 ex. \
 request 
@@ -229,7 +244,12 @@ ex. http://localhost:8080/gui/forumdoc/entry
 | Classification | Description |
 | -------- | ----------- |
 | url | http://localhost:8080/file/image/ask |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
 | content-type | form-data post (multi-part) |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 | Parameter | Description |
 | -------- | ----------- |
@@ -268,7 +288,12 @@ reponse:
 | Classification | Description |
 | -------- | ----------- |
 | url | http://localhost:8080/api/chatimage/ask |
-| content-type | application/json |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 | Parameter | Description |
 | -------- | ----------- |

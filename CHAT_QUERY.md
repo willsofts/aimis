@@ -18,7 +18,12 @@ After setting, try to obtain forum `ID` from entry in order to use in next step
 | Classification | Description |
 | -------- | ----------- |
 | url | http://localhost:8080/api/chat/quest |
-| content-type | application/json |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
 
 | Parameter | Description |
 | -------- | ----------- |
@@ -41,7 +46,7 @@ request
 using curl:
 
 ```
-curl -X POST -H "Content-Type: application/json" http://localhost:8080/api/chat/quest -d "{\"category\":\"AIDB1\", \"query\":\"List all product\"}"
+curl -X POST -H "AuthToken: ?" -H "Content-Type: application/json" http://localhost:8080/api/chat/quest -d "{\"category\":\"AIDB1\", \"query\":\"List all product\"}"
 ```
 
 reponse:
