@@ -46,7 +46,7 @@
 	</table>
 	</pre>
 	<pre tabindex="-1">
-	curl -X POST -H "AuthToken: ?" -H "Content-Type: application/json" http://localhost:8080/api/inquiry/inquire -d "{\"correlation\":\"12345\",\"query\":\"select * from cust_product\"}"
+	curl -X POST -H "AuthToken: ?" -H "Content-Type: application/json" http://localhost:8080/api/inquiry/inquire -d "{\"correlation\":\"12345\", \"category\":\"AIDB\", \"query\":\"select * from cust_product\"}"
 	</pre>
 	<p>Header</p>
 	<table class="table table-bordered table-description">
@@ -64,6 +64,7 @@
 		</thead>
 		<tbody>
 			<tr><td>query</td><td>SQL statement to execute</td></tr>
+			<tr><td>category</td><td>Question category</td></tr>
 			<tr><td>correlation</td><td>The correlation ID (Default by session ID) <br/> (This can made by given UUID or unique ID)</td></tr>
 		</tbody>
 	</table>

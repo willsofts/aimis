@@ -97,14 +97,14 @@ export class QuestionHandler extends TknOperateHandler {
         }
     }
 
-    public async doEnquiry(sql: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async doEnquiry(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
         if(forum.type=="DB") {
-            return this.processEnquiry(sql, correlation, forum);
+            return this.processEnquiry(sql, category, correlation, forum);
         }
-        return this.processAPI(sql, correlation, forum);
+        return this.processAPI(sql, category, correlation, forum);
     }
 
-    public async processEnquiry(sql: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async processEnquiry(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
         let db = this.getConnector(forum);
         try {
             let handler = new InquiryHandler();
@@ -182,7 +182,7 @@ export class QuestionHandler extends TknOperateHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -247,7 +247,7 @@ export class QuestionHandler extends TknOperateHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -311,7 +311,7 @@ export class QuestionHandler extends TknOperateHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -521,16 +521,16 @@ export class QuestionHandler extends TknOperateHandler {
         return result;
     }
 
-    public async processAPI(sql: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async processAPI(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
         if(forum.api && forum.api.trim().length>0) {
-            return this.requestAPI(sql, correlation, forum);
+            return this.requestAPI(sql, category, correlation, forum);
         }
         return Promise.reject(new VerifyError("API setting not found",HTTP.NOT_FOUND,-16004));
     }
 
-    protected async requestAPI(sql: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    protected async requestAPI(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
         let response;
-        let body = JSON.stringify({ correlation: correlation, query: sql });
+        let body = JSON.stringify({ category: category, correlation: correlation, query: sql });
         let url = forum.api as string;
         let params = {};
         let settings = {};

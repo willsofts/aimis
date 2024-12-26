@@ -36,9 +36,10 @@ cfg.password = Arguments.getString(args,cfg.password,"-p","--password") as strin
 cfg.host = Arguments.getString(args,cfg.host,"-h","--host") as string;
 cfg.port = Arguments.getInteger(args,cfg.port,"-po","--port") as number;
 cfg.database = Arguments.getString(args,cfg.database,"-db","--database") as string;
+let cat = Arguments.getString(args,"TEST","-cat","--category") as string;
 console.log(cfg);
 let handler = new QuestionHandler();
-handler.doEnquiry(sql,coid,cfg).then((rs) => {
+handler.doEnquiry(sql,cat,coid,cfg).then((rs) => {
     console.log(rs);
 }).catch((ex) => {
     console.error(ex);
