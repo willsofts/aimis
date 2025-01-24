@@ -64,7 +64,20 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        if(!quest.question || quest.question.trim().length == 0) {
+            info.error = true;
+            info.answer = "No question found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestGeminiAsync(context, quest).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestGeminiAsync(context, quest);
+    }
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -95,6 +108,9 @@ export class ChatHandler extends QuestionHandler {
                 chatmap.set(category,chat);
             }
             let msg = "Question: "+input;
+            if(quest.property && quest.property.trim().length>0) {
+                msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
+            }
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();
@@ -189,7 +205,21 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        if(!quest.question || quest.question.trim().length == 0) {
+            info.error = true;
+            info.answer = "No question found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestClaudeAsync(context, quest).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestClaudeAsync(context, quest);
+    }
+
+    public async processQuestClaudeAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -211,7 +241,11 @@ export class ChatHandler extends QuestionHandler {
             let system_prompt = prmutil.createClaudeQueryPrompt(table_info, version);
             let model = context?.params?.model;
             if(!model || model.trim().length==0) model = API_MODEL_CLAUDE;
-            let result = await claudeProcess(system_prompt, input, model);
+            let msg = input;
+            if(quest.property && quest.property.trim().length>0) {
+                msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
+            }
+            let result = await claudeProcess(system_prompt, msg, model);
             this.logger.debug(this.constructor.name+".processQuest: response:",result);
             //try to extract SQL from the response
             let sql = this.parseAnswer(result,false);
@@ -252,7 +286,21 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        if(!quest.question || quest.question.trim().length == 0) {
+            info.error = true;
+            info.answer = "No question found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestOllamaAsync(context, quest).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestOllamaAsync(context, quest);
+    }
+
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -270,16 +318,18 @@ export class ChatHandler extends QuestionHandler {
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;            
             let chat = chatmap.get(category);
-            //if(!chat) {
             let version = await this.getDatabaseVersioning(forum);
             let history = this.getChatHistoryOllama(category, table_info, version);
             if (quest.agent?.toLocaleUpperCase() == "GEMMA"){
                 history = this.getChatHistoryGemma(category, table_info, version);              
             }
             console.log(history);
-            let response = await ollamaChat(history, input, quest.model!);
-
             //let msg = "Question: "+input;
+            let msg = input;
+            if(quest.property && quest.property.trim().length>0) {
+                msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
+            }
+            let response = await ollamaChat(history, msg, quest.model!);
             let text = response.message.content;
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
             //try to extract SQL from the response
@@ -368,11 +418,11 @@ export class ChatHandler extends QuestionHandler {
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
         if(!chat) {
-            return Promise.resolve({ correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
+            return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
         this.logger.debug(this.constructor.name+".processReset: remove category:",category);
-        return Promise.resolve({ correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 
 }

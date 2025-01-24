@@ -48,12 +48,14 @@ export class VisionHandler extends TknOperateHandler {
 
     public async doQuest(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processQuest(context,{category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", imageocr: context.params.imageocr, imagetmp: context.params.imagetmp, correlation: correlationid },model);
+        let questionid = context.params.questionid || "";
+        return this.processQuest(context,{async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", imageocr: context.params.imageocr, imagetmp: context.params.imagetmp, correlation: correlationid, property: context.params.property },model);
     }
 
     public async doAsk(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processAsk({category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid}, context);
+        let questionid = context.params.questionid || "";
+        return this.processAsk({async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid, property: context.params.property}, context);
     }
 
     public validateParameter(question: string, mime: string, image: string) : KnValidateInfo {
@@ -81,7 +83,7 @@ export class VisionHandler extends TknOperateHandler {
     }
 
     public async processQuestion(quest: QuestInfo,context?: KnContextInfo) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
@@ -108,7 +110,7 @@ export class VisionHandler extends TknOperateHandler {
     }
 
     public async processAsk(quest: QuestInfo, context?: KnContextInfo) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {
             info.error = true;

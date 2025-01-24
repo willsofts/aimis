@@ -67,7 +67,8 @@ export class QuestionHandler extends TknOperateHandler {
 
     public async performQuest(context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processQuest(context, {question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid}, model);
+        let questionid = context.params.questionid || "";
+        return this.processQuest(context, {async: context.params.async, questionid: questionid, question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid, property: context.params.property}, model);
     }
 
     public async doQuest(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
@@ -78,7 +79,8 @@ export class QuestionHandler extends TknOperateHandler {
     public async doAsk(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         await this.validateInputFields(context, model, "query");
         let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processAsk({question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid},context);
+        let questionid = context.params.questionid || "";
+        return this.processAsk({async: context.params.async, questionid: questionid, question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid, property: context.params.property},context);
     }
 
     public async doReset(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
@@ -148,7 +150,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -214,7 +216,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -277,7 +279,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -343,7 +345,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processQuestGemma(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         return info;
     }
 
@@ -356,7 +358,7 @@ export class QuestionHandler extends TknOperateHandler {
 
     public async processQuestionGemini(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         //old fashion by file system handler
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -430,8 +432,8 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processAskGemini(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
-        if(typeof quest == "string") quest = { question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid()};
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), property: context?.params?.property};
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -457,8 +459,8 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processAskOllama(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
-        if(typeof quest == "string") quest = { question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid()};
-        let info = { correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), property: context?.params?.property};
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.answer = "No question found.";
@@ -483,7 +485,7 @@ export class QuestionHandler extends TknOperateHandler {
     }
 
     public async processReset(category: string, correlation: string) : Promise<InquiryInfo> {
-        return Promise.resolve({ correlation: correlation, category: category, error: false, question: "reset", query: category, answer: "OK", dataset: [] });
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: "reset", query: category, answer: "OK", dataset: [] });
     }
 
     public isValidQuery(sql: string, info: InquiryInfo) : boolean {

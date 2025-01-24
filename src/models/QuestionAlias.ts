@@ -1,6 +1,7 @@
 import { KnDBConfig, KnRecordSet } from "@willsofts/will-sql";
 
 export interface QuestInfo {
+    questionid: string;
     correlation: string;
     question: string;
     mime: string;
@@ -10,9 +11,12 @@ export interface QuestInfo {
     model?: string;
     imageocr?: string;
     imagetmp?: string;
+    property?: string;
+    async?: string;
 }
 
 export interface InquiryInfo {
+    questionid: string;
     correlation: string;
     category: string;
     error: boolean;
