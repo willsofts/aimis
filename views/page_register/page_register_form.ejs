@@ -1,10 +1,21 @@
     <div id="page_register" class="entry-layer page-layer">
 		<form id="register_form" name="register_form" method="post">
-			<input type="hidden" id="site" name="site" value="<%=meta.info?.site%>" />
 			<div class="portal-area sub-entry-layer">
 				<div class="row row-heighter center-block">
 					<div class="col-md-12">
 						<label id="register_info" class="info-label"><%=label.get('register_info','Please identify your information')%></label>
+					</div>
+				</div>
+				<div class="row row-heighter center-block">
+					<div class="col-md-7 col-height form-group" id="site_layer">
+						<label id="site_label"><%=label.get('site_label','Organization Code')%></label>
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text" title="Email"><i class="fa fa-building" aria-hidden="true"></i></span>
+							</div>
+							<input type="text" class="form-control input-md my-input alert-input" id="site" name="site" placeholder="<%=label.get('site_placeholder','Organization Code')%>" maxlength="15" picture="(15)X" />
+						</div>		
+						<span id="site_alert" role="alert" class="has-error fa-hidden"><%=label.get('site_alert','You can not leave this empty')%></span>
 					</div>
 				</div>
 				<div class="row row-heighter center-block">

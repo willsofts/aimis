@@ -23,6 +23,11 @@ function clearingFields() {
 function validForm() {
 	clearAlerts();
 	var validator = null;
+	if($.trim($("#site").val())=="") {
+		$("#site").parent().addClass("has-error");
+		$("#site_alert").show();
+		if(!validator) validator = "site";
+	}
 	if($.trim($("#email").val())=="") {
 		$("#email").parent().addClass("has-error");
 		$("#email_alert").show();

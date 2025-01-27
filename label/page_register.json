@@ -4,7 +4,9 @@
 		"label": [
 			{"name": "caption", "value": "ลงทะเบียน"},
 			{"name": "register_info", "value": "โปรดระบุข้อมูลผู้ใช้งาน"},
+			{"name": "site_label", "value": "รหัสองค์กร"},
 			{"name": "email_label", "value": "อีเมล์/ผู้ใช้"},
+			{"name": "site_placeholder", "value": "รหัสองค์กร"},
 			{"name": "usernaming_label", "value": "ชื่อและนามสกุลผู้ใช้งาน"},
 			{"name": "email_placeholder", "value": "อีเมล์/ผู้ใช้"},
 			{"name": "usernaming_placeholder", "value": "ชื่อผู้ใช้งาน"},
@@ -21,8 +23,10 @@
 		"label": [
 			{"name": "caption", "value": "Registration"},
 			{"name": "register_info", "value": "Please identify your information"},
+			{"name": "site_label", "value": "Organization Code"},
 			{"name": "email_label", "value": "Email/User"},
 			{"name": "usernaming_label", "value": "User Name (First & Last Name)"},			
+			{"name": "site_placeholder", "value": "Organization Code"},
 			{"name": "email_placeholder", "value": "Email/User"},
 			{"name": "usernaming_placeholder", "value": "User Name"},			
 			{"name": "email_alert", "value": "You can not leave this empty"},
