@@ -15,6 +15,7 @@ import { KnDBLibrary } from "../utils/KnDBLibrary";
 import { claudeProcess } from "../claude/generateClaudeSystem";
 import { PromptOLlamaUtility } from "./PromptOLlamaUtility";
 import { ollamaGenerate } from "../ollama/generateOllama";
+import { UsageHandler } from "../usage/UsageHandler";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -605,6 +606,23 @@ export class QuestionHandler extends TknOperateHandler {
         } catch (ex: any) {
             this.logger.error(this.constructor.name+".sendMessage: error:",ex);
         }         
+    }
+
+    protected async saveUsage(context: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
+        let handler = new UsageHandler();
+        handler.obtain(this.broker,this.logger);
+        handler.userToken = this.userToken;
+        handler.save(context,quest,counter).catch(ex => console.error(ex));
+    }
+
+    protected async saveTokenUsage(context: KnContextInfo, quest: QuestInfo, prompt: string, aimodel: GenerativeModel) : Promise<void> {
+        try {
+            const countResult = await aimodel.countTokens(prompt);
+            this.logger.debug(this.constructor.name+".saveTokenUsage: count result:",countResult);
+            this.saveUsage(context, quest, countResult);
+        } catch(ex) {
+            this.logger.error(ex);
+        }
     }
 
 }

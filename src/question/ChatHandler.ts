@@ -115,6 +115,8 @@ export class ChatHandler extends QuestionHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
@@ -186,6 +188,7 @@ export class ChatHandler extends QuestionHandler {
                 //create reply prompt from sql and result set
                 let prmutil = new PromptUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
+                this.saveTokenUsage(context,quest,prompt,aimodel);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
