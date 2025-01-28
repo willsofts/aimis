@@ -50,6 +50,8 @@ function setupComponents() {
 	$("#uploadbutton").click(function() { startUploadFile(); });
 	$("#groupeditbutton").click(function() { showEditGroup(); });
 	$("#groupnewbutton").click(function() { showNewGroup(); });
+	$("#filtercategorylinker").click(function() { openLinker("/gui/filtercategory","category_setting_window"); });
+	$("#filtergrouplinker").click(function() { openLinker("/gui/filtergroup","category_group_window"); });
 	//#(60000) programmer code end;
 }
 function resetFilters() {
@@ -438,7 +440,7 @@ function setupDataTable() {
 			if($(this).is(":disabled")) return;
 			let attachid = $(this).parent().parent().attr("data-attach");
 			if(attachid && attachid.trim().length > 0) {
-				submitWindow({url: BASE_URL+"/report/filterdoc", params: {attachid : attachid}, windowName: "filterdoc_pdf_window"});			
+				submitWindow({url: BASE_URL+"/report/filterdoc", params: {authtoken: getAccessorToken(), attachid : attachid}, windowName: "filterdoc_pdf_window"});			
 			}
 		});
 	});
@@ -546,21 +548,23 @@ function insertRecord(aform) {
 	});
 }
 function showFileInfoDialog() {
-	submitWindow({url: BASE_URL+"/report/filterdoc", params: {attachid : $("#filterattachid").val()}, windowName: "filterdoc_pdf_window"});
+	submitWindow({url: BASE_URL+"/report/filterdoc", params: {authtoken: getAccessorToken(), attachid : $("#filterattachid").val()}, windowName: "filterdoc_pdf_window"});
 }
 function showEditGroup() {
 	$("#groupeditheader").show();
 	$("#groupnewheader").hide();
-	let url = BASE_URL+"/gui/filtergroup/view?showtitle=false&groupid="+$("#groupid").val();
-	showGroupDialog(url);
+	let url = BASE_URL+"/gui/filtergroup/view";
+	showGroupDialog(url,{showtitle:false, groupid: $("#groupid").val()});
 }
 function showNewGroup() {
 	$("#groupeditheader").hide();
 	$("#groupnewheader").show();
-	showGroupDialog(BASE_URL+"/gui/filtergroup/entry?showtitle=false");
+	showGroupDialog(BASE_URL+"/gui/filtergroup/entry",{showtitle:false});
 }
-function showGroupDialog(url) {
-	$("#groupworkingframe").attr("src",url);
+function showGroupDialog(url,params) {
+	params.authtoken = getAccessorToken();
+	submitWindow({url: url, params: params, windowName: "groupworkingframe"});
+	//$("#groupworkingframe").attr("src",url);
 	$("#fsgroupmodaldialog_layer").modal("show");
 }
 function talkAboutIt(data) {
@@ -573,5 +577,8 @@ function talkAboutIt(data) {
 		}
 	}
 	$("#fsgroupmodaldialog_layer").modal("hide");
+}
+function openLinker(url,winname) {
+	submitWindow({url: url, params: {authtoken: getAccessorToken()}, windowName: winname });
 }
 //#(390000) programmer code end;

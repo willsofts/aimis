@@ -559,6 +559,6 @@ function showDocumentInfo() {
 	});	
 }
 function showFileInfoDialog() {
-	submitWindow({url: BASE_URL+"/gui/forumnote/note", params: {forumid : $("#forumid").val()}, windowName: "document_info_window"});
+	submitWindow({url: BASE_URL+"/gui/forumnote/note", params: {authtoken: getAccessorToken(), forumid : $("#forumid").val()}, windowName: "document_info_window"});
 }
 //#(390000) programmer code end;
