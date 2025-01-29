@@ -579,6 +579,6 @@ function talkAboutIt(data) {
 	$("#fsgroupmodaldialog_layer").modal("hide");
 }
 function openLinker(url,winname) {
-	submitWindow({url: url, params: {authtoken: getAccessorToken()}, windowName: winname });
+	openNewWindow({url: url, params: {authtoken: getAccessorToken()}, windowName: winname });
 }
 //#(390000) programmer code end;

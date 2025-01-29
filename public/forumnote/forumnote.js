@@ -7,6 +7,7 @@ $(function(){
 	try { startApplication("forumnote"); }catch(ex) { }
 	initialApplication();
 	//#(20000) programmer code begin;
+	$(window).on("unload",function() { closeChildWindows(); });
 	//#(20000) programmer code end;
 });
 function initialApplication() {
@@ -559,6 +560,6 @@ function showDocumentInfo() {
 	});	
 }
 function showFileInfoDialog() {
-	submitWindow({url: BASE_URL+"/gui/forumnote/note", params: {authtoken: getAccessorToken(), forumid : $("#forumid").val()}, windowName: "document_info_window"});
+	openNewWindow({url: BASE_URL+"/gui/forumnote/note", params: {authtoken: getAccessorToken(), forumid : $("#forumid").val()}, windowName: "document_info_window"});
 }
 //#(390000) programmer code end;
