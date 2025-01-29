@@ -64,6 +64,11 @@ export class FilterGroupHandler extends TknOperateHandler {
             knsql.append(" from ");
             knsql.append(model.name);
             let filter = " where ";
+            if(this.userToken?.userid) {
+                knsql.append(filter).append(" ( createuser = ?userid or createuser is null ) ");
+                knsql.set("userid",this.userToken?.userid);
+                filter = " and ";    
+            }
             if(params.groupname && params.groupname!="") {
                 knsql.append(filter).append("groupname LIKE ?groupname");
                 knsql.set("groupname","%"+params.groupname+"%");

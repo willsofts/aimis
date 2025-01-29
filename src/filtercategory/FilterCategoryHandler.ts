@@ -62,6 +62,11 @@ export class FilterCategoryHandler extends TknOperateHandler {
             knsql.append(" from ");
             knsql.append(model.name);
             let filter = " where ";
+            if(this.userToken?.userid) {
+                knsql.append(filter).append(" ( createuser = ?userid or createuser is null ) ");
+                knsql.set("userid",this.userToken?.userid);
+                filter = " and ";    
+            }
             if(params.categoryname && params.categoryname!="") {
                 knsql.append(filter).append("categoryname LIKE ?categoryname");
                 knsql.set("categoryname","%"+params.categoryname+"%");

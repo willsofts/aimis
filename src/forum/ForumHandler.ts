@@ -109,6 +109,11 @@ export class ForumHandler extends TknOperateHandler {
             knsql.append(" from ");
             knsql.append(model.name);
             let filter = " where ";
+            if(this.userToken?.userid) {
+                knsql.append(filter).append(" ( createuser = ?userid or createuser is null ) ");
+                knsql.set("userid",this.userToken?.userid);
+                filter = " and ";    
+            }
             if(params.forumgroup && params.forumgroup!="") {
                 knsql.append(filter).append("forumgroup = ?forumgroup");
                 knsql.set("forumgroup",params.forumgroup);

@@ -102,6 +102,11 @@ export class FilterDocumentHandler extends TknOperateHandler {
             knsql.append(", tfiltergroup ");
             knsql.append("where tfilterdocument.groupid = tfiltergroup.groupid ");
             let filter = " and ";
+            if(this.userToken?.userid) {
+                knsql.append(filter).append(" tfilterdocument.createuser = ?userid ");
+                knsql.set("userid",this.userToken?.userid);
+                filter = " and ";    
+            }
             if(params.filtername && params.filtername!="") {
                 knsql.append(filter);
                 knsql.append("( ");
