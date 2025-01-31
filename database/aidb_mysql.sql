@@ -170,6 +170,30 @@ CREATE TABLE IF NOT EXISTS `tfilterincategory` (
   PRIMARY KEY (`filterid`,`categoryid`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep filter in categories';
 
+CREATE TABLE IF NOT EXISTS `tfilterquest` (
+  `filterid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `filtername` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `agentid` varchar(50) NOT NULL COMMENT 'tagent.agentid',
+  `prefixprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `suffixprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `jsonprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `skillprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `editdate` date DEFAULT NULL,
+  `edittime` time DEFAULT NULL,
+  `editmillis` bigint DEFAULT NULL,
+  `edituser` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  PRIMARY KEY (`filterid`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep filter quest';
+
+CREATE TABLE IF NOT EXISTS `tfilterquestforum` (
+  `filterid` varchar(50) NOT NULL COMMENT 'tfilterquest.filterid',
+  `forumid` varchar(50) NOT NULL COMMENT 'tforum.forumid',
+  PRIMARY KEY (`filterid`,`forumid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep forum setting in quest';
 
 CREATE TABLE IF NOT EXISTS `tforum` (
   `forumid` varchar(50) NOT NULL,
@@ -291,6 +315,26 @@ CREATE TABLE IF NOT EXISTS `ttextconfig` (
 INSERT INTO `ttextconfig` (`docid`, `doctitle`, `docfile`, `inactive`, `captions`, `createdate`, `createtime`, `createmillis`, `createuser`, `editdate`, `edittime`, `editmillis`, `edituser`) VALUES
 	('CARBOOK', 'Car Book', 'good.jpg', '0', '[\r\n  {\r\n    "code": "LBL001",\r\n    "labels": [\r\n      "รายการจดทะเบียน"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "title"\r\n  },\r\n  {\r\n    "code": "LBL002",\r\n    "labels": [\r\n      "วันจดทะเบียน"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL003",\r\n    "labels": [\r\n      "เลขทะเบียน"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL004",\r\n    "labels": [\r\n      "จังหวัด"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL005",\r\n    "labels": [\r\n      "ประเภท"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL006",\r\n    "labels": [\r\n      "(รย. 12 )"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "suffix"\r\n  },\r\n  {\r\n    "code": "LBL007",\r\n    "labels": [\r\n      "ลักษณะ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL008",\r\n    "labels": [\r\n      "ยี่ห้อรถ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL009",\r\n    "labels": [\r\n      "แบบ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL010",\r\n    "labels": [\r\n      "รุ่นปี ค.ศ."\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL011",\r\n    "labels": [\r\n      "สี"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL012",\r\n    "labels": [\r\n      "เลขตัวรถ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL013",\r\n    "labels": [\r\n      "อยู่ที่",\r\n      "อยู่ที"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL014",\r\n    "labels": [\r\n      "ยี่ห้อเครื่องยนต์/มอเตอร์"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL015",\r\n    "labels": [\r\n      "เลขเครื่องยนต์/มอเตอร์"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL016",\r\n    "labels": [\r\n      "อยู่ที่",\r\n      "อยู่ที"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL017",\r\n    "labels": [\r\n      "เชื้อเพลิง"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL018",\r\n    "labels": [\r\n      "เลขถังแก๊ส"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL019",\r\n    "labels": [\r\n      "จํานวน"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL020",\r\n    "labels": [\r\n      "สูบ",\r\n      "สบ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL021",\r\n    "labels": [\r\n      "ซีซี"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "suffix"\r\n  },\r\n  {\r\n    "code": "LBL022",\r\n    "labels": [\r\n      "แรงม้า/กิโลวัตต์"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL023",\r\n    "labels": [\r\n      "น้ำหนักรถ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL024",\r\n    "labels": [\r\n      "น้ำหนักบรรทุก/น้ำหนักลงเพลา"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL025",\r\n    "labels": [\r\n      "น้ำหนักรวม"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL026",\r\n    "labels": [\r\n      "ที่นั่ง",\r\n      "ทีนั่ง"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL027",\r\n    "labels": [\r\n      "กก.",\r\n      "nn.",\r\n      "ทท.",\r\n      ".ทท."\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "title"\r\n  },\r\n  {\r\n    "code": "LBL028",\r\n    "labels": [\r\n      "คน"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "suffix"\r\n  },\r\n  {\r\n    "code": "LBL029",\r\n    "labels": [\r\n      "เจ้าของรถ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "title"\r\n  },\r\n  {\r\n    "code": "LBL030",\r\n    "labels": [\r\n      "ลำาดับที่",\r\n      "ลำดับที่",\r\n      "ลาดับที"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL031",\r\n    "labels": [\r\n      "วันที่ครอบครองรถ"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL032",\r\n    "labels": [\r\n      "ผู้ถือกรรมสิทธิ์"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL033",\r\n    "labels": [\r\n      "เลขที่บัตร"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL034",\r\n    "labels": [\r\n      "วันเกิด"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL035",\r\n    "labels": [\r\n      "สัญชาติ",\r\n      "สัญชา"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL036",\r\n    "labels": [\r\n      "ที่อยู่"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "lines": 2\r\n  },\r\n  {\r\n    "code": "LBL037",\r\n    "labels": [\r\n      "โทร."\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "type": "suffix"\r\n  },\r\n  {\r\n    "code": "LBL038",\r\n    "labels": [\r\n      "ผู้ครอบครอง"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL039",\r\n    "labels": [\r\n      "เลขที่บัตร"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL040",\r\n    "labels": [\r\n      "วันเกิด"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL041",\r\n    "labels": [\r\n      "สัญชาติ",\r\n      "สัญชา"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL042",\r\n    "labels": [\r\n      "ที่อยู่"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": "",\r\n    "lines": 2\r\n  },\r\n  {\r\n    "code": "LBL043",\r\n    "labels": [\r\n      "สัญญาเช่าซื้อเลขที่"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL044",\r\n    "labels": [\r\n      "ลงวันที",\r\n      "ลงวันที่"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  }\r\n]', '2024-04-10', '09:19:58', 1712715598000, 'tso', '2024-04-24', '14:37:43', 1713944262675, NULL),
 	('POLICYINFO', 'Policy Info', 'po.jpg', '0', '[\r\n  {\r\n    "code": "LBL001",\r\n    "labels": [\r\n      "Policy NO.:"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL002",\r\n    "labels": [\r\n      "Policy Amount:"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL003",\r\n    "labels": [\r\n      "Policy Date:"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  },\r\n  {\r\n    "code": "LBL004",\r\n    "labels": [\r\n      "Payment Type:"\r\n    ],\r\n    "correct": false,\r\n    "correctPrompt": ""\r\n  }\r\n]', '2024-04-10', '11:54:56', 1712724896579, NULL, '2024-04-24', '14:37:10', 1713944229964, NULL);
+
+CREATE TABLE IF NOT EXISTS `ttokenusage` (
+  `site` varchar(50) DEFAULT NULL,
+  `userid` varchar(50) DEFAULT NULL,
+  `useruuid` varchar(50) DEFAULT NULL,
+  `authtoken` varchar(350) DEFAULT NULL,
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) DEFAULT NULL,
+  `usagetype` varchar(10) DEFAULT NULL,
+  `agentid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `modelid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `categoryid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `classifyid` varchar(50) DEFAULT NULL,
+  `tokencount` bigint DEFAULT NULL,
+  `questionid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `correlation` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep token usage';
+
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
