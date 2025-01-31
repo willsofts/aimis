@@ -21,17 +21,25 @@
 		</tr>
 	</thead>
 	<tbody id="datatablebody">	
-		<%	let rows = data.dataset?.rows;
+		<%	let rows = data.dataset?.rows;			
 			if(rows && rows.length>0) { 
+				let sumtokens = 0;
 				for(let index=0; index < rows.length; index++) { 
-					let item = rows[index]; %>
+					let item = rows[index];
+					sumtokens += item.tokencount; 
+					%>
 					<tr>
 						<td class="text-center"><%=page.recordsNumber(index+1)%></td>
 						<td class="text-center"><%=page.format({value: item?.createdate, field:{type:"DATE"}})%></td>
 						<td class="text-center"><%=item?.tokencount%></td>
 					</tr>
-		<%		}
-			} else {
+		<%		} %>
+				<tr>
+					<td class="text-center">&nbsp;</td>
+					<td class="text-center"><%=label.get('sumtokens_label','Total')%></td>
+					<td class="text-center"><%=sumtokens%></td>
+				</tr>
+		<%	} else {
 				if(rows) { %>
 				<tr>
 					<td class="text-center" colspan="6">
