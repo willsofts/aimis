@@ -1,18 +1,11 @@
-import { v4 as uuid } from 'uuid';
 import { KnModel } from "@willsofts/will-db";
-import { HTTP } from "@willsofts/will-api";
-import { KnContextInfo, KnValidateInfo, VerifyError } from "@willsofts/will-core";
-import { TknOperateHandler } from '@willsofts/will-serv';
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
-import { API_KEY, API_VISION_MODEL, ALWAYS_REMOVE_ATTACH, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { KnContextInfo } from "@willsofts/will-core";
+import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { QuestionUtility } from "./QuestionUtility";
-import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo } from "../models/QuestionAlias";
-import { TknAttachHandler } from "@willsofts/will-core";
-import { KnRecordSet, KnDBConnector } from "@willsofts/will-sql";
+import { QuestInfo, InquiryInfo } from "../models/QuestionAlias";
+import { GenerativeHandler } from "./GenerativeHandler";
 
-const genAI = new GoogleGenerativeAI(API_KEY);
-
-export class VisionHandler extends TknOperateHandler {
+export class VisionHandler extends GenerativeHandler {
     public section = PRIVATE_SECTION;
     public progid = "vision";
     public model : KnModel = { 
@@ -21,68 +14,38 @@ export class VisionHandler extends TknOperateHandler {
     };
     public handlers = [ {name: "quest"}, {name: "ask"} ];
 
-    public async quest(context: KnContextInfo) : Promise<InquiryInfo> {
-        return this.callFunctional(context, {operate: "quest", raw: true}, this.doQuest);
-    }
-
-    public async ask(context: KnContextInfo) : Promise<InquiryInfo> {
-        return this.callFunctional(context, {operate: "ask", raw: true}, this.doAsk);
-    }
-
-    protected override validateRequireFields(context: KnContextInfo, model: KnModel, action: string) : Promise<KnValidateInfo> {
-        let vi = this.validateParameters(context.params,"query");
-        if(!vi.valid) {
-            return Promise.reject(new VerifyError("Parameter not found ("+vi.info+")",HTTP.NOT_ACCEPTABLE,-16061));
-        }
-        return Promise.resolve(vi);
-    }
-
-    protected createCorrelation(context: KnContextInfo) {
-        let correlationid = context.meta.session?.correlation;
-        if(!correlationid) { 
-            correlationid = context.meta.session?.id || uuid();
-            context.meta.session.correlation = correlationid; 
-        }
-        return correlationid;
-    }
-
-    public async doQuest(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
+    public override async doQuest(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
         let questionid = context.params.questionid || "";
-        return this.processQuest(context,{async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", imageocr: context.params.imageocr, imagetmp: context.params.imagetmp, correlation: correlationid, property: context.params.property },model);
+        return await this.processQuest(context,{async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", imageocr: context.params.imageocr, imagetmp: context.params.imagetmp, correlation: correlationid, classify: context.params.classify, property: context.params.property },model);
     }
 
-    public async doAsk(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
+    public override async doAsk(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
         let questionid = context.params.questionid || "";
-        return this.processAsk({async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid, property: context.params.property}, context);
-    }
-
-    public validateParameter(question: string, mime: string, image: string) : KnValidateInfo {
-        if(!question || question.length == 0) {
-            return {valid: false, info: "question" };
-        }
-        if(!image || image.length == 0) {
-            return {valid: false, info: "image"};
-        }
-        if(!mime || mime.length == 0) {
-            return {valid: false, info: "mime type"};
-        }
-        return {valid: true};
+        return await this.processAsk({async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid, classify: context.params.classify, property: context.params.property}, context);
     }
 
     public async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         return await this.processQuestion(quest,context);
     }
 
-    public getAIModel(context?: KnContextInfo) : GenerativeModel {
-        let model = context?.params?.model;
-        if(!model || model.trim().length==0) model = API_VISION_MODEL;
-        this.logger.debug(this.constructor.name+".getAIModel: using model",model);
-        return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
+    public async processQuestion(quest: QuestInfo, context: KnContextInfo = this.getContext()) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestionAsync(quest, context).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestionAsync(quest, context);
     }
 
-    public async processQuestion(quest: QuestInfo,context?: KnContextInfo) : Promise<InquiryInfo> {
+    public async processQuestionAsync(quest: QuestInfo,context: KnContextInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -109,7 +72,22 @@ export class VisionHandler extends TknOperateHandler {
         return info;
     }
 
-    public async processAsk(quest: QuestInfo, context?: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAsk(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let valid = this.validateParameter(quest.question,"img",quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processAskAsync(quest, context).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processAskAsync(quest, context);
+    }
+
+    public async processAskAsync(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {
@@ -140,66 +118,6 @@ export class VisionHandler extends TknOperateHandler {
         }
         this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));
         return info;
-    }
-
-    public async deleteAttach(attachId: string) : Promise<void> {
-        if(ALWAYS_REMOVE_ATTACH && (attachId && attachId.length > 0)) {
-            this.call("attach.remove",{id: attachId}).catch(ex => this.logger.error(this.constructor.name,ex));
-        }
-    }
-
-    public async getAttachImageInfo(attachId: string, db?: KnDBConnector) : Promise<InlineImage | null> {
-        let rs = await this.getAttachInfo(attachId,db);
-        if(rs.rows && rs.rows.length > 0) {
-            let row = rs.rows[0];
-            let mime = row.mimetype;
-            let images = row.attachstream;
-            return this.getImageInfo(mime,images);
-        }
-        return null;
-    }
-
-    public async getAttachInfo(attachId: string, db?: KnDBConnector) : Promise<KnRecordSet> {
-        try {
-            let handler = new TknAttachHandler();
-            if(db) {
-                return await handler.getAttachRecord(attachId,db);
-            }
-            return await handler.getAttachInfo(attachId);
-        } catch(ex: any) {
-            this.logger.error(this.constructor.name,ex);
-            return Promise.reject(this.getDBError(ex));
-        }
-    }
-
-    public async getFileImageInfo(attachId: string, db?: KnDBConnector) : Promise<FileImageInfo | null> {
-        let rs = await this.getAttachInfo(attachId,db);
-        if(rs.rows && rs.rows.length > 0) {
-            let row = rs.rows[0];
-            let mime = row.mimetype;
-            let path = row.attachpath;
-            let source = row.sourcefile;
-            let stream = row.attachstream;
-            return { image: attachId, mime: mime, file: path, source: source, stream: stream };
-        }
-        return null;
-    }
-
-    public getImageInfo(mime: string, images: string) : InlineImage {
-        return {
-            inlineData : {
-                mimeType: mime,
-                data: images
-            }
-        }
-    }
-
-    public getImageData(imagefile: string) {
-        return QuestionUtility.getImageData(imagefile);
-    }
-
-    public parseAnswer(answer: string, defaultAnswer: boolean = true) : string {
-        return QuestionUtility.parseAnswer(answer, defaultAnswer);
     }
 
 }

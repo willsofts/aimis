@@ -1,7 +1,7 @@
 import { KnModel } from "@willsofts/will-db";
 import { KnContextInfo } from "@willsofts/will-core";
 import { ChatDOCHandler } from "./ChatDOCHandler";
-import { QuestInfo, InquiryInfo } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
 import { ChatRepository } from "./ChatRepository";
 import { ollamaChat } from "../ollama/generateOllama";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
@@ -16,8 +16,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         console.log(this.constructor.name+":[PROCESS QUEST]",quest);
-        switch (quest.agent?.toLocaleUpperCase()) {            
-           
+        switch (quest.agent?.toLocaleUpperCase()) {                       
             case "GEMMA" :
             case "LLAMA" : {
                 return await this.processQuestOllama(context, quest, model);
@@ -30,7 +29,21 @@ export class ChatNoteHandler extends ChatDOCHandler {
     }
 
     public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        console.log("[processQuestGemini]");
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestGeminiAsync(context, quest, model).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestGeminiAsync(context, quest, model);
+    }
+
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -44,9 +57,10 @@ export class ChatNoteHandler extends ChatDOCHandler {
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
+        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context,true);
+            forum = await this.getForumConfig(db,category,context,true);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum?.tableinfo;
@@ -74,6 +88,8 @@ export class ChatNoteHandler extends ChatDOCHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -83,10 +99,26 @@ export class ChatNoteHandler extends ChatDOCHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
+
     public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel): Promise<InquiryInfo> {
-        console.log("[processQuestOllama]");
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestOllamaAsync(context, quest, model).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestOllamaAsync(context, quest, model);    
+    }
+
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel): Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -96,13 +128,12 @@ export class ChatNoteHandler extends ChatDOCHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "NOTEFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
-        
+        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);        
         let db = this.getPrivateConnector(model);
         let input = quest.question;
-        try {
-            
-            let forum = await this.getForumConfig(db,category,context,true);
+        let forum : ForumConfig | undefined = undefined;
+        try {            
+            forum = await this.getForumConfig(db,category,context,true);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum?.tableinfo;
@@ -122,8 +153,6 @@ export class ChatNoteHandler extends ChatDOCHandler {
             //let response = await ollamaChat(JSON.stringify(history), msg, forum.caption!);
             
             let text = response.message.content;
-            console.log("[RESPONSE TEXT]:" + JSON.stringify(text));
-            
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
@@ -134,6 +163,8 @@ export class ChatNoteHandler extends ChatDOCHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
+    
 }

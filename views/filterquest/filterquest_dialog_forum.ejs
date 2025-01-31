@@ -1,0 +1,38 @@
+<div id="fsmodaldialog_layer_forum" class="modal fade pt-page pt-page-item" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-xm">
+		<div class="modal-content portal-area fa-portal-area">
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<%=label.get('modalheadertitle_edit_forum','Edit Category')%>
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div id="entrydialoglayer" class="entry-dialog-layer">
+			<form id="fsentryformforum" role="form" data-toggle="validator" name="fsentryformforum" method="post">
+				<input type="hidden" id="forumid" name="forumid" />
+				<div class="row row-height">
+					<div class="col-md-12 col-height">
+							<div class="table-layer-class">
+								<div class="row row-height">
+									<div class="col-height col-md-10">
+										<label id="forumtitle_label"></label>
+									</div>
+								</div>
+								<div class="row row-height">
+									<div class="col-height col-md-10">
+		<label for="classifyprompt" id="classifyprompt_label" class="control-label"><%=label.get('classifyprompt_label','Classify Prompt')%></label>
+		<div class="input-group"><textarea type="text" id="classifyprompt" name="classifyprompt" class="form-control input-md irequired alert-input" rows="10"></textarea><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="classifyprompt_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('classifyprompt_alert','You can not leave this empty')%></div>
+									</div>
+								</div>
+							</div>
+					</div>
+				</div>						
+			</form>	
+			</div>
+			<div class="row-heighter modal-footer" >
+				<input type="button" id="forumupdatebutton" class="btn btn-dark btn-sm" value="<%=label.get('updatebutton','Update')%>"/>
+				<input type="button" id="forumcanceldialogbutton" class="btn btn-dark btn-sm" data-dismiss="modal" value="<%=label.get('canceldialogbutton','Cancel')%>"/>
+			</div>
+		</div>
+	</div>
+</div>

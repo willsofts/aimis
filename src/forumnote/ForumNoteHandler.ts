@@ -53,6 +53,7 @@ export class ForumNoteHandler extends ForumHandler {
     public async getAttachInfo(attachId: string, db?: KnDBConnector) : Promise<KnRecordSet> {
         try {
             let handler = new TknAttachHandler();
+            handler.obtain(this.broker,this.logger);
             if(db) {
                 return await handler.getAttachRecord(attachId,db);
             }

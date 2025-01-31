@@ -69,7 +69,7 @@ export class ImageFileRouter extends TknBaseRouter {
 	}
 
 	protected getQuestInfo(context: KnContextInfo) : QuestInfo {
-		return {async: context.params.async, questionid: context.params.questionid || "", category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: context.params.correlation || uuid(), property: context.params.property};
+		return {async: context.params.async, questionid: context.params.questionid || "", category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: context.params.correlation || uuid(), classify: context.params.classify, property: context.params.property};
 	}
 
 	protected async doUploadFile(req: Request, res: Response) : Promise<void> {

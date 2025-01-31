@@ -36,6 +36,7 @@ export class ForumHandler extends TknOperateHandler {
             forumtable: { type: "STRING", created: true, updated: true },
             forumremark: { type: "STRING" },
             forumprompt: { type: "STRING", created: true, updated: true },
+            classifyprompt: { type: "STRING" },
             inactive: { type: "STRING", selected: true, created: false, updated: false, defaultValue: "0" },
             hookflag: { type: "STRING", updated: true, defaultValue: "0" },
             webhook: { type: "STRING" },
@@ -62,7 +63,7 @@ export class ForumHandler extends TknOperateHandler {
         return this.callFunctional(context, {operate: "config", raw: false}, this.doConfig);
     }
 
-    public async dialect(context: KnContextInfo) : Promise<ForumConfig> {
+    public async dialect(context: KnContextInfo) : Promise<KnRecordSet> {
         return this.callFunctional(context, {operate: "dialect", raw: false}, this.doDialect);
     }
 

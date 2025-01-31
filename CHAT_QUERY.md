@@ -115,3 +115,27 @@ reponse:
 ```
 
 (url depending on your host deployment)
+
+
+3. quest classify
+
+This api support classification of question into categories setting by Classify Quest screen
+
+| Classification | Description |
+| -------- | ----------- |
+| url | http://localhost:8080/api/chatter/quest |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
+
+| Parameter | Description |
+| -------- | ----------- |
+| questionid | this is question id default blank |
+| correlation | this is correlation id default is session id|
+| category | this is your key from classfiy quest setting |
+| query | this is your question to ask |
+| property | this is private properties or more info. |
+| async | `true`/`false` if `true` it take as background process |

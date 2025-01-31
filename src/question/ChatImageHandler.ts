@@ -83,10 +83,8 @@ export class ChatImageHandler extends ChatPDFHandler {
         return img_info;
     }
 
-    public async getImageFileInfo(quest: QuestInfo, db: KnDBConnector) : Promise<FileImageInfo | null > {
-        
-        let image_info = await this.getFileImageInfo(quest.imageocr == null ? quest.image : quest.imageocr, db);
-        return image_info;
+    public async getImageFileInfo(quest: QuestInfo, db: KnDBConnector) : Promise<FileImageInfo | null > {        
+        return await this.getFileImageInfo(quest.imageocr == null ? quest.image : quest.imageocr, db);
     }
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
@@ -112,15 +110,31 @@ export class ChatImageHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        if(quest.async=="true") {
+            this.processQuestGeminiAsync(context, quest, model, img_info).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestGeminiAsync(context, quest, model, img_info);
+    }
+
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
         this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
+        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let chat = chatmap.get(category);
@@ -142,6 +156,8 @@ export class ChatImageHandler extends ChatPDFHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = this.parseAnswer(text);    
             if(!hasParam) this.deleteAttach(quest.image);
             else chatmap.remove(category);
@@ -153,6 +169,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -164,26 +181,38 @@ export class ChatImageHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        if(quest.async=="true") {
+            this.processQuestOllamaAsync(context, quest, model, img_info).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestOllamaAsync(context, quest, model, img_info);
+    }
+
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
-        
+        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);        
         let db = this.getPrivateConnector(model);
         let input = quest.question;
+        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let hasParam = img_info;
             if(!hasParam) img_info = await this.getImageFileInfo(quest, db);
-
             if (quest.imagetmp){
                 this.deleteAttach(quest.imagetmp);
             }
-
             let msg = "Question: "+quest.question;
-
             if (img_info != null) {
 
                 let prmutil = new PromptOLlamaUtility();
@@ -229,6 +258,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
@@ -246,14 +276,30 @@ export class ChatImageHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        if(quest.async=="true") {
+            this.processQuestionAsync(quest, context, model, img_info).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestionAsync(quest, context, model, img_info);
+    }
+
+    public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
         this.logger.debug(this.constructor.name+".processQuestion: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
+        let forum : ForumConfig | undefined = undefined;
         try {
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestion: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestion: category:",category+", input:",input);
             let contents = this.getImagePrompt(forum?.prompt, forum?.tableinfo);
@@ -271,6 +317,7 @@ export class ChatImageHandler extends ChatPDFHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuestion: response:",text);
+            this.saveTokenUsage(context,quest,contents,aimodel);
             info.answer = this.parseAnswer(text);    
             if(!hasParam) this.deleteAttach(quest.image);
         } catch(ex: any) {
@@ -281,6 +328,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuestion: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 

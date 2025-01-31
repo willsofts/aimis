@@ -9,7 +9,9 @@ import { TknAttachHandler } from "@willsofts/will-core";
 import { API_KEY, API_MODEL, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { FilterGroupHandler } from '../filtergroup/FilterGroupHandler';
 import { QuestionUtility } from "../question/QuestionUtility";
-import { GoogleGenerativeAI, GenerativeModel, FileDataPart } from "@google/generative-ai";
+import { TokenUsageHandler } from "../tokenusage/TokenUsageHandler";
+import { QuestInfo } from "../models/QuestionAlias";
+import { GoogleGenerativeAI, GenerativeModel, FileDataPart, Part } from "@google/generative-ai";
 import { GoogleAIFileManager } from "@google/generative-ai/server"; //since v0.19.0 as@12/09/2024 
 import { Request, Response } from "express";
 import path from "path";
@@ -447,6 +449,7 @@ export class FilterDocumentHandler extends TknOperateHandler {
     public async getAttachInfo(attachId: string, db?: KnDBConnector) : Promise<KnRecordSet> {
         try {
             let handler = new TknAttachHandler();
+            handler.obtain(this.broker,this.logger);
             if(db) {
                 return await handler.getAttachRecord(attachId,db);
             }
@@ -507,6 +510,7 @@ export class FilterDocumentHandler extends TknOperateHandler {
         let categories = new Array<string>();
         //find out classify group setting
         let grouper = new FilterGroupHandler();
+        grouper.obtain(this.broker,this.logger);
         let gs = await grouper.performRetrieving(db,groupid,context);
         //find out categories setting
         let cs = await this.getCategoryByGroup(db,groupid,context);
@@ -552,6 +556,11 @@ export class FilterDocumentHandler extends TknOperateHandler {
     }
 
     public async doClassifyDocument(context: KnContextInfo, model: KnModel) : Promise<[string | undefined, KnDataSet | undefined]> {
+        let correlationid = context.params.correlation || "";
+        let questionid = context.params.questionid || "";
+        let modeler = context?.params?.model;
+        if(!modeler || modeler.trim().length==0) modeler = API_MODEL;
+        let quest = {async: context.params.async, questionid: questionid, question: context.params.query, category: context.params.groupid, mime: context.params.mime, image: context.params.image, agent: context.params.agent || "GEMINI", model: modeler, correlation: correlationid, classify: context.params.classify, property: context.params.property};
         let prompt : string | undefined;
         let ds : KnDataSet | undefined;
         let filepart : FileDataPart | null;
@@ -571,10 +580,12 @@ export class FilterDocumentHandler extends TknOperateHandler {
         }
         if(prompt && filepart) {
             const aimodel = this.getAIModel(context);
-            let result = await aimodel.generateContent([filepart,{ text: prompt }]);
+            let promptcontents = [filepart,{ text: prompt }];
+            let result = await aimodel.generateContent(promptcontents);
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".doCategorizeDocument: response.text:",text);
+            this.saveTokenUsage(context,quest,prompt,aimodel);
             let jsonstr = this.parseJSONAnswer(text);
             ds = JSON.parse(jsonstr);
         }
@@ -615,6 +626,23 @@ export class FilterDocumentHandler extends TknOperateHandler {
         this.logger.error(this.constructor.name+".report: file not found : attachid="+attachid)
         res.status(HTTP.NOT_FOUND).send("File not found");
         return Promise.resolve();
+    }
+
+    protected async saveUsage(context: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
+        let handler = new TokenUsageHandler();
+        handler.obtain(this.broker,this.logger);
+        handler.userToken = this.userToken;
+        handler.save(context,quest,counter).catch(ex => console.error(ex));
+    }
+
+    protected async saveTokenUsage(context: KnContextInfo, quest: QuestInfo, prompt: string | Array<string | Part>, aimodel: GenerativeModel) : Promise<void> {
+        try {
+            const countResult = await aimodel.countTokens(prompt);
+            this.logger.debug(this.constructor.name+".saveTokenUsage: count result:",countResult);
+            this.saveUsage(context, quest, countResult);
+        } catch(ex) {
+            this.logger.error(ex);
+        }
     }
 
 }

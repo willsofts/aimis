@@ -1,0 +1,87 @@
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-4">
+<label for="agentid" id="agentid_label" class="control-label"><%=label.get('agentid_label','Agent Model')%></label>
+<div class="input-group">
+<%-page.html('select',{map: data.entity?.tagent, value: data.dataset?.agentid, id: "agentid", name: "agentid", class: "form-control input-md"})%>
+<div class="input-group-required"><label class="required">*</label></div></div><div id="agentid_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('agentid_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-12">
+<label for="skillprompt" id="skillprompt_label" class="control-label"><%=label.get('skillprompt_label','Document Prompt Info')%></label>
+<div class="input-group"><textarea id="skillprompt" name="skillprompt" class="form-control input-md irequired" rows="6"><%=data.dataset?.skillprompt%></textarea><div class="input-group-required"><label class="required">&#160;</label></div></div><div id="skillprompt_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('skillprompt_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="row row-height">
+    <div id="forumcategoriespanel" class="col-md-12 col-height">
+        <fieldset id="forumcategoriesheaderinfo">
+            <legend id="forumcategories_legend">
+                <label id="forumcategories_sectionlabel" class="control-label"><%=label.get('forumcategories_sectionlabel','Classify Categories')%></label>
+            </legend>
+        </fieldset>	
+        <div id="forumcategorieslayer">
+            <div id="forumcategories" class="table-layer-class">				
+<%	let catmap = data.entity?.tforum;
+if(catmap) {
+    let catkey = Object.keys(catmap);
+    let isz = catkey.length;
+    if(isz > 0) {
+        let index = -1;
+        let counter = isz;
+        let max = 3;
+        do {
+%>
+                    <div class="row row-height">
+<%			
+            for(let k = 0; k < max; k++ ) {
+                index++;
+                if(index < isz) {
+                    let key = catkey[index];
+                    let mapname = catmap[key];
+%>  
+                        <div class="col-height col-md-4">
+<div class="checkbox form-check"><input type="checkbox" value="<%=key%>" id="forumcategories_<%=index%>" name="forumcategories" class="form-control input-md form-check-input forum-categories" <%=page.checked(key,data.dataset?.forumcategories)%> /><label for="forumcategories_<%=index%>" class="control-label form-check-label"><%=mapname%></label><a href="javascript:void(0)" class="forum-linker" data-key="<%=key%>"><i class="fa fa-pencil fa-btn-icon" aria-hidden="true"></i></a></div>
+
+                        </div>
+<%					
+                }
+            }
+%>
+                    </div>
+<%
+            counter -= max;
+        }while(counter>0);
+    }
+}
+%>								 
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row row-height">    
+    <div id="forumcategories_alert" role="alert" class="col-md-12 col-height has-feedback has-error alert-layer fa-hidden"><%=label.get('forumcategories_alert','You can not leave this empty or select only one')%></div>
+</div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-12">
+<label for="jsonprompt" id="jsonprompt_label" class="control-label"><%=label.get('jsonprompt_label','Setting Prompt')%></label><a href="#0" id="jsonpromptlinker"><i class="fa fa-eye fa-btn-icon" aria-hidden="true"></i></a>
+<div class="input-group"><textarea id="jsonprompt" name="jsonprompt" class="form-control input-md irequired fa-hidden" rows="6"><%=data.dataset?.jsonprompt%></textarea><div class="input-group-required"><label class="required">&#160;</label></div></div><div id="jsonprompt_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('jsonprompt_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>

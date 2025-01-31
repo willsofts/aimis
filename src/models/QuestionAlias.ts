@@ -7,6 +7,7 @@ export interface QuestInfo {
     mime: string;
     image: string;
     category: string;
+    classify?: string;
     agent?: string;
     model?: string;
     imageocr?: string;

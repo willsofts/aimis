@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Forum Setting</title>
+		<title>Token Usage</title>
 		<%- include('../asset/meta') %>		
 		<%- include('../asset/styles') %>		
 		<%- include('../asset/scripts') %>	
-		<link rel="stylesheet" type="text/css" href="<%=meta.base_url%>/forum/forum.css" />
-		<script type="text/javascript" src="<%=meta.base_url%>/forum/forum.js"></script>
-		<script type="text/javascript" nonce="YXNzdXJl">
-			const forum_dialects = <%- JSON.stringify(data.entity?.dialects) %>;
-		</script>
+		<link rel="stylesheet" type="text/css" href="<%=meta.base_url%>/tokenusage/tokenusage.css" />
+		<script type="text/javascript" src="<%=meta.base_url%>/tokenusage/tokenusage.js"></script>
 	</head>
 	<body class="portalbody portalbody-off">
 		<%- include('../partials/page_waiting') %>
-		<div id="ptsearchpager" class="pt-page pt-page-current pt-page-controller forum-search-pager">
-			<%- page.createHeader({pid: 'forum', title: label.get('caption','Forum Setting')}) %>
+		<div id="ptsearchpager" class="pt-page pt-page-current pt-page-controller filterquest-search-pager">
+			<%- page.createHeader({pid: 'tokenusage', title: label.get('caption','Token Usage')}) %>
 			<div id="searchpanel" class="panel-body">
 				<form id="fssearchform" name="fssearchform" method="post">
 					<input type="hidden" name="ajax" value="true"/>
@@ -23,10 +20,10 @@
 					<input type="hidden" name="page" value="1"/>
 					<input type="hidden" name="orderBy" value=""/>
 					<input type="hidden" name="orderDir" value=""/>
-					<%- include('./forum_filter') %>
+					<%- include('./tokenusage_filter') %>
 				</form>
 				<div id="listpanel" class="table-responsive fa-list-panel">
-					<%- include('./forum_data') %>
+					<%- include('./tokenusage_data') %>
 				</div>
 			</div>
 		</div>

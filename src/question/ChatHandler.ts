@@ -1,5 +1,6 @@
 import { KnModel, KnOperation } from "@willsofts/will-db";
-import { KnContextInfo, KnDataTable } from "@willsofts/will-core";
+import { HTTP } from "@willsofts/will-api";
+import { KnContextInfo, KnDataTable, VerifyError } from "@willsofts/will-core";
 import { KnDBError, KnRecordSet } from "@willsofts/will-sql";
 import { ChatSession } from "@google/generative-ai";
 import { API_ANSWER, API_ANSWER_RECORD_NOT_FOUND, API_MODEL_CLAUDE, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
@@ -47,7 +48,7 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        console.log(this.constructor.name+":[PROCESS QUEST]",quest);
+        this.logger.debug(this.constructor.name+":[PROCESS QUEST]",quest);
         switch (quest.agent?.toLocaleUpperCase()) {            
             case "CLAUDE": {
                 return await this.processQuestClaude(context, quest, model);
@@ -92,6 +93,7 @@ export class ChatHandler extends QuestionHandler {
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
+            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;
@@ -235,6 +237,7 @@ export class ChatHandler extends QuestionHandler {
         let forum : ForumConfig | undefined = undefined;
         try {
             forum = await this.getForumConfig(db,category,context);
+            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
@@ -317,6 +320,7 @@ export class ChatHandler extends QuestionHandler {
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
+            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;            

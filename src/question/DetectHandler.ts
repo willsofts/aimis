@@ -57,7 +57,7 @@ export class DetectHandler extends VisionHandler {
         return info;
     }
 
-    public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestion(quest: QuestInfo, context: KnContextInfo = this.getContext(), model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -91,7 +91,7 @@ export class DetectHandler extends VisionHandler {
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
     }
 
-    public override async processAsk(quest: QuestInfo, context?: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+    public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -112,6 +112,7 @@ export class DetectHandler extends VisionHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processAsk: response:",text);
+            this.saveTokenUsage(context,quest,prompt,aimodel);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);

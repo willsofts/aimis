@@ -21,7 +21,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
         return QuestionUtility.readDucumentFile(filePath);
     }
 
-    public async getForumConfig(db: KnDBConnector, category: string,context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
+    public async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
         let handler = new ForumDocHandler();
         let result = await handler.getForumConfig(db,category,context);
         if(!result && throwNotFoundError) {
@@ -38,15 +38,31 @@ export class ChatDOCHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        if(quest.async=="true") {
+            this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestAsync(context, quest, model);        
+    }
+
+    public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
         this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
+        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            let forum = await this.getForumConfig(db,category,context);
+            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum?.tableinfo;
@@ -83,6 +99,8 @@ export class ChatDOCHandler extends ChatPDFHandler {
                 let response = result.response;
                 let text = response.text();
                 this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 info.answer = this.parseAnswer(text);
             } else {
                 if(chat) {
@@ -91,6 +109,8 @@ export class ChatDOCHandler extends ChatPDFHandler {
                     let response = result.response;
                     let text = response.text();
                     this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                    this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                    this.saveUsage(context,quest,result.response.usageMetadata);        
                     info.answer = this.parseAnswer(text);    
                 } else {
                     info.error = true;
@@ -106,6 +126,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
 			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
     public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {

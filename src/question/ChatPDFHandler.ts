@@ -86,6 +86,21 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        if(quest.async=="true") {
+            this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestAsync(context, quest, model);
+    }
+
+    public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
         let category = quest.category || "PDFFILE";
         this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
         const aimodel = this.getAIModel(context);
@@ -125,6 +140,8 @@ export class ChatPDFHandler extends VisionHandler {
                 let response = result.response;
                 let text = response.text();
                 this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                this.saveUsage(context,quest,result.response.usageMetadata);    
                 info.answer = this.parseAnswer(text);
             } else {
                 if(chat) {
@@ -133,6 +150,8 @@ export class ChatPDFHandler extends VisionHandler {
                     let response = result.response;
                     let text = response.text();
                     this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                    this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                    this.saveUsage(context,quest,result.response.usageMetadata);        
                     info.answer = this.parseAnswer(text);    
                 } else {
                     info.error = true;
@@ -151,7 +170,22 @@ export class ChatPDFHandler extends VisionHandler {
         return info;
     }
 
-    public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let valid = this.validateParameter(quest.question,quest.mime,quest.image);
+        if(!valid.valid) {
+            info.error = true;
+            info.answer = "No "+valid.info+" found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processQuestionAsync(quest, context, model).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processQuestionAsync(quest, context, model);    
+    }
+
+    public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -177,7 +211,26 @@ export class ChatPDFHandler extends VisionHandler {
         return info;
     }
 
-    public override async processAsk(quest: QuestInfo, context?: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+    public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
+        if(!quest.question || quest.question.trim().length == 0) {
+            info.error = true;
+            info.answer = "No question found.";
+            return Promise.resolve(info);
+        }
+        if(!document || document.trim().length == 0) {
+            info.error = true;
+            info.answer = "No document found.";
+            return Promise.resolve(info);
+        }
+        if(quest.async=="true") {
+            this.processAskAsync(quest, context, document).catch((ex) => console.error(ex));
+            return Promise.resolve(info);
+        }
+        return await this.processAskAsync(quest, context, document);    
+    }
+
+    public async processAskAsync(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -198,6 +251,7 @@ export class ChatPDFHandler extends VisionHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processAsk: response:",text);
+            this.saveTokenUsage(context,quest,prompt,aimodel);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);

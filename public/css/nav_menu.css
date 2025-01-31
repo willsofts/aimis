@@ -111,6 +111,10 @@ li.dropdown a { white-space: nowrap; }
 	background-color: transparent !important;
 }
 
+#info_access_version:hover {
+	background-color: transparent !important;
+	cursor: text;
+}
 #accessor_access_link:hover {
 	background-color: transparent !important;
 	cursor: text;
