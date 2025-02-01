@@ -103,10 +103,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -118,10 +119,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -164,6 +166,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -174,10 +177,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -189,10 +193,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -253,6 +258,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -269,10 +275,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public override async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -284,10 +291,11 @@ export class ChatImageHandler extends ChatPDFHandler {
     }
 
     public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -323,6 +331,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();

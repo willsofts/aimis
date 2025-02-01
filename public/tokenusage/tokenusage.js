@@ -43,6 +43,10 @@ function setupComponents() {
 		deleted();  return false;
 	});
 	//#(60000) programmer code begin;
+	let first = getDateNow(firstDateOfMonth());
+	let last = getDateNow(lastDateOfMonth());
+	$("#fromdates").val(first);
+	$("#todates").val(last);
 	//#(60000) programmer code end;
 }
 function resetFilters() {

@@ -79,10 +79,11 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -94,10 +95,11 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -111,6 +113,7 @@ export class ChatPDFHandler extends VisionHandler {
             let image_info = await this.getFileImageInfo(quest.image,db);
             if(image_info == null && !chat) {    
                 info.error = true;
+                info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
             }
@@ -120,6 +123,7 @@ export class ChatPDFHandler extends VisionHandler {
                 this.logger.debug(this.constructor.name+".processQuestion: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;
+                    info.statuscode = "NO-TEXT";
                     info.answer = "No text found in document file.";
                     return Promise.resolve(info);
                 }
@@ -155,6 +159,7 @@ export class ChatPDFHandler extends VisionHandler {
                     info.answer = this.parseAnswer(text);    
                 } else {
                     info.error = true;
+                    info.statuscode = "NO-FILE";
                     info.answer = "No document file found.";
                 }
             }
@@ -162,6 +167,7 @@ export class ChatPDFHandler extends VisionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -171,10 +177,11 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -186,10 +193,11 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -203,6 +211,7 @@ export class ChatPDFHandler extends VisionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -212,14 +221,16 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
         if(!document || document.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-DOCUMENT";
             info.answer = "No document found.";
             return Promise.resolve(info);
         }
@@ -231,14 +242,16 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public async processAskAsync(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
         if(!document || document.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-DOCUMENT";
             info.answer = "No document found.";
             return Promise.resolve(info);
         }
@@ -256,6 +269,7 @@ export class ChatPDFHandler extends VisionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
         this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));
@@ -291,11 +305,11 @@ export class ChatPDFHandler extends VisionHandler {
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
         if(!chat) {
-            return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
+            return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
         this.logger.debug(this.constructor.name+".processReset: remove category:",category);
-        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 
 }

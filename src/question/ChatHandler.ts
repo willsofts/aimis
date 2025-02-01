@@ -65,9 +65,10 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -78,9 +79,10 @@ export class ChatHandler extends QuestionHandler {
         return await this.processQuestGeminiAsync(context, quest);
     }
     public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -170,6 +172,7 @@ export class ChatHandler extends QuestionHandler {
                     } catch(exc: any) {
                         this.logger.error(this.constructor.name,exc);
                         info.error = true;
+                        info.statuscode = "ERROR";
                         info.answer = this.getDBError(exc).message;
                         this.sendError(chat,info.answer);
                         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -177,6 +180,7 @@ export class ChatHandler extends QuestionHandler {
                     }
                 } else {
                     info.error = true;
+                    info.statuscode = "ERROR";
                     info.answer = this.getDBError(ex).message;
                     this.sendError(chat,info.answer);
                     this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -200,6 +204,7 @@ export class ChatHandler extends QuestionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -210,9 +215,10 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -224,9 +230,10 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public async processQuestClaudeAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -282,6 +289,7 @@ export class ChatHandler extends QuestionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -292,9 +300,10 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -306,9 +315,10 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
@@ -360,6 +370,7 @@ export class ChatHandler extends QuestionHandler {
             } catch(ex: any) {
                 this.logger.error(this.constructor.name,ex);
                 info.error = true;
+                info.statuscode = "ERROR";
                 info.answer = this.getDBError(ex).message;
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -379,6 +390,7 @@ export class ChatHandler extends QuestionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -425,11 +437,11 @@ export class ChatHandler extends QuestionHandler {
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
         if(!chat) {
-            return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Not found", dataset: [] });
+            return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
         this.logger.debug(this.constructor.name+".processReset: remove category:",category);
-        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, question: category, query: "reset", answer: "Reset OK", dataset: [] });
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 
 }

@@ -29,6 +29,8 @@ export class FilterQuestHandler extends TknOperateHandler {
             suffixprompt: { type: "STRING" },
             jsonprompt: { type: "STRING", updated: true },
             skillprompt: { type: "STRING", updated: true },
+            hookflag: { type: "STRING", updated: true, defaultValue: "0" },
+            webhook: { type: "STRING", updated: true },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
@@ -89,6 +91,7 @@ export class FilterQuestHandler extends TknOperateHandler {
     /* try to assign individual parameters under this context */
     protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {
         let now = Utilities.now();
+        sql.set("jsonprompt", context.params.jsonprompt || null);
         sql.set("createuser",this.userToken?.userid);
         sql.set("editmillis",Utilities.currentTimeMillis(now));
         sql.set("editdate",now,"DATE");
@@ -174,12 +177,14 @@ export class FilterQuestHandler extends TknOperateHandler {
         if(!entity.tagent || Object.keys(entity.tagent).length ==0) {
             entity.tagent = {"GEMINI":"GEMINI"};
         }
-        entity.tforum = {};
+        entity.tforum = [];
         let rs = await this.getForumList(db,context);
         if(rs && rs.rows.length>0) {
+            entity.tforum = rs.rows;
+            /*
             rs.rows.forEach((item:any) => {
                 entity.tforum[item.forumid] = item.forumtitle;
-            });
+            });*/
         }
         return datacategory;
     }
@@ -265,12 +270,17 @@ export class FilterQuestHandler extends TknOperateHandler {
 
     public async performForumUpdating(db: KnDBConnector, forumid: string, context: KnContextInfo): Promise<KnRecordSet> {
         if(!forumid || forumid.trim().length == 0) return this.createRecordSet();
+        let hookflag = "0";
+        if(context.params.hookflag && context.params.hookflag.trim().length>0) hookflag = context.params.hookflag;
         let now = Utilities.now();
         let knsql = new KnSQL();
-        knsql.append("update tforum set classifyprompt=?classifyprompt, editdate=?editdate, edittime=?edittime, ");
+        knsql.append("update tforum set classifyprompt=?classifyprompt, hookflag=?hookflag, webhook=?webhook, ");
+        knsql.append("editdate=?editdate, edittime=?edittime, ");
         knsql.append("editmillis=?editmillis, edituser=?edituser ");
         knsql.append("where forumid = ?forumid ");
         knsql.set("forumid",forumid);
+        knsql.set("hookflag",hookflag);
+        knsql.set("webhook",context.params.webhook);
         knsql.set("classifyprompt",context.params.classifyprompt);
         knsql.set("editdate",now,"DATE");
         knsql.set("edittime",now,"TIME");

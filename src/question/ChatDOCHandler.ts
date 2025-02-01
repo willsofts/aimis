@@ -31,10 +31,11 @@ export class ChatDOCHandler extends ChatPDFHandler {
     }
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -46,10 +47,11 @@ export class ChatDOCHandler extends ChatPDFHandler {
     }
 
     public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -70,6 +72,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
             let image_info = await this.getFileImageInfo(quest.image,db);
             if(image_info == null && !chat) {    
                 info.error = true;
+                info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
             }
@@ -79,6 +82,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
                 this.logger.debug(this.constructor.name+".processQuestion: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;
+                    info.statuscode = "NO-TEXT";
                     info.answer = "No text found in document file.";
                     return Promise.resolve(info);
                 }
@@ -114,6 +118,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
                     info.answer = this.parseAnswer(text);    
                 } else {
                     info.error = true;
+                    info.statuscode = "NO-FILE";
                     info.answer = "No document file found.";
                 }
             }
@@ -121,6 +126,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();

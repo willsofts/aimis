@@ -21,6 +21,7 @@ export interface InquiryInfo {
     correlation: string;
     category: string;
     error: boolean;
+    statuscode: string;
     question: string;
     query: string;
     answer: string;

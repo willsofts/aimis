@@ -31,10 +31,11 @@ export class VisionHandler extends GenerativeHandler {
     }
 
     public async processQuestion(quest: QuestInfo, context: KnContextInfo = this.getContext()) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -46,10 +47,11 @@ export class VisionHandler extends GenerativeHandler {
     }
 
     public async processQuestionAsync(quest: QuestInfo,context: KnContextInfo) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -66,6 +68,7 @@ export class VisionHandler extends GenerativeHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
         this.logger.debug(this.constructor.name+".processQuestion: return:",JSON.stringify(info));
@@ -73,10 +76,11 @@ export class VisionHandler extends GenerativeHandler {
     }
 
     public async processAsk(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -88,10 +92,11 @@ export class VisionHandler extends GenerativeHandler {
     }
 
     public async processAskAsync(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -99,6 +104,7 @@ export class VisionHandler extends GenerativeHandler {
             let image_info = await this.getAttachImageInfo(quest.image);
             if(image_info == null) {    
                 info.error = true;
+                info.statuscode = "NO-IMAGE";
                 info.answer = "No image info found.";
                 return Promise.resolve(info);
             }
@@ -114,6 +120,7 @@ export class VisionHandler extends GenerativeHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
         this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));

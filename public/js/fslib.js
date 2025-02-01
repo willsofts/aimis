@@ -412,9 +412,14 @@ function formatDecimal(avalue,decimal,verifydecimal) {
 		return sign+astr+cstr; 
 	} 
 }						 
-		  
-function getTimeNow() { 
-	let now = new Date(); 
+function firstDateOfMonth(date = new Date()) {
+	return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+function lastDateOfMonth(date = new Date()) {
+	return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}	  
+function getTimeNow(now) { 
+	if(!now) now = new Date(); 
 	let hh = now.getHours(); 
 	let mm = now.getMinutes(); 
 	let ss = now.getSeconds(); 
@@ -422,10 +427,9 @@ function getTimeNow() {
 	result += ((mm < 10) ? ":0" : ":") + mm; 
 	result += ((ss < 10) ? ":0" : ":") + ss; 
 	return result; 
-} 
-		  
-function getDateNow() { 
-	let now  = new Date(); 
+} 		 
+function getDateNow(now) { 
+	if(!now) now  = new Date(); 
 	let dd = now.getDate(); 
 	let mm = now.getMonth()+1; 
 	let yy = now.getFullYear(); 

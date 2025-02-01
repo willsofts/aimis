@@ -19,10 +19,11 @@ export class GoogleDetectHandler extends VisionHandler {
     public handlers = [ {name: "quest"}, {name: "ask"} ];
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -31,6 +32,7 @@ export class GoogleDetectHandler extends VisionHandler {
             let image_info = await this.getFileImageInfo(quest.image,db);
             if(image_info == null) {    
                 info.error = true;
+                info.statuscode = "NO-IMAGE";
                 info.answer = "No image info found.";
                 return Promise.resolve(info);
             }
@@ -41,12 +43,14 @@ export class GoogleDetectHandler extends VisionHandler {
                 info = await this.processAsk(quest,context,text);
             } else {
                 info.error = true;
+                info.statuscode = "NO-FILE";
                 info.answer = "No image file found.";
             }
             this.deleteAttach(quest.image);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -56,10 +60,11 @@ export class GoogleDetectHandler extends VisionHandler {
     }
 
     public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: [] };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -72,6 +77,7 @@ export class GoogleDetectHandler extends VisionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -88,14 +94,16 @@ export class GoogleDetectHandler extends VisionHandler {
     }
 
     public override async processAsk(quest: QuestInfo, context?: KnContextInfo, document?: string | null | undefined) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: document };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
         if(!document || document.trim().length == 0) {
             info.error = true;
+            info.statuscode = "NO-DOCUMENT";
             info.answer = "No document found.";
             return Promise.resolve(info);
         }
@@ -112,6 +120,7 @@ export class GoogleDetectHandler extends VisionHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
         this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));

@@ -46,7 +46,7 @@ ORDER BY
 sql = handler.parseAnswer(answer);
 console.log("SQL-4:",sql);
 
-let info = { questionid: "", correlation: "12345", category: "TEST", error: false, question: "List all product", query: "", answer: "", dataset: []};
+let info = { questionid: "", correlation: "12345", category: "TEST", error: false, statuscode: "", question: "List all product", query: "", answer: "", dataset: []};
 sql = "SELECT * FROM product";
 let valid = handler.isValidQuery(sql,info);
 console.log("SQL:",sql,", Valid:",valid);

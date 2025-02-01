@@ -178,6 +178,8 @@ CREATE TABLE IF NOT EXISTS `tfilterquest` (
   `suffixprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `jsonprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `skillprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `hookflag` varchar(1) DEFAULT '0' COMMENT '1=Hook',
+  `webhook` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,

@@ -19,14 +19,34 @@
 									</div>
 								</div>
 								<div class="row row-height">
-									<div class="col-height col-md-10">
+									<div class="col-height col-md-12">
 		<label for="classifyprompt" id="classifyprompt_label" class="control-label"><%=label.get('classifyprompt_label','Classify Prompt')%></label>
-		<div class="input-group"><textarea type="text" id="classifyprompt" name="classifyprompt" class="form-control input-md irequired alert-input" rows="10"></textarea><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="classifyprompt_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('classifyprompt_alert','You can not leave this empty')%></div>
+		<div class="input-group"><textarea type="text" id="classifyprompt" name="classifyprompt" class="form-control input-md irequired alert-input" rows="7"></textarea><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="classifyprompt_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('classifyprompt_alert','You can not leave this empty')%></div>
 									</div>
 								</div>
 							</div>
 					</div>
-				</div>						
+				</div>	
+				<div class="row row-height">
+					<div class="col-md-12 col-height">
+							<div class="table-layer-class" id="forumwebhooklayer">
+								<div class="row row-height">
+									<div class="col-height col-md-3">
+										<div class="checkbox checkbox form-check">
+											<input type="checkbox" value="1" id="forumhookflag" name="hookflag" class="form-control input-md form-check-input" /><label for="forumhookflag" id="forumhookflag_label" class="control-label form-check-label"><%=label.get('hookflag_label','Web Hook')%></label>
+										</div>
+									</div>
+									<div class="col-height col-md">
+										<div class="input-group">
+											<input type="text" id="forumwebhook" name="webhook" class="form-control input-md" maxlength="200" />
+											<div class="input-group-required"><label class="required"></label></div>
+										</div>
+										<div id="forumwebhook_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('webhook_alert','You can not leave this empty')%></div>
+									</div>
+								</div>
+							</div>
+					</div>
+				</div>				
 			</form>	
 			</div>
 			<div class="row-heighter modal-footer" >

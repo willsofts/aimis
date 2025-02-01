@@ -35,8 +35,7 @@
             <div id="forumcategories" class="table-layer-class">				
 <%	let catmap = data.entity?.tforum;
 if(catmap) {
-    let catkey = Object.keys(catmap);
-    let isz = catkey.length;
+    let isz = catmap.length;
     if(isz > 0) {
         let index = -1;
         let counter = isz;
@@ -48,11 +47,13 @@ if(catmap) {
             for(let k = 0; k < max; k++ ) {
                 index++;
                 if(index < isz) {
-                    let key = catkey[index];
-                    let mapname = catmap[key];
+					let catkey = catmap[index];
+                    let key = catkey.forumid;
+                    let mapname = catkey.forumtitle;
+					let group = catkey.forumgroup;
 %>  
                         <div class="col-height col-md-4">
-<div class="checkbox form-check"><input type="checkbox" value="<%=key%>" id="forumcategories_<%=index%>" name="forumcategories" class="form-control input-md form-check-input forum-categories" <%=page.checked(key,data.dataset?.forumcategories)%> /><label for="forumcategories_<%=index%>" class="control-label form-check-label"><%=mapname%></label><a href="javascript:void(0)" class="forum-linker" data-key="<%=key%>"><i class="fa fa-pencil fa-btn-icon" aria-hidden="true"></i></a></div>
+<div class="checkbox form-check"><input type="checkbox" value="<%=key%>" id="forumcategories_<%=index%>" name="forumcategories" class="form-control input-md form-check-input forum-categories" <%=page.checked(key,data.dataset?.forumcategories)%> /><label for="forumcategories_<%=index%>" class="control-label form-check-label"><%=mapname%></label><a href="javascript:void(0)" class="forum-linker" data-key="<%=key%>"><i class="fa fa-pencil fa-btn-icon" aria-hidden="true"></i></a><a href="javascript:void(0)" class="forum-view-linker" data-key="<%=key%>" data-group="<%=group%>"><i class="fa fa-eye fa-btn-icon" aria-hidden="true"></i></a></div>
 
                         </div>
 <%					
@@ -72,4 +73,25 @@ if(catmap) {
 </div>
 <div class="row row-height">    
     <div id="forumcategories_alert" role="alert" class="col-md-12 col-height has-feedback has-error alert-layer fa-hidden"><%=label.get('forumcategories_alert','You can not leave this empty or select only one')%></div>
+</div>
+<hr/>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class" id="webhooklayer">
+				<div class="row row-height">
+					<div class="col-height col-md-3">
+						<div class="checkbox checkbox form-check">
+							<input type="checkbox" value="1" id="hookflag" name="hookflag" class="form-control input-md form-check-input" <%=page.checked('1',data.dataset?.hookflag)%> /><label for="hookflag" id="hookflag_label" class="control-label form-check-label"><%=label.get('hookflag_label','Web Hook')%></label>
+						</div>
+					</div>
+					<div class="col-height col-md">
+						<div class="input-group">
+							<input type="text" id="webhook" name="webhook" class="form-control input-md" value="<%=data.dataset.webhook%>" maxlength="200" />
+							<div class="input-group-required"><label class="required"></label></div>
+						</div>
+						<div id="webhook_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('webhook_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
 </div>

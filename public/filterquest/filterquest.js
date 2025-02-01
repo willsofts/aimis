@@ -439,6 +439,13 @@ function setupDialogComponents() {
 	$("a.forum-linker",$("#dialogpanel")).each(function(index,element) {
 		$(element).click(function() { openForum($(this).attr("data-key")); });
 	});
+	$("a.forum-view-linker",$("#dialogpanel")).each(function(index,element) {
+		$(element).click(function() {
+			let group = $(this).attr("data-group");
+			let url = group == "NOTE" ? "/gui/forumnote/view" : "/gui/forum/view";
+			openForumLinker(url,"forum_window",{forumid:$(this).attr("data-key")});
+		});
+	});
 	$("#jsonpromptlinker").click(function() {
 		let $input = $("#jsonprompt");
 		if($input.hasClass("fa-hidden")) {
@@ -504,9 +511,12 @@ function openForum(forumid) {
 			stopWaiting();
 			if(data?.body?.rows?.length>0) {
 				let row = data.body.rows[0];
+				console.log("row",row);
 				$("#forumtitle_label").html(row.forumtitle);
 				$("#forumid").val(forumid);
 				$("#classifyprompt").val(row.classifyprompt);
+				$("#forumhookflag").prop("checked",row.hookflag=="1");
+				$("#forumwebhook").val(row.webhook);
 				$("#fsmodaldialog_layer_forum").modal("show");
 			}
 		}
@@ -541,5 +551,8 @@ function saveForum(aform) {
 			}
 		});
 	});
+}
+function openForumLinker(url,winname,params) {
+	openNewWindow({url: url, params: {...params, authtoken: getAccessorToken()}, windowName: winname });
 }
 //#(390000) programmer code end;

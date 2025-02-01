@@ -29,10 +29,11 @@ export class ChatNoteHandler extends ChatDOCHandler {
     }
 
     public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -44,10 +45,11 @@ export class ChatNoteHandler extends ChatDOCHandler {
     }
 
     public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -67,6 +69,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             let chat = chatmap.get(category);
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
+                info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
             }
@@ -94,6 +97,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
@@ -104,10 +108,11 @@ export class ChatNoteHandler extends ChatDOCHandler {
     }
 
     public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel): Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -119,10 +124,11 @@ export class ChatNoteHandler extends ChatDOCHandler {
     }
 
     public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel): Promise<InquiryInfo> {
-        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, question: quest.question, query: "", answer: "", dataset: "" };
+        let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
+            info.statuscode = "NO-VALID";
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
@@ -140,6 +146,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
+                info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
             }
@@ -158,6 +165,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
+            info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
 			if(db) db.close();
