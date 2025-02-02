@@ -111,10 +111,14 @@ export class ChatHandler extends QuestionHandler {
                 });
                 chatmap.set(category,chat);
             }
-            let msg = "Question: "+input;
-            if(quest.property && quest.property.trim().length>0) {
-                msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
+            let msg = ["Question: "+input];
+            if(quest.property) {
+                let moreinfo = PromptUtility.getMoreInfo(quest.property);
+                if(moreinfo && moreinfo.trim().length>0) {
+                    msg.push(moreinfo+" \n\n");
+                }
             }
+            this.logger.debug(this.constructor.name+".processQuest: question:",msg);
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();

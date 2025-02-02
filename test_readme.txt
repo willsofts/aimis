@@ -33,3 +33,24 @@ set GOOGLE_APPLICATION_CREDENTIALS=KEY_PATH_TO_JSON_FILE
 ex.
 set GOOGLE_APPLICATION_CREDENTIALS=D:\AI\key\service_account_key.json
 
+test: chat query
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "category=AIDB1&query=List all products"
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "category=AIDB2&query=List all courses training"
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "category=AIDB3&query=List all employee leave quota"
+curl -X POST -H "Content-Type: application/json" -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "{\"category\": \"AIDB3\", \"query\": \"List all employee leave quota\"}"
+curl -X POST -H "Content-Type: application/json" -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "{\"category\": \"AIDB3\", \"query\": \"How many vacation days do I have in total?\", \"property\": { \"employeeid\": \"BILL\", \"employeename\": \"Bill\", \"employeesurname\": \"Rush\"} }"
+curl -X POST -H "Content-Type: application/json" -H "AuthToken: ?" http://localhost:8080/api/chat/quest -d "{\"category\": \"AIDB3\", \"query\": \"How many vacation days do I have left?\", \"property\": { \"employeeid\": \"BILL\", \"employeename\": \"Bill\", \"employeesurname\": \"Rush\"} }"
+
+test: classify quest
+1. product selling
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all products"
+
+2. course training
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all courses training"
+
+3. employee leave
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all employee leave quota"
+
+4. not found category
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all employee family services""
+

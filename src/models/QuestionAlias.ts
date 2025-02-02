@@ -12,7 +12,7 @@ export interface QuestInfo {
     model?: string;
     imageocr?: string;
     imagetmp?: string;
-    property?: string;
+    property?: any;
     async?: string;
 }
 

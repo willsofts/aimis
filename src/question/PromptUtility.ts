@@ -3,7 +3,7 @@ import { Utilities } from "@willsofts/will-util";
 const ANSWER_PROMPT_INFO = `If result not found then return No result.
         When the question ask about the object, use the object name not object id.`;
 const DATABASE_VERSION_INFO = "Using Database version: ";
-const MORE_PROMPT_INFO = "Remark: using current info below to answer.";
+const MORE_PROMPT_INFO = "Using the following specific properties info below to answer.";
 
 export class PromptUtility {
     public readonly dialect : string = "MySQL";
@@ -14,10 +14,18 @@ export class PromptUtility {
         }
     }
 
-    public static getMoreInfo(moreinfo: string) {
-        let json = moreinfo;
-        try { json = JSON.parse(moreinfo); } catch(ex) { json = moreinfo; }
-        return MORE_PROMPT_INFO+"\n"+json;
+    public static getMoreInfo(moreinfo: any) : string | undefined {
+        if(typeof moreinfo === "string") {
+            if(moreinfo.trim().length>0) {
+                return MORE_PROMPT_INFO+"\n"+moreinfo;        
+            }
+        } else if(typeof moreinfo === "object") {
+            let json = JSON.stringify(moreinfo);
+            if(Object.keys(json).length > 0) {
+                return MORE_PROMPT_INFO+"\n"+json;
+            }
+        }
+        return undefined;
     }
 
     public getCurrentDate() : string {
