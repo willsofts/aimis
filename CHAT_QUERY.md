@@ -33,7 +33,7 @@ After setting, try to obtain forum `ID` from entry in order to use in next step
 | query | this is your question to ask |
 | agent | this is AI agent usage default is `GEMINI` |
 | model | this is AI model usage default is `gemini-1.5-flash` |
-| property | this is private properties or more info. |
+| property | this is private properties or specific info. |
 | async | `true`/`false` if `true` it take as background process |
 
 ex. \
@@ -55,7 +55,11 @@ curl -X POST -H "AuthToken: ?" -H "Content-Type: application/json" http://localh
 reponse:
 ```
 {
+    "questionid": "",
+    "correlation": "gm9-jFwd6mpi7GwJsK9OHywtcvBXux7K",
+    "category": "AIDB1",
     "error": false,
+    "statuscode": "",
     "question": "List all product",
     "query": "SELECT cust_product.product_id, cust_product.product_name, cust_product.product_price, cust_product.product_index FROM cust_product",
     "answer": "Casual Shirt, Labour Shirt, Side Seeing Shirt, Working Shirt, Street Shirt, Art Pant, Dancing Pant, Working Pant, Aerobic Pant, Warming Pant",
@@ -137,5 +141,218 @@ This api support classification of question into categories setting by Classify 
 | correlation | this is correlation id default is session id|
 | category | this is your key from classfiy quest setting |
 | query | this is your question to ask |
-| property | this is private properties or more info. |
+| property | this is private properties or specific info. |
 | async | `true`/`false` if `true` it take as background process |
+
+ex. \
+1. request
+
+```
+{
+    "category":"QUESTCLASSIFY",
+    "query":"List all employee leave quota",
+}
+```
+
+using curl:
+
+```
+curl -X POST -H "Content-Type: application/json" -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "{\"category\": \"QUESTCLASSIFY\", \"query\": \"List all employee leave quota\" }"
+```
+
+reponse:
+```
+{
+  "questionid": "",
+  "correlation": "4P9L54a3ul10zW8a-fHSb9p3ETnZ905q",
+  "category": "AIDB3",
+  "error": false,
+  "statuscode": "",
+  "question": "List all employee leave quota",
+  "query": "SELECT employee_leave_quota.employeeid, employee_leave_quota.leavetype, employee_leave_quota.leaveqouta, employee_leave_quota.leaveused FROM employee_leave_quota",
+  "answer": "BILL: BUSINESS-30, GENERAL-30, SICK-30, VACATION-30; ELON: BUSINESS-35, GENERAL-35, SICK-35, VACATION-35; JACK: BUSINESS-30, GENERAL-30, SICK-30, VACATION-30; JEFF: BUSINESS-35, GENERAL-35, SICK-35, VACATION-35; MARK: BUSINESS-30, GENERAL-30, SICK-30, VACATION-30; STEVE: BUSINESS-35, GENERAL-35, SICK-35, VACATION-35",
+  "dataset": [
+    {
+      "employeeid": "BILL",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 30,
+      "leaveused": 10
+    },
+    {
+      "employeeid": "BILL",
+      "leavetype": "GENERAL",
+      "leaveqouta": 30,
+      "leaveused": 15
+    },
+    {
+      "employeeid": "BILL",
+      "leavetype": "SICK",
+      "leaveqouta": 30,
+      "leaveused": 5
+    },
+    {
+      "employeeid": "BILL",
+      "leavetype": "VACATION",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "ELON",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 35,
+      "leaveused": 15
+    },
+    {
+      "employeeid": "ELON",
+      "leavetype": "GENERAL",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "ELON",
+      "leavetype": "SICK",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "ELON",
+      "leavetype": "VACATION",
+      "leaveqouta": 35,
+      "leaveused": 5
+    },
+    {
+      "employeeid": "JACK",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "JACK",
+      "leavetype": "GENERAL",
+      "leaveqouta": 30,
+      "leaveused": 5
+    },
+    {
+      "employeeid": "JACK",
+      "leavetype": "SICK",
+      "leaveqouta": 30,
+      "leaveused": 5
+    },
+    {
+      "employeeid": "JACK",
+      "leavetype": "VACATION",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "JEFF",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "JEFF",
+      "leavetype": "GENERAL",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "JEFF",
+      "leavetype": "SICK",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "JEFF",
+      "leavetype": "VACATION",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "MARK",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "MARK",
+      "leavetype": "GENERAL",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "MARK",
+      "leavetype": "SICK",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "MARK",
+      "leavetype": "VACATION",
+      "leaveqouta": 30,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "STEVE",
+      "leavetype": "BUSINESS",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "STEVE",
+      "leavetype": "GENERAL",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "STEVE",
+      "leavetype": "SICK",
+      "leaveqouta": 35,
+      "leaveused": 0
+    },
+    {
+      "employeeid": "STEVE",
+      "leavetype": "VACATION",
+      "leaveqouta": 35,
+      "leaveused": 0
+    }
+  ]
+}
+```
+
+2. request with specific properties
+
+```
+{
+    "category":"QUESTCLASSIFY",
+    "query":"How many vacation days do I have left?",
+    "property": "json data"
+}
+```
+
+using curl:
+
+```
+curl -X POST -H "Content-Type: application/json" -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "{\"category\": \"QUESTCLASSIFY\", \"query\": \"How many vacation days do I have left?\", \"property\": { \"employeeid\": \"BILL\", \"employeename\": \"Bill\", \"employeesurname\": \"Rush\"} }"
+```
+
+reponse:
+```
+{
+  "questionid": "",
+  "correlation": "gm9-jFwd6mpi7GwJsK9OHywtcvBXux7K",
+  "category": "AIDB3",
+  "error": false,
+  "statuscode": "",
+  "question": "How many vacation days do I have left?",
+  "query": "SELECT \n    elq.leaveqouta - elq.leaveused\nFROM\n    employee_leave_quota elq\nINNER JOIN\n\temployee e ON elq.employeeid = e.employeeid\nINNER JOIN\n\temployee_leave_type elt ON elq.leavetype = elt.leavetype\nWHERE\n\te.employeeid = \"BILL\" AND elt.leavetypename = \"Vacation\";",
+  "answer": "You have 30 vacation days left.",
+  "dataset": [
+    {
+      "elq.leaveqouta - elq.leaveused": 30
+    }
+  ]
+}
+```
+
+(url depending on your host deployment)

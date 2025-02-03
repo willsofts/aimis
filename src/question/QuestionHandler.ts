@@ -92,7 +92,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -161,7 +161,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -227,7 +227,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -296,7 +296,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processQuestGemma(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        return { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        return { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
     }
 
     public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
@@ -308,7 +308,7 @@ export class QuestionHandler extends GenerativeHandler {
 
     public async processQuestionGemini(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         //old fashion by file system handler
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -385,7 +385,7 @@ export class QuestionHandler extends GenerativeHandler {
 
     public async processAskGemini(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), classify: "", property: context?.params?.property};
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -414,7 +414,7 @@ export class QuestionHandler extends GenerativeHandler {
 
     public async processAskOllama(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), classify: "", property: context?.params?.property};
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -440,7 +440,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processReset(category: string, correlation: string) : Promise<InquiryInfo> {
-        return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: "reset", query: category, answer: "OK", dataset: [] });
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, classify: "", error: false, statuscode: "", question: "reset", query: category, answer: "OK", dataset: [] });
     }
 
     public async getHistory(category: string, correlation: string) : Promise<any[]>{

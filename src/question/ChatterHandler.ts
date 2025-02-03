@@ -43,7 +43,7 @@ export class ChatterHandler extends GenerativeHandler {
     public async getQuestionConfigure(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<[InquiryInfo, KnDataSet | undefined, string]> {
         let prompts = "";
         let configure : KnDataSet | undefined = undefined;        
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -89,7 +89,7 @@ export class ChatterHandler extends GenerativeHandler {
 
     public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, configure: KnDataSet, prompts: string) : Promise<InquiryInfo> {
         let callingflag = false;
-        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let forumcfg = await this.createForumConfig(configure);
         try {
             let promptcontents = [{text: quest.question},{ text: prompts }];

@@ -20,6 +20,7 @@ export interface InquiryInfo {
     questionid: string;
     correlation: string;
     category: string;
+    classify?: string;
     error: boolean;
     statuscode: string;
     question: string;
