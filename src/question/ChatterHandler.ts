@@ -101,43 +101,49 @@ export class ChatterHandler extends GenerativeHandler {
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
             this.saveTokenUsage(context,quest,promptcontents,aimodel);
             let jsonstr = this.parseJSONAnswer(text);
-            let json = JSON.parse(jsonstr);
-            this.logger.debug(this.constructor.name+".processQuest: json answer",json); 
-            if(!json.category_name || json.category_name.trim().length==0) {
-                if(API_ANSWER_CHATTER) {
-                    result = await aimodel.generateContent(quest.question);
-                    response = result.response;
-                    text = response.text();
-                    this.logger.debug(this.constructor.name+".processQuest: response:",text);
-                    this.saveTokenUsage(context,quest,quest.question,aimodel);
-                    info.answer = this.parseAnswer(text);
-                } else {
-                    info.error = true;
-                    info.answer = json.category_feedback || "Cannot classify question into category";
-                }
+            let json = undefined;
+            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error(ex); }
+            if(!json) {
+                info.error = true;
+                info.answer = jsonstr;
             } else {
-                let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                this.logger.debug(this.constructor.name+".processQuest: forum",forum);
-                if(forum) {
-                    let params = {...quest, query: quest.question, question: "", authtoken: this.getTokenKey(context), hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
-                    params.agent = configure.agent;
-                    params.category = json.category_name;
-                    params.classify = info.category;
-                    if(forum.forumgroup=="DB") {
-                        callingflag = true;
-                        info = await this.call("chat.quest",params);
-                    } else if(forum.forumgroup=="NOTE") {
-                        callingflag = true;
-                        info = await this.call("chatnote.quest",params);    
+                this.logger.debug(this.constructor.name+".processQuest: json answer",json); 
+                if(!json.category_name || json.category_name.trim().length==0) {
+                    if(API_ANSWER_CHATTER) {
+                        result = await aimodel.generateContent(quest.question);
+                        response = result.response;
+                        text = response.text();
+                        this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                        this.saveTokenUsage(context,quest,quest.question,aimodel);
+                        info.answer = this.parseAnswer(text);
                     } else {
                         info.error = true;
-                        info.statuscode = "NO-SUPPORT";
-                        info.answer = "Not suppport service type";
+                        info.answer = json.category_feedback || "Cannot classify question into category";
                     }
                 } else {
-                    info.error = true;
-                    info.statuscode = "NO-KNOWN";
-                    info.answer = "Not known setting";
+                    let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
+                    this.logger.debug(this.constructor.name+".processQuest: forum",forum);
+                    if(forum) {
+                        let params = {...quest, query: quest.question, question: "", authtoken: this.getTokenKey(context), hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
+                        params.agent = configure.agent;
+                        params.category = json.category_name;
+                        params.classify = info.category;
+                        if(forum.forumgroup=="DB") {
+                            callingflag = true;
+                            info = await this.call("chat.quest",params);
+                        } else if(forum.forumgroup=="NOTE") {
+                            callingflag = true;
+                            info = await this.call("chatnote.quest",params);    
+                        } else {
+                            info.error = true;
+                            info.statuscode = "NO-SUPPORT";
+                            info.answer = "Not suppport service type";
+                        }
+                    } else {
+                        info.error = true;
+                        info.statuscode = "NO-KNOWN";
+                        info.answer = "Not known setting";
+                    }
                 }
             }
         } catch(ex: any) {
