@@ -1,0 +1,9 @@
+version: '3.6'
+services:
+  aimis:
+    image: willsofts/aimis:latest
+    container_name: aimis
+    environment:
+      - TZ=Asia/Bangkok
+    ports:
+      - 8080:8080
