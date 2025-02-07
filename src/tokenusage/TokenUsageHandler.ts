@@ -3,7 +3,7 @@ import { KnDBConnector, KnSQLInterface, KnRecordSet, KnResultSet, KnSQL } from "
 import { KnContextInfo, KnDataTable } from '@willsofts/will-core';
 import { Utilities } from "@willsofts/will-util";
 import { TknOperateHandler } from '@willsofts/will-serv';
-import { PRIVATE_SECTION, API_MODEL } from "../utils/EnvironmentVariable";
+import { PRIVATE_SECTION, DB_SECTION, API_MODEL } from "../utils/EnvironmentVariable";
 import { QuestInfo } from "../models/QuestionAlias";
 
 export class TokenUsageHandler extends TknOperateHandler {
@@ -11,12 +11,13 @@ export class TokenUsageHandler extends TknOperateHandler {
     public progid = "tokenusage";
     public model : KnModel = { 
         name: "ttokenusage", 
-        alias: { privateAlias: this.section }, 
+        alias: { privateAlias: this.section, centerAlias: DB_SECTION }, 
         fields: {
             site: { type: "STRING", created: true },
             userid: { type: "STRING", created: true },
             useruuid: { type: "STRING", created: true },
             authtoken: { type: "STRING", created: true },
+            tokentype: { type: "STRING" },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
@@ -38,6 +39,7 @@ export class TokenUsageHandler extends TknOperateHandler {
         let authtoken = this.getTokenKey(context);
         if(!this.userToken) this.userToken = await this.getUserTokenInfo(context,true);
         sql.set("authtoken",authtoken);
+        sql.set("tokentype",this.userToken?.tokentype);
         sql.set("site",this.userToken?.site);
         sql.set("userid",this.userToken?.userid);
         sql.set("useruuid",this.userToken?.useruuid);

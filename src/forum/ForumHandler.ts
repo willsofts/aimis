@@ -579,7 +579,6 @@ export class ForumHandler extends TknOperateHandler {
         let db = this.getPrivateConnector(model);
         try {
             let rs = await this.performListing(context, model, db);
-            console.log("doList",rs);
             if(rs.rows.length>0) {
                 let hasselected = false;
                 let firstforum = rs.rows[0].forumid;

@@ -13,7 +13,21 @@ export class ChatterHandler extends GenerativeHandler {
         name: "tfilterquest", 
         alias: { privateAlias: this.section }, 
     };
-    public handlers = [ {name: "quest"} ];
+    public handlers = [ {name: "quest"}, {name: "reset"} ];
+
+    public async reset(context: KnContextInfo) : Promise<InquiryInfo> {
+        return this.callFunctional(context, {operate: "reset", raw: true}, this.doReset);
+    }
+
+    public async doReset(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
+        await this.validateInputFields(context, model, "category");
+        let correlationid = context.params.correlation || this.createCorrelation(context);
+        return this.processReset(context.params.category,correlationid);
+    }
+
+    public async processReset(category: string, correlation: string) : Promise<InquiryInfo> {
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, classify: "", error: false, statuscode: "", question: "reset", query: category, answer: "OK", dataset: [] });
+    }
 
     public override async doQuest(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);

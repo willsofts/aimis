@@ -393,6 +393,58 @@ export class FilterQuestHandler extends TknOperateHandler {
         return super.performClearing(context, model, db);
     }
 
+    protected override async doList(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
+        let db = this.getPrivateConnector(model);
+        try {
+            let rs = await this.performListing(context, model, db);
+            if(rs.rows.length>0) {
+                let hasselected = false;
+                let firstforum = rs.rows[0].filterid;
+                let ds : KnDataSet = { };
+                for(let i=0; i<rs.rows.length; i++) {
+                    let row = rs.rows[i];
+                    ds[row.filterid] = { title : row.filtername, selected: "1"==row.forumselected };
+                    if(ds[row.filterid].selected) hasselected = true;
+                    let qrs = await this.performQuestionGetting(context, db, row.filterid);
+                    if(qrs.rows.length>0) {
+                        ds[row.filterid].questions = qrs.rows;
+                    }
+                }
+                if(!hasselected) { ds[firstforum].selected = true; }
+                return this.createDataTable(KnOperation.LIST, ds);
+            }
+            return this.createDataTable(KnOperation.LIST);
+        } catch(ex: any) {
+            this.logger.error(this.constructor.name,ex);
+            return Promise.reject(this.getDBError(ex));
+		} finally {
+			if(db) db.close();
+        }        
+    }
+
+    protected async performQuestionGetting(context: KnContextInfo, db: KnDBConnector, forumid: string): Promise<KnRecordSet> {
+        let knsql = new KnSQL();
+        knsql.append("select seqno,question ");
+        knsql.append("from tforumquest ");
+        knsql.append("where forumid = ?forumid ");
+        knsql.append("order by seqno ");
+        knsql.set("forumid",forumid);
+        let rs = await knsql.executeQuery(db,context);
+        return this.createRecordSet(rs);
+    }
+
+    protected async performListing(context: KnContextInfo, model: KnModel, db: KnDBConnector): Promise<KnRecordSet> {
+        let knsql = new KnSQL();
+        knsql.append("select filterid,filtername,createmillis ");
+        knsql.append("from tfilterquest ");
+        knsql.append("where ( createuser = ?userid or createuser is null ) ");
+        knsql.append("order by createmillis ");
+        knsql.set("userid",this.userToken?.userid);
+        this.logger.debug(this.constructor.name+".performListing",knsql);
+        let rs = await knsql.executeQuery(db,context);
+        return this.createRecordSet(rs);
+    }
+
     /* ------------ UI ------------- */
     /* override to handle launch router when invoked from menu */
     protected override async doExecute(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
