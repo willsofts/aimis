@@ -80,6 +80,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
+        quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
@@ -96,6 +97,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
+        quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
@@ -178,6 +180,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
@@ -194,6 +197,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
             info.error = true;
@@ -222,6 +226,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
+        quest.mime = quest.mime || "PDF";
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
@@ -243,6 +248,7 @@ export class ChatPDFHandler extends VisionHandler {
 
     public async processAskAsync(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
+        quest.mime = quest.mime || "PDF";
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-QUEST";
