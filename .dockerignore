@@ -5,3 +5,12 @@ logs
 node_modules
 pdf
 npm-debug.log
+ai_readme.txt
+aidb.postman_collection.json
+docker_me.txt
+docker_push.bat
+docker-compose-ssl.yml
+docker-compose-test.yml
+docker-compose.yml
+Dockerfile
+test_readme.txt
