@@ -123,7 +123,7 @@ reponse:
 
 3. quest classify
 
-This api support classification of question into categories setting by Classify Quest screen
+This api support classification of question into categories setting by Classify Setting screen
 
 | Classification | Description |
 | -------- | ----------- |

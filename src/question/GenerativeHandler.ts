@@ -45,6 +45,7 @@ export class GenerativeHandler extends TknOperateHandler {
         let correlationid = context.meta.session?.correlation;
         if(!correlationid) { 
             correlationid = context.meta.session?.id || uuid();
+            if(!context.meta.session) context.meta.session = {};
             context.meta.session.correlation = correlationid; 
         }
         return correlationid;

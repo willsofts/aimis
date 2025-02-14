@@ -213,8 +213,7 @@ export class FilterQuestHandler extends TknOperateHandler {
     public async performRetrieveDataSet(db: KnDBConnector, filterid: string, context?: KnContextInfo) : Promise<KnDataSet | undefined> {
         let rs = await this.performRetrieving(db, filterid, context);
         if(rs.rows.length>0) {
-            let row = await this.retrieveDataSet(db, filterid, rs, context);
-            return row;
+            return await this.retrieveDataSet(db, filterid, rs, context);
         }
         return undefined;
     }

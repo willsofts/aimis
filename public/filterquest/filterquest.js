@@ -47,6 +47,7 @@ function setupComponents() {
 		disableControls($("#forumupdatebutton"));
 		saveForum(); return false;
 	});
+	setupForumSettings($("#entrylayerarea"));
 	//#(60000) programmer code end;
 }
 function resetFilters() {
@@ -436,10 +437,14 @@ function setupDialogComponents() {
 	$("#dialogpanel").find(".modal-dialog").draggable();
 	//#(385000) programmer code begin;
 	setTimeout(function() { $("#filtername").focus(); },500);
-	$("a.forum-linker",$("#dialogpanel")).each(function(index,element) {
+	setupForumSettings($("#dialogpanel"));
+	//#(385000) programmer code end;
+}
+function setupForumSettings(container) {
+	$("a.forum-linker",container).each(function(index,element) {
 		$(element).click(function() { openForum($(this).attr("data-key")); });
 	});
-	$("a.forum-view-linker",$("#dialogpanel")).each(function(index,element) {
+	$("a.forum-view-linker",container).each(function(index,element) {
 		$(element).click(function() {
 			let group = $(this).attr("data-group");
 			let url = group == "NOTE" ? "/gui/forumnote/view" : "/gui/forum/view";
@@ -454,7 +459,6 @@ function setupDialogComponents() {
 			$input.addClass("fa-hidden");
 		}
 	});
-	//#(385000) programmer code end;
 }
 var fs_requiredfields = {
 	"filterid":{msg:""}, 

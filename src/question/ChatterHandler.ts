@@ -21,8 +21,38 @@ export class ChatterHandler extends GenerativeHandler {
 
     public async doReset(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         await this.validateInputFields(context, model, "category");
-        let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processReset(context.params.category,correlationid);
+        return this.processResetting(context,model);
+    }
+
+    public async processResetting(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
+        let correlation = context.params.correlation || this.createCorrelation(context);
+        let category = context.params.category;
+        let db = this.getPrivateConnector(model);
+        try {
+            //find out classify setting and categories setting
+            let handler = new FilterQuestHandler();
+            handler.obtain(this.broker,this.logger);
+            let configure = await handler.getFilterQuestConfig(db,category,context);
+            this.logger.debug(this.constructor.name+".getQuestionConfigure",configure);
+            let forumlists = configure?.forumlists;
+            if(forumlists && forumlists.length > 0) {
+                let authtoken = this.getTokenKey(context);
+                for(let forum of forumlists) {
+                    if("DB"==forum.forumgroup) {
+                        let params = {authtoken: authtoken, correlation: correlation, category: forum.forumid };
+                        this.call("chat.reset",params).catch(ex => this.logger.error(ex));
+                    } else if("NOTE"==forum.forumgroup) {
+                        let params = {authtoken: authtoken, correlation: correlation, category: forum.forumid };
+                        this.call("chatnote.reset",params).catch(ex => this.logger.error(ex));
+                    }
+                }
+            }
+        } catch(ex: any) {
+            this.logger.error(this.constructor.name,ex);
+        } finally {
+            if(db) db.close();
+        }
+        return Promise.resolve({ questionid: "", correlation: correlation, category: category, classify: "", error: false, statuscode: "", question: "reset", query: category, answer: "OK", dataset: [] });
     }
 
     public async processReset(category: string, correlation: string) : Promise<InquiryInfo> {

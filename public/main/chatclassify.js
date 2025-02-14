@@ -170,7 +170,7 @@ function buildCategories(categories) {
 		let content = $('<div>').addClass("dropdown-content cat-content");
 		let link1 = $('<a>').attr("href","#0").addClass("info-linker").attr("data-cat",cat).text("Setting");
 		//let link3 = $('<a>').attr("href","#0").addClass("info-history").attr("data-cat",cat).attr("data-title",info.title).text("History");
-		//let link4 = $('<a>').attr("href","#0").addClass("info-reset").attr("data-cat",cat).attr("data-title",info.title).text("Reset");
+		let link4 = $('<a>').attr("href","#0").addClass("info-reset").attr("data-cat",cat).attr("data-title",info.title).text("Reset");
 		link1.click(function() {
 			let cat = $(this).attr("data-cat");
 			open_program("filterquest","","filterid="+cat,"/gui/filterquest/view",true);
@@ -183,13 +183,13 @@ function buildCategories(categories) {
 			open_program("chatterhistory","","query="+cat+"&title="+title,"/gui/chatter/view",true);
 			return false;
 		});
+		*/
 		link4.click(function() {
 			let cat = $(this).attr("data-cat");
 			confirmResetCategory(cat,$(this).attr("data-title"));
 			return false;
-		});
-		*/
-		content.append(link1);
+		});		
+		content.append(link1).append(link4);
 		menu.append(m).append(content);
 		li.append(div).append(menu);
 		ul.append(li);
