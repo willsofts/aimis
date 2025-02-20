@@ -24,6 +24,7 @@ let cfg : ForumConfig = {
 
 let args = process.argv.slice(2);
 let coid = Arguments.getString(args,"12345","-id","--coid") as string;
+let qid = Arguments.getString(args,"12345","-qid","--quest") as string;
 let sql = Arguments.getString(args,"select * from cust_product","-sql","--query") as string;
 cfg.schema = Arguments.getString(args,cfg.schema,"-s","--schema") as string;
 cfg.type = Arguments.getString(args,cfg.type,"-t","--type") as string;
@@ -39,7 +40,7 @@ cfg.database = Arguments.getString(args,cfg.database,"-db","--database") as stri
 let cat = Arguments.getString(args,"TEST","-cat","--category") as string;
 console.log(cfg);
 let handler = new QuestionHandler();
-handler.doEnquiry(sql,cat,coid,cfg).then((rs) => {
+handler.doEnquiry(sql,cat,{correlation:coid,questionid:qid,question:"",mime:"",image:"",category:cat},cfg).then((rs) => {
     console.log(rs);
 }).catch((ex) => {
     console.error(ex);

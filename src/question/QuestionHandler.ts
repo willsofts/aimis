@@ -54,28 +54,28 @@ export class QuestionHandler extends GenerativeHandler {
         return this.processReset(context.params.category,correlationid);
     }
 
-    public async doInquiry(sql: string, section: string = this.section) : Promise<KnRecordSet> {
+    public async doInquiry(sql: string, quest: QuestInfo, section: string = this.section) : Promise<KnRecordSet> {
         try {
             let handler = new InquiryHandler();
-            return await handler.processInquire(sql, section);
+            return await handler.processInquire(sql, quest, section);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
         }
     }
 
-    public async doEnquiry(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async doEnquiry(sql: string, category: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnRecordSet> {
         if(forum.type=="DB") {
-            return this.processEnquiry(sql, category, correlation, forum);
+            return this.processEnquiry(sql, category, quest, forum);
         }
-        return this.processAPI(sql, category, correlation, forum);
+        return this.processAPI(sql, category, quest, forum);
     }
 
-    public async processEnquiry(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async processEnquiry(sql: string, category: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnRecordSet> {
         let db = this.getConnector(forum);
         try {
             let handler = new InquiryHandler();
-            return await handler.processEnquiry(sql, correlation, db);
+            return await handler.processEnquiry(sql, quest, db);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
@@ -128,7 +128,7 @@ export class QuestionHandler extends GenerativeHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, quest, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -196,7 +196,7 @@ export class QuestionHandler extends GenerativeHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, quest, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -263,7 +263,7 @@ export class QuestionHandler extends GenerativeHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, quest, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -338,7 +338,7 @@ export class QuestionHandler extends GenerativeHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doInquiry(sql, category);
+            let rs = await this.doInquiry(sql, quest, category);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";

@@ -136,7 +136,7 @@ export class ChatHandler extends QuestionHandler {
             //then run the SQL query
             let rs : KnRecordSet = { records: 0, rows: [], columns: [] };
             try {
-                rs = await this.doEnquiry(sql, category, info.correlation, forum);
+                rs = await this.doEnquiry(sql, category, quest, forum);
                 this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";
@@ -166,7 +166,7 @@ export class ChatHandler extends QuestionHandler {
                     }
                     info.query = sql;
                     try {
-                        rs = await this.doEnquiry(sql, category, info.correlation, forum);
+                        rs = await this.doEnquiry(sql, category, quest, forum);
                         this.logger.debug(this.constructor.name+".processQuest: catch rs:",rs);
                         if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                             info.answer = "Record not found.";
@@ -273,7 +273,7 @@ export class ChatHandler extends QuestionHandler {
             }
             info.query = sql;
             //then run the SQL query
-            let rs = await this.doEnquiry(sql, category, info.correlation, forum);
+            let rs = await this.doEnquiry(sql, category, quest, forum);
             this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
@@ -364,7 +364,7 @@ export class ChatHandler extends QuestionHandler {
             //then run the SQL query
             let rs : KnRecordSet = { records: 0, rows: [], columns: [] };
             try {
-                rs = await this.doEnquiry(sql, category, info.correlation, forum);
+                rs = await this.doEnquiry(sql, category, quest, forum);
                 this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";

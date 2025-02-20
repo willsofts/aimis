@@ -4,7 +4,7 @@ import { KnDBConnector } from "@willsofts/will-sql";
 import { HTTP } from "@willsofts/will-api";
 import { KnContextInfo, KnValidateInfo, VerifyError } from "@willsofts/will-core";
 import { TknOperateHandler } from '@willsofts/will-serv';
-import { ForumConfig, KnInquirySet } from "../models/QuestionAlias";
+import { ForumConfig, KnInquirySet, QuestInfo } from "../models/QuestionAlias";
 import { ForumHandler } from "../forum/ForumHandler";
 import { QuestionUtility } from "./QuestionUtility";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
@@ -56,17 +56,18 @@ export class InquiryHandler extends TknOperateHandler {
     public async doInquire(context: KnContextInfo, model: KnModel = this.model) : Promise<KnInquirySet> {
         let query = context.params.query;
         let correlationid = context.params.correlation || this.createCorrelation(context);
-        return this.processInquire(query, correlationid, this.section, model);
+        let quest : QuestInfo = {correlation: correlationid, questionid: context.params.questionid, question: "", mime:"", image:"", category:""};
+        return this.processInquire(query, quest, this.section, model);
     }
 
-    public async processInquire(query: string, correlation: string, section: string = this.section, model: KnModel = this.model) : Promise<KnInquirySet> {
+    public async processInquire(query: string, quest: QuestInfo, section: string = this.section, model: KnModel = this.model) : Promise<KnInquirySet> {
         let vi = this.isValidQuery(query);
         if(!vi.valid) {
             return Promise.reject(new VerifyError(""+vi.info,HTTP.NOT_ACCEPTABLE,-16061));
         }
         let db = config.has(section) ? this.getConnector(section) : this.getPrivateConnector(model);
         try {
-            return await this.processEnquiry(query, correlation, db);
+            return await this.processEnquiry(query, quest, db);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
@@ -85,16 +86,17 @@ export class InquiryHandler extends TknOperateHandler {
         return {valid:true};
     }
 
-    public async processEnquiry(query: string, correlation: string, db: KnDBConnector) : Promise<KnInquirySet> {
+    public async processEnquiry(query: string, quest: QuestInfo, db: KnDBConnector) : Promise<KnInquirySet> {
         this.logger.debug(this.constructor.name+".processEnquiry: query",query);
         let rs = await db.executeQuery(query);
         this.logger.debug(this.constructor.name+".processEnquiry: rs",rs);
         let rss = this.createRecordSet(rs);
-        return {correlation, ...rss};
+        return {correlation: quest.correlation, questionid: quest.questionid, ...rss};
     }
 
     public async doEnquire(context: KnContextInfo, model: KnModel = this.model) : Promise<KnInquirySet> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
+        let quest : QuestInfo = {correlation: correlationid, questionid: context.params.questionid, question: "", mime:"", image:"", category:""};
         let query = context.params.query;
         let vi = this.validateParameters(context.params,"category");
         if(!vi.valid) {
@@ -108,7 +110,7 @@ export class InquiryHandler extends TknOperateHandler {
         let db = this.getPrivateConnector(model);
         try {
             let forum = await this.getForumConfig(db,category,context);
-            return await this.performEnquiry(query, correlationid, forum);
+            return await this.performEnquiry(query, quest, forum);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
@@ -126,17 +128,17 @@ export class InquiryHandler extends TknOperateHandler {
         return result;
     }
 
-    public async performEnquiry(sql: string, correlation: string, forum: ForumConfig) : Promise<KnInquirySet> {
+    public async performEnquiry(sql: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnInquirySet> {
         if(forum.type=="DB") {
-            return this.processQuery(sql, correlation, forum);
+            return this.processQuery(sql, quest, forum);
         }
         return Promise.reject(new VerifyError("Not accept configuration type setting",HTTP.NOT_ACCEPTABLE,-16061));
     }
 
-    protected async processQuery(sql: string, correlation: string, forum: ForumConfig) : Promise<KnInquirySet> {
+    protected async processQuery(sql: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnInquirySet> {
         let db = this.getConnector(forum);
         try {
-            return await this.processEnquiry(sql, correlation, db);
+            return await this.processEnquiry(sql, quest, db);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
@@ -167,6 +169,7 @@ export class InquiryHandler extends TknOperateHandler {
 
     public async doQueries(context: KnContextInfo, model: KnModel = this.model) : Promise<KnInquirySet> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
+        let quest : QuestInfo = {correlation: correlationid, questionid: context.params.questionid, question: "", mime:"", image:"", category:""};
         let query = context.params.query;        
         let vi = this.isValidQuery(query);
         if(!vi.valid) {
@@ -175,7 +178,7 @@ export class InquiryHandler extends TknOperateHandler {
         let db = this.getPrivateConnector(model);
         try {
             let forum = this.getContextConfig(context);
-            return await this.performEnquiry(query, correlationid, forum);
+            return await this.performEnquiry(query, quest, forum);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));

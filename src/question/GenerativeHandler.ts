@@ -190,16 +190,16 @@ export class GenerativeHandler extends TknOperateHandler {
         return result;
     }
 
-    public async processAPI(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    public async processAPI(sql: string, category: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnRecordSet> {
         if(forum.api && forum.api.trim().length>0) {
-            return this.requestAPI(sql, category, correlation, forum);
+            return this.requestAPI(sql, category, quest, forum);
         }
         return Promise.reject(new VerifyError("API setting not found",HTTP.NOT_FOUND,-16004));
     }
 
-    protected async requestAPI(sql: string, category: string, correlation: string, forum: ForumConfig) : Promise<KnRecordSet> {
+    protected async requestAPI(sql: string, category: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnRecordSet> {
         let response;
-        let body = JSON.stringify({ category: category, correlation: correlation, query: sql });
+        let body = JSON.stringify({ category: category, correlation: quest.correlation, questionid: quest.questionid, query: sql });
         let url = forum.api as string;
         let params = {};
         let settings = {};

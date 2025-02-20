@@ -64,4 +64,5 @@ export interface FileImageInfo extends ImageInfo {
 
 export interface KnInquirySet extends KnRecordSet {
     correlation: string;
+    questionid: string;
 }
