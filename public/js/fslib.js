@@ -412,14 +412,9 @@ function formatDecimal(avalue,decimal,verifydecimal) {
 		return sign+astr+cstr; 
 	} 
 }						 
-function firstDateOfMonth(date = new Date()) {
-	return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-function lastDateOfMonth(date = new Date()) {
-	return new Date(date.getFullYear(), date.getMonth() + 1, 0);
-}	  
-function getTimeNow(now) { 
-	if(!now) now = new Date(); 
+		  
+function getTimeNow() { 
+	let now = new Date(); 
 	let hh = now.getHours(); 
 	let mm = now.getMinutes(); 
 	let ss = now.getSeconds(); 
@@ -427,9 +422,10 @@ function getTimeNow(now) {
 	result += ((mm < 10) ? ":0" : ":") + mm; 
 	result += ((ss < 10) ? ":0" : ":") + ss; 
 	return result; 
-} 		 
-function getDateNow(now) { 
-	if(!now) now  = new Date(); 
+} 
+		  
+function getDateNow() { 
+	let now  = new Date(); 
 	let dd = now.getDate(); 
 	let mm = now.getMonth()+1; 
 	let yy = now.getFullYear(); 
@@ -682,6 +678,11 @@ function startApplication(pid,unbind,aform) {
 		//bootstrap v4
 		$.fn.modal.Constructor.Default.backdrop = "static";
 		$.fn.modal.Constructor.Default.keyboard = false;
+	} catch(ex) { }
+	try {
+		//bootstrap 5
+		Modal.Default.backdrop = "static";
+		Modal.Default.keyboard = false;
 	} catch(ex) { }
 	initialComponents();
 	try { requestAccessorInfo(); }catch(ex) { }
@@ -951,29 +952,32 @@ function replaceString(str, arrStr){
 	}
 	return str;
 }
-var msgxmldoc = null;
-function loadXMLMessage(aSync) {
+var msgjsondoc = null;
+function loadJSONMessage(aSync) {
+	let authtoken = getAccessorToken();
 	jQuery.ajax({
-		url: "/xml/smart_message.xml?seed="+Math.random(),
+		url: API_URL+"/api/message/get",
 		async : aSync,
+		headers : { "authtoken": authtoken },
 		type: "GET",
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-		dataType: "xml",
-		error : function(transport,status,errorThrown) { 
-		},
-		success: function(data,status,transport){ msgxmldoc = data; }
+		dataType: "json",
+		success: function(data,status,transport){ msgjsondoc = data; }
 	});	
 }
 function getMessageCode(errcode, params) {
 	try {
-		if (msgxmldoc == null) loadXMLMessage(false);
-		let msgnode = $("root msg[code=" + errcode + "]", msgxmldoc);
-		let fs_curlang = fs_default_language;
-		if(!fs_curlang) fs_curlang = "EN";
-		let fs_msgtext = msgnode.find(fs_curlang.toUpperCase()).text();
-		if(!fs_msgtext) return errcode;
-		if(fs_msgtext && fs_msgtext!="") return replaceString(fs_msgtext, params);
-		return msgnode.text();
+		if (msgjsondoc == null) loadJSONMessage(false);
+		let messages = msgjsondoc?.msg;
+		if(messages) {
+			let msgnode = messages.find(item => item.code == errcode);
+			if(msgnode) {
+				let fs_curlang = fs_default_language;
+				if(!fs_curlang) fs_curlang = "EN";
+				let msg = msgnode[fs_curlang];
+				if(!msg) return errcode;
+				if(msg && msg.trim().length>0) return replaceString(msg,params);
+			}
+		}
 	}catch(ex) { }
 	return errcode;
 }
@@ -1630,6 +1634,7 @@ var secureEngine;
 function getSecureEngine() {
     if(!secureEngine) {
         secureEngine = SECURE_STORAGE ? new SecureLS.default({storage: "local"==BASE_STORAGE ? localStorage : sessionStorage}) : null;
+		console.info("secure engine:",secureEngine);
     }
     return secureEngine;
 }

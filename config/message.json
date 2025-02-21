@@ -1,0 +1,424 @@
+{
+	"msg": [
+		{
+		  "code": "QS0001",
+		  "TH": "คุณต้องการลบรายการนี้ใช่หรือไม่ %s",
+		  "EN": "Do you want to delete this transaction? %s"
+		},
+		{
+		  "code": "QS0002",
+		  "TH": "คุณต้องการบันทึกรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to save this transaction?"
+		},
+		{
+		  "code": "QS0003",
+		  "TH": "คุณต้องการยกเลิกรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to cancel this transaction?"
+		},
+		{
+		  "code": "QS0004",
+		  "TH": "บันทึกรายการเรียบร้อยแล้ว %s",
+		  "EN": "Save Completed %s"
+		},
+		{
+		  "code": "QS0005",
+		  "TH": "ท่านต้องการลบรายการนี้ใช่หรือไม่ %s",
+		  "EN": "Do you want to delete this record? %s"
+		},
+		{
+		  "code": "QS0006",
+		  "TH": "คุณต้องการส่งรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to send this transaction?"
+		},
+		{
+		  "code": "QS0007",
+		  "TH": "คุณต้องการบันทึกและสร้างโปรแกรมนี้ใช่หรือไม่",
+		  "EN": "Do you want to save and generate this program?"
+		},
+		{
+		  "code": "QS0008",
+		  "TH": "คุณต้องการลบรายการ filter นี้ใช่หรือไม่ %s",
+		  "EN": "Do you want to delete this filter %s ?"
+		},
+		{
+		  "code": "QS0009",
+		  "TH": "คุณต้องการลบรายการ section นี้ใช่หรือไม่ %s",
+		  "EN": "Do you want to delete this section %s ?"
+		},
+		{
+		  "code": "QS0010",
+		  "TH": "คุณต้องการบันทึกเป็นรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to save as this transaction ?"
+		},
+		{
+		  "code": "QS0011",
+		  "TH": "คุณต้องการลบรายการ field นี้ใช่หรือไม่ %s",
+		  "EN": "Do you want to delete this field %s ?"
+		},
+		{
+		  "code": "QS0012",
+		  "TH": "คุณต้องการลบแถวนี้ใช่หรือไม่",
+		  "EN": "Do you want to delete this row ?"
+		},
+		{
+		  "code": "QS0013",
+		  "TH": "บันทึกและสร้างรายการเรียบร้อยแล้ว %s",
+		  "EN": "Process and generate success %s"
+		},
+		{
+		  "code": "QS0014",
+		  "TH": "คุณต้องการปรับปรุงรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to update this transaction?"
+		},
+		{
+		  "code": "QS0015",
+		  "TH": "คุณต้องการล้างรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to clear this?"
+		},
+		{
+		  "code": "QS0016",
+		  "TH": "คุณต้องการยกเลิกรายการใบลานี้ใช่หรือไม่",
+		  "EN": "Do you want to cancel this absence transaction?"
+		},
+		{
+		  "code": "QS0017",
+		  "TH": "คุณต้องการส่งรายการใบลานี้ใช่หรือไม่",
+		  "EN": "Do you want to send this absence transaction?"
+		},
+		{
+		  "code": "QS0018",
+		  "TH": "คุณต้องการดำเนินการ รายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to process this transaction?"
+		},
+		{
+		  "code": "QS0019",
+		  "TH": "เนื่องจากอีเมลเปลี่ยน  คุณต้องการเปลี่ยนรหัสผู้ใช้งานตามอีเมลหรือไม่",
+		  "EN": "Email was changed, Do you want to change user login as new email?"
+		},
+		{
+		  "code": "QS0020",
+		  "TH": "คุณต้องการยืนยันการรับรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to receive this transaction?"
+		},
+		{
+		  "code": "QS0021",
+		  "TH": "คุณต้องการล้างและเริ่มใหม่รายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to reset this transaction?"
+		},
+		{
+		  "code": "QS0022",
+		  "TH": "คุณต้องการลบ %s รายการใช่หรือไม่",
+		  "EN": "Do you want to delete %s row(s)?"
+		},
+		{
+		  "code": "QS0023",
+		  "TH": "คุณต้องการล้างและเริ่มใหม่การตรวจสอบเพิ่มเติมใช่หรือไม่",
+		  "EN": "Do you want to reset two factor authentication?"
+		},
+		{
+		  "code": "QS0024",
+		  "TH": "คุณต้องการยืนยันการอนุมัติ  %s รายการนี้ใช่หรือไม่",
+		  "EN": "Are you sure to confirm approve the %s request?"
+		},
+		{
+		  "code": "QS0025",
+		  "TH": "คุณต้องการยืนยันการปฏิเสธ  %s รายการนี้ใช่หรือไม่",
+		  "EN": "Are you sure to reject %s?"
+		},
+		{
+		  "code": "QS0026",
+		  "TH": "คุณต้องการยืนยันการนับใหม่  %s รายการนี้ใช่หรือไม่",
+		  "EN": "Are you sure to recount %s?"
+		},
+		{
+		  "code": "QS0027",
+		  "TH": "คุณต้องการยืนยันการสร้างใบคำร้องใช่หรือไม่",
+		  "EN": "Do you want to create this request?"
+		},
+		{
+		  "code": "QS0028",
+		  "TH": "คุณต้องการนำเข้ารายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to import this transaction?"
+		},
+		{
+		  "code": "QS0029",
+		  "TH": "คุณต้องการนำออกรายการนี้ใช่หรือไม่",
+		  "EN": "Do you want to export this transaction?"
+		},
+		{
+		  "code": "QS0030",
+		  "TH": "คุณต้องการระงับการใช้งานระบบใช่หรือไม่",
+		  "EN": "Do you want to lock the system?"
+		},
+		{
+		  "code": "QS0031",
+		  "TH": "คุณต้องการยกเลิกระงับการใช้งานระบบใช่หรือไม่",
+		  "EN": "Do you want to unlock the system?"
+		},
+		{
+		  "code": "QS0032",
+		  "TH": "คุณต้องการส่งรายการนี้ใหม่ใช่หรือไม่?",
+		  "EN": "Do you want to resend this transaction?"
+		},
+		{
+		  "code": "QS0033",
+		  "TH": "คุณต้องการยืนยันการแก้ไขใหม่  %s รายการนี้ใช่หรือไม่",
+		  "EN": "Are you sure to revise %s?"
+		},
+		{
+		  "code": "QS0034",
+		  "TH": "คุณต้องการลบรายการ node นี้ใช่หรือไม่",
+		  "EN": "Do you want to remove this node?"
+		},
+		{
+		  "code": "fsconfirmbtn",
+		  "TH": "ตกลง",
+		  "EN": "OK"
+		},
+		{
+		  "code": "fscancelbtn",
+		  "TH": "ยกเลิก",
+		  "EN": "Cancel"
+		},
+		{
+		  "code": "fssavebtn",
+		  "TH": "บันทึก",
+		  "EN": "Save"
+		},
+		{
+		  "code": "fsclosebtn",
+		  "TH": "ปิด",
+		  "EN": "Close"
+		},
+		{
+		  "code": "fsokbtn",
+		  "TH": "ตกลง",
+		  "EN": "OK"
+		},
+		{
+		  "code": "fsmessagetitle",
+		  "TH": "ข้อความ",
+		  "EN": "Message"
+		},
+		{
+		  "code": "fsaccepttitle",
+		  "TH": "ยืนยัน",
+		  "EN": "Confirm"
+		},
+		{
+		  "code": "fssuccessmsg",
+		  "TH": "การดำเนินการสำเร็จ",
+		  "EN": "Process success"
+		},
+		{
+		  "code": "fsfailmsg",
+		  "TH": "การดำเนินการไม่สำเร็จ",
+		  "EN": "Process fail"
+		},
+		{
+		  "code": "8021",
+		  "TH": "ท่านไม่มีสิทธิ์ดูรายการนี้",
+		  "EN": "No permission to retrieve this transaction"
+		},
+		{
+		  "code": "8022",
+		  "TH": "ท่านไม่มีสิทธิ์แก้ไขรายการนี้",
+		  "EN": "No permission to edit this transaction"
+		},
+		{
+		  "code": "8023",
+		  "TH": "ท่านไม่มีสิทธิ์ลบรายการนี้",
+		  "EN": "No permission to delete this transaction"
+		},
+		{
+		  "code": "8024",
+		  "TH": "ท่านไม่มีสิทธิ์สร้างรายการนี้",
+		  "EN": "No permission to add this transaction"
+		},
+		{
+		  "code": "8025",
+		  "TH": "ท่านไม่มีสิทธิ์นำเข้ารายการนี้",
+		  "EN": "No permission to import this transaction"
+		},
+		{
+		  "code": "8026",
+		  "TH": "ท่านไม่มีสิทธิ์นำออกรายการนี้",
+		  "EN": "No permission to export this transaction"
+		},
+		{
+		  "code": "QS0100",
+		  "TH": "ไม่พบข้อมูลที่ต้องการ โปรดกรุณาระบุและค้นหาใหม่",
+		  "EN": "Record not found"
+		},
+		{
+		  "code": "QS0101",
+		  "TH": "นำเข้าข้อมูลไม่ถูกต้อง",
+		  "EN": "Invalid input"
+		},
+		{
+		  "code": "QS0102",
+		  "TH": "ข้อมูลไม่ได้ระบุ",
+		  "EN": "Value is undefined"
+		},
+		{
+		  "code": "QS0103",
+		  "TH": "ไม่สามารถลบฟิลด์สำคัญนี้ได้",
+		  "EN": "Can not remove reserved field"
+		},
+		{
+		  "code": "QS0104",
+		  "TH": "ปรับปรุงข้อมูลเรียบร้อย",
+		  "EN": "Update success"
+		},
+		{
+		  "code": "QS0105",
+		  "TH": "ชื่อฟิลด์ไม่ได้ระบุ",
+		  "EN": "Invalid input, Field Name can not blank"
+		},
+		{
+			"code": "QS0106",
+			"TH": "ชื่อฟิลด์ห้ามซ้ำ",
+			"EN": "Invalid input, Duplicate Field Name"
+		},
+		{
+			"code": "QS0107",
+			"TH": "ID ฟิลด์ห้ามซ้ำ",
+			"EN": "Invalid input, Duplicate ID"
+		},
+		{
+			"code": "QS0108",
+			"TH": "ข้อมูลชนิด radio หรือ checkbox ต้องมีการกำหนดค่า value",
+			"EN": "Radio or checkbox require input value"
+		},
+		{
+			"code": "QS0109",
+			"TH": "เพิ่มหรือว่าเลือกแถวข้อมูลก่อน",
+			"EN": "Add new row or select active row first!"
+		},
+		{
+			"code": "QS0110",
+			"TH": "ไม่ได้ระบุชื่อตารางจัดเก็บข้อมูล",
+			"EN": "Table name is undefined"
+		},
+		{
+			"code": "QS0111",
+			"TH": "ไม่ได้ระบุชื่อโปรแกรม",
+			"EN": "Program title is undefined"
+		},
+		{
+			"code": "QS0112",
+			"TH": "ค่าของ option ซ้ำ",
+			"EN": "Duplicate option value"
+		},
+		{
+			"code": "QS0113",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง รหัสผู้ใช้ไม่ได้ระบุ",
+			"EN": "Invalid input, User ID is undefined"
+		},
+		{
+			"code": "QS0114",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง ชื่อผู้ใช้ไม่ได้ระบุ",
+			"EN": "Invalid input, User Name is undefined"
+		},
+		{
+			"code": "QS0115",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง นามสกุลผู้ใช้ไม่ได้ระบุ",
+			"EN": "Invalid input, User Surname is undefined"
+		},
+		{
+			"code": "QS0116",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง รหัสผ่านเดิมไม่ได้ระบุ",
+			"EN": "Invalid input, Old Password is undefined"
+		},
+		{
+			"code": "QS0117",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง รหัสผ่านใหม่ไม่ได้ระบุ",
+			"EN": "Invalid input, New Password is undefined"
+		},
+		{
+			"code": "QS0118",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง ยืนยันรหัสผ่านใหม่ไม่ได้ระบุ",
+			"EN": "Invalid input, Confirm Password is undefined"
+		},
+		{
+			"code": "QS0119",
+			"TH": "นำเข้าข้อมูลไม่ถูกต้อง รหัสผ่านใหม่ไม่ตรงกับยืนยันรหัสผ่าน",
+			"EN": "Invalid input, New Password does not match to Confirm Password"
+		},
+		{
+			"code": "QS0120",
+			"TH": ", ขอบคุณสำหรับความร่วมมือ",
+			"EN": ", Thank you for your collaboration"
+		},
+		{
+			"code": "QS0121",
+			"TH": "นำเข้าข้อมูลซ้ำซ้อน",
+			"EN": "Duplicate record"
+		},
+		{
+			"code": "QS0122",
+			"TH": "ไม่พบผู้ใช้",
+			"EN": "User not found"
+		},
+		{
+			"code": "QS0123",
+			"TH": "ไม่ได้ระบุโปรแกรม ID",
+			"EN": "Program ID is undefined"
+		},
+		{
+			"code": "QS0124",
+			"TH": "ไม่สามารถลบ node นี้ได้",
+			"EN": "Can not remove root node"
+		},
+		{
+			"code": "QS0200",
+			"TH": "Reset password success, Please verify email for new password changed",
+			"EN": "Reset password success, Please verify email for new password changed"
+		},
+		{
+			"code": "QS0201",
+			"TH": "Reset password success, Please verify your email for new password changed",
+			"EN": "Reset password success, Please verify your email for new password changed"
+		},
+		{
+			"code": "QS0202",
+			"TH": "ท่านต้องการยกเลิกตัวเลือกนี้ใช่หรือไม่? โปรแกรมจะลบออกจากกลุ่มทั้งหมดหลังบันทึก",
+			"EN": "Are you sure to uncheck this flag? Program will delete all groups in this type after saving"
+		},
+		{
+			"code": "QS0203",
+			"TH": "Reset Two Factor Success",
+			"EN": "Reset Two Factor Success"
+		},
+		{
+			"code": "QS0204",
+			"TH": "New account register success, Please verify your email for new accessor",
+			"EN": "New account register success, Please verify your email for new accessor"
+		},
+		{
+			"code": "QS0301",
+			"TH": "กรุณากรอกข้อมูลให้ครบถ้วน",
+			"EN": "Please fill in all information."
+		},
+		{
+			"code": "QS0302",
+			"TH": "กรุณาระบุข้อมูลกลุ่มพนักงาน ระดับพนักงาน หรืออายุงาน",
+			"EN": "Please input employment group, level or age"
+		},
+		{
+			"code": "QS0303",
+			"TH": "กรุณาระบุจำนวนวันที่ได้รับสิทธิ",
+			"EN": "Please input number of entitlement days"
+		},
+		{
+			"code": "QS0304",
+			"TH": "กรุณาระบุบริษัท",
+			"EN": "Please specified company"
+		},
+		{
+			"code": "QS0305",
+			"TH": "ไม่พบรายการที่ต้องการลบ",
+			"EN": "No select transactions to be removed"
+		}
+	]
+}

@@ -60,10 +60,8 @@ let astr=result;i=result.indexOf(".");if(i>0){astr=result.substring(0,i);bstr=re
 let la=astr.length;if(la>3){let tstr=astr;astr="";while(tstr!=""){la=tstr.length;let md=la%3;if(md>0){astr+=tstr.substring(0,md)+",";tstr=tstr.substring(md);}else{astr+=tstr.substring(0,3);tstr=tstr.substring(3);if(tstr!="")astr+=",";}}}
 if(verifydecimal){if(decimal>0){let l=bstr.length;if(decimal>l){let j=0;for(j=l;j<decimal;j++){bstr+="0";}}else{bstr=bstr.substring(0,decimal);}
 if(astr=="")return"";return sign+astr+"."+bstr;}else{return sign+astr;}}else{return sign+astr+cstr;}}
-function firstDateOfMonth(date=new Date()){return new Date(date.getFullYear(),date.getMonth(),1);}
-function lastDateOfMonth(date=new Date()){return new Date(date.getFullYear(),date.getMonth()+1,0);}
-function getTimeNow(now){if(!now)now=new Date();let hh=now.getHours();let mm=now.getMinutes();let ss=now.getSeconds();let result=((hh<10)?"0":"")+hh;result+=((mm<10)?":0":":")+mm;result+=((ss<10)?":0":":")+ss;return result;}
-function getDateNow(now){if(!now)now=new Date();let dd=now.getDate();let mm=now.getMonth()+1;let yy=now.getFullYear();let result=((dd<10)?"0":"")+dd;result+=((mm<10)?"/0":"/")+mm;result+="/"+yy;return result;}
+function getTimeNow(){let now=new Date();let hh=now.getHours();let mm=now.getMinutes();let ss=now.getSeconds();let result=((hh<10)?"0":"")+hh;result+=((mm<10)?":0":":")+mm;result+=((ss<10)?":0":":")+ss;return result;}
+function getDateNow(){let now=new Date();let dd=now.getDate();let mm=now.getMonth()+1;let yy=now.getFullYear();let result=((dd<10)?"0":"")+dd;result+=((mm<10)?"/0":"/")+mm;result+="/"+yy;return result;}
 let regPicture=/[9XEATxea]/;function fs_intNumsOnly(myfield,e,decimal,isPlus){let key;let keychar;if(e)key=e.which;else return true;keychar=String.fromCharCode(key);let element=myfield;isPlus=(isPlus!=null)?true:false;let isPoint=(decimal!=null&&decimal!=0)?true:false;if(key==45&&element.value.indexOf('-')==-1&&!isPlus){element.value="-"+element.value;}
 if((key==46)&&(element.value.indexOf('.')==-1)&&isPoint){if(element.value=="")element.value='0';return true;}
 if((key==null)||(key==0)||(key==8)||(key==9)||(key==27))return true;else if((("0123456789").indexOf(keychar)>-1))return true;else return false;}
@@ -108,6 +106,7 @@ function initialFocus(aform){$("input:visible:eq(0)",aform).trigger("focusin").f
 function startApplication(pid,unbind,aform){fs_currentpid=pid;fs_langsDocs=null;fs_labelAry=null;fs_hashLang={};if(!unbind){bindHangOut();}
 initialAjax();initialApplicationControls(aform);try{$.fn.modal.prototype.constructor.Constructor.DEFAULTS.backdrop="static";$.fn.modal.prototype.constructor.Constructor.DEFAULTS.keyboard=false;}catch(ex){}
 try{$.fn.modal.Constructor.Default.backdrop="static";$.fn.modal.Constructor.Default.keyboard=false;}catch(ex){}
+try{Modal.Default.backdrop="static";Modal.Default.keyboard=false;}catch(ex){}
 initialComponents();try{requestAccessorInfo();}catch(ex){}}
 function initialAjax(){$.ajaxPrefilter(function(options,originalOptions,xhr){let token=getAccessorToken();if(token){options.headers=$.extend({"authtoken":token},options.headers);}});}
 function initialApplicationControls(aform){$("input[type=text]",aform||this.document).each(function(index,element){let input=$(this);try{if(input.attr("picture")){input.mask(input.attr("picture"));}}catch(ex){}});$("input[type=text].itime",aform||this.document).each(function(index,element){$(this).clockpicker({align:"left",autoclose:true,donetext:"Done",cleartext:"Clear"});});$("select[readonly] option:not(:selected)",aform||this.document).attr("disabled",true);$("input[type=radio][readonly]",aform||this.document).bind("click",function(){return false;});$("input[type=checkbox][readonly]",aform||this.document).bind("click",function(){return false;});$("input[type=radio]",aform||this.document).each(function(){if($(this).attr("readonly")){$(this).parent().wrap($("<fieldset disabled></fieldset>"));}});$("input[type=checkbox]",aform||this.document).each(function(){if($(this).attr("readonly")){$(this).parent().wrap($("<fieldset disabled></fieldset>"));}});setupScreenControls(aform);}
@@ -141,8 +140,8 @@ if($.trim(errorThrown)=="")errorThrown="Unknown error or network error";return e
 function replaceString(str,arrStr){if(arrStr){let regex=/%s/;for(let i=0;i<arrStr.length;i++){let t_str=arrStr[i];str=str.replace(regex,t_str);}}
 if(str){let regex=/%s/g;str=str.replace(regex,"");}
 return str;}
-var msgxmldoc=null;function loadXMLMessage(aSync){jQuery.ajax({url:"/xml/smart_message.xml?seed="+Math.random(),async:aSync,type:"GET",contentType:"application/x-www-form-urlencoded; charset=UTF-8",dataType:"xml",error:function(transport,status,errorThrown){},success:function(data,status,transport){msgxmldoc=data;}});}
-function getMessageCode(errcode,params){try{if(msgxmldoc==null)loadXMLMessage(false);let msgnode=$("root msg[code="+errcode+"]",msgxmldoc);let fs_curlang=fs_default_language;if(!fs_curlang)fs_curlang="EN";let fs_msgtext=msgnode.find(fs_curlang.toUpperCase()).text();if(!fs_msgtext)return errcode;if(fs_msgtext&&fs_msgtext!="")return replaceString(fs_msgtext,params);return msgnode.text();}catch(ex){}
+var msgjsondoc=null;function loadJSONMessage(aSync){let authtoken=getAccessorToken();jQuery.ajax({url:API_URL+"/api/message/get",async:aSync,headers:{"authtoken":authtoken},type:"GET",dataType:"json",success:function(data,status,transport){msgjsondoc=data;}});}
+function getMessageCode(errcode,params){try{if(msgjsondoc==null)loadJSONMessage(false);let messages=msgjsondoc?.msg;if(messages){let msgnode=messages.find(item=>item.code==errcode);if(msgnode){let fs_curlang=fs_default_language;if(!fs_curlang)fs_curlang="EN";let msg=msgnode[fs_curlang];if(!msg)return errcode;if(msg&&msg.trim().length>0)return replaceString(msg,params);}}}catch(ex){}
 return errcode;}
 function getMessageTitle(titleCode,defaultTitle){let fs_msgtitle=getMessageCode(titleCode);if(!fs_msgtitle||fs_msgtitle=="")fs_msgtitle=defaultTitle;return fs_msgtitle;}
 function createDialog(dialoglayer){}
@@ -219,7 +218,7 @@ return found;}
 function createParameters(aform){let result=[];if(!aform)return result;let ary=$(aform).serializeArray();$(ary).each(function(index,element){if(!isMadatoryField(element.name)){result.push(element);}});return result;}
 function fetchParameters(storeData){if(!storeData)return"";let result=$.param(storeData);return result&&result!=""?"&"+result:"";}
 function createMandatoryParameters(aform){let result=[];if(!aform)return result;let ary=$(aform).serializeArray();$(ary).each(function(index,element){if(isMadatoryField(element.name)){result.push(element);}});return result;}
-var secureEngine;function getSecureEngine(){if(!secureEngine){secureEngine=SECURE_STORAGE?new SecureLS.default({storage:"local"==BASE_STORAGE?localStorage:sessionStorage}):null;}
+var secureEngine;function getSecureEngine(){if(!secureEngine){secureEngine=SECURE_STORAGE?new SecureLS.default({storage:"local"==BASE_STORAGE?localStorage:sessionStorage}):null;console.info("secure engine:",secureEngine);}
 return secureEngine;}
 function getStorage(key){let secureLs=getSecureEngine();if(secureLs)return secureLs.get(key);if("local"==BASE_STORAGE){return localStorage.getItem(key);}
 return sessionStorage.getItem(key);}
