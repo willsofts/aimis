@@ -26,7 +26,7 @@
 					<input type="button" id="savebutton" class="btn btn-dark btn-sm" value="<%=label.get('savebutton','Save')%>"/>
 				<% } %>
 				<% if(page.isUpdateMode()) {%>
-					<% if(data.dataset?.editflag=="1") {%>
+					<% if(data.dataset?.editflag=="1" || data.dataset?.shareflag=="1") {%>
 					<input type="button" id="updatebutton" class="btn btn-dark btn-sm" value="<%=label.get('updatebutton','Update')%>"/>
 					<% } %>
 				<% } %>

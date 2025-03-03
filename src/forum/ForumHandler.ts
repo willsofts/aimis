@@ -41,6 +41,7 @@ export class ForumHandler extends TknOperateHandler {
             hookflag: { type: "STRING", updated: true, defaultValue: "0" },
             webhook: { type: "STRING", updated: true },
             editflag: { type: "STRING", selected: true, created: true, updated: false, defaultValue: "1" },
+            shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
@@ -86,6 +87,8 @@ export class ForumHandler extends TknOperateHandler {
         sql.set("edituser",this.userToken?.userid);
         sql.set("forumprompt",context.params.forumprompt || context.params.forumprompt_gemini);
         sql.set("forumtable",context.params.forumtable || context.params.forumtable_gemini);
+        sql.set("classifyprompt",context.params.classifyprompt);
+        sql.set("webhook",context.params.webhook);
     }
 
     /* try to validate fields for insert, update, delete, retrieve */
@@ -111,7 +114,7 @@ export class ForumHandler extends TknOperateHandler {
             knsql.append(model.name);
             let filter = " where ";
             if(this.userToken?.userid) {
-                knsql.append(filter).append(" ( createuser = ?userid or createuser is null ) ");
+                knsql.append(filter).append(" ( createuser = ?userid or createuser is null or shareflag = '1') ");
                 knsql.set("userid",this.userToken?.userid);
                 filter = " and ";    
             }
@@ -511,6 +514,7 @@ export class ForumHandler extends TknOperateHandler {
         knsql.set("createtime",record.createtime,"TIME");
         knsql.set("createuser",this.userToken?.userid);
         knsql.set("editflag","1");
+        knsql.set("shareflag",context.params.shareflag || "0");
         let rs = await knsql.executeUpdate(db,context);
         let rcs = this.createRecordSet(rs);
         if(rcs.records>0) {
@@ -542,7 +546,7 @@ export class ForumHandler extends TknOperateHandler {
             knsql.append("and forumid = ?forumid ");
             knsql.set("forumid",forumid);
         }
-        knsql.append("and ( createuser = ?userid or createuser is null ) ");
+        knsql.append("and ( createuser = ?userid or createuser is null or shareflag = '1') ");
         knsql.append("order by createmillis ");
         knsql.set("forumgroup",group);
         knsql.set("userid",this.userToken?.userid);

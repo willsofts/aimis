@@ -77,7 +77,7 @@ export class ChatterHandler extends GenerativeHandler {
         if(info.error) {
             return Promise.resolve(info);
         }        
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestGeminiAsync(context, quest, configure || {}, prompts).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
