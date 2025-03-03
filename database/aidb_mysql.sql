@@ -226,6 +226,7 @@ CREATE TABLE IF NOT EXISTS `tforum` (
   `createmillis` bigint DEFAULT NULL,
   `createuser` varchar(50) DEFAULT NULL,
   `editflag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '1' COMMENT '1=Can Edit',
+  `shareflag` VARCHAR(1) NOT NULL DEFAULT '0' COMMENT '1=Sharing',
   `editdate` date DEFAULT NULL,
   `edittime` time DEFAULT NULL,
   `editmillis` bigint DEFAULT NULL,
