@@ -20,8 +20,15 @@
 						<div class="col-md-3 col-height col-label text-right">
 							<label id="oldpassword_label" class="control-label" required="true"><%=label.get('oldpassword_label','Old Password')%></label>
 						</div>
-						<div class="col-md-3 col-height">
-							<input type="password" class="form-control input-md alert-input" id="oldpassword" name="oldpassword" placeholder="<%=label.get('oldpassword_placeholder','Old Password')%>" autocomplete="off" size="8" />
+						<div class="col-md-4 col-height">
+							<div class="input-group">
+								<input type="password" class="form-control input-md alert-input" id="oldpassword" name="oldpassword" placeholder="<%=label.get('oldpassword_placeholder','Old Password')%>" autocomplete="off" size="8" />
+								<div class="input-group-append">
+									<a href="#0" class="btn btn-outline-secondarys btn-eye" id="toggleoldpasswordbutton">
+										<i class="fa fa-eye-slash"></i>
+									</a>
+								</div>
+							</div>
 							<div id="oldpassword_alert" role="alert" class="has-error fa-hidden"><%=label.get('oldpassword_alert','You can not leave this empty')%></div>
 						</div>
 				</div>
@@ -29,8 +36,15 @@
 						<div class="col-md-3 col-height col-label text-right">
 							<label id="userpassword_label" class="control-label" required="true"><%=label.get('userpassword_label','New Password')%></label>
 						</div>
-						<div class="col-md-3 col-height">
-							<input type="password" class="form-control input-md alert-input" id="userpassword" name="userpassword" placeholder="<%=label.get('userpassword_placeholder','New Password')%>" autocomplete="off" size="8" data-toggle="tooltip" title="Password can combine with alphabets and numeric sign not over 8 characters"/>
+						<div class="col-md-4 col-height">							
+							<div class="input-group">
+								<input type="password" class="form-control input-md alert-input" id="userpassword" name="userpassword" placeholder="<%=label.get('userpassword_placeholder','New Password')%>" autocomplete="off" size="8" data-toggle="tooltip" />
+								<div class="input-group-append">
+									<a href="#0" class="btn btn-outline-secondarys btn-eye" id="toggleuserpasswordbutton">
+										<i class="fa fa-eye-slash"></i>
+									</a>
+								</div>
+							</div>
 							<div id="userpassword_alert" role="alert" class="has-error fa-hidden"><%=label.get('userpassword_alert','You can not leave this empty')%></div>
 						</div>
 				</div>
@@ -38,8 +52,15 @@
 						<div class="col-md-3 col-height col-label text-right">
 							<label id="confirmpassword_label" class="control-label" required="true"><%=label.get('confirmpassword_label','Confirm Password')%></label>
 						</div>
-						<div class="col-md-3 col-height">
-							<input type="password" class="form-control input-md alert-input" id="confirmpassword" name="confirmpassword" placeholder="<%=label.get('confirmpassword_placeholder','Confirm Password')%>" autocomplete="off" size="8" data-toggle="tooltip" title="Password can combine with alphabets and numeric sign not over 8 characters"/>
+						<div class="col-md-4 col-height">							
+							<div class="input-group">
+								<input type="password" class="form-control input-md alert-input" id="confirmpassword" name="confirmpassword" placeholder="<%=label.get('confirmpassword_placeholder','Confirm Password')%>" autocomplete="off" size="8" data-toggle="tooltip" />
+								<div class="input-group-append">
+									<a href="#0" class="btn btn-outline-secondarys btn-eye" id="toggleconfirmpasswordbutton">
+										<i class="fa fa-eye-slash"></i>
+									</a>
+								</div>
+							</div>
 							<div id="confirmpassword_alert" role="alert" class="has-error fa-hidden"><%=label.get('confirmpassword_alert','You can not leave this empty')%></div>
 						</div>
 				</div>

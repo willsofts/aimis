@@ -14,6 +14,15 @@ function initialApplication() {
 	$("#confirmpassword").blur(function() {
 		$("#matchpassword_alert").hide();
 	});
+	$("#toggleoldpasswordbutton").click(function() {
+		togglePassword(document.getElementById("oldpassword"),document.getElementById("toggleoldpasswordbutton"));
+	});
+	$("#toggleuserpasswordbutton").click(function() {
+		togglePassword(document.getElementById("userpassword"),document.getElementById("toggleuserpasswordbutton"));
+	});
+	$("#toggleconfirmpasswordbutton").click(function() {
+		togglePassword(document.getElementById("confirmpassword"),document.getElementById("toggleconfirmpasswordbutton"));
+	});
 }
 function setupComponents() {
 	$("#savebutton").click(function() { 
@@ -96,3 +105,15 @@ function save(aform) {
 	return false;
 }
 
+function togglePassword(passwordField,toggleBtn) {
+	const icon = toggleBtn.querySelector("i");
+	if (passwordField.type === "password") {
+		passwordField.type = "text";
+		icon.classList.remove("fa-eye-slash");
+		icon.classList.add("fa-eye");
+	} else {
+		passwordField.type = "password";
+		icon.classList.remove("fa-eye");
+		icon.classList.add("fa-eye-slash");
+	}
+}
