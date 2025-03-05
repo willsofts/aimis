@@ -664,6 +664,7 @@ CREATE TABLE IF NOT EXISTS `tuserinfo` (
   `userename` varchar(50) DEFAULT NULL,
   `useresurname` varchar(50) DEFAULT NULL,
   `displayname` varchar(50) DEFAULT NULL,
+  `activeflag` varchar(1) DEFAULT '0',
   `accessdate` date DEFAULT NULL,
   `accesstime` time DEFAULT NULL,
   `photoimage` varchar(100) DEFAULT NULL,
@@ -723,7 +724,7 @@ CREATE TABLE IF NOT EXISTS `tuserinfohistory` (
   `editdate` date DEFAULT NULL,
   `edittime` time DEFAULT NULL,
   `edituser` varchar(50) DEFAULT NULL,
-  `remarks` varchar(200) DEFAULT NULL,
+  `remarks` text,
   `usercontents` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep user info (employee info)';
 
