@@ -1,4 +1,5 @@
 		$(function() {
+			buildModelers("#modellayer","chatpdf");
 			$("#chathistorylinker").click(function() { 
 				open_program("chatpdfhistory","","query=PDFFILE","/gui/chatpdf/view",true);
 			});
@@ -12,6 +13,22 @@
 			}
 			loadCategories();
 		});
+		function buildModelers(container="#modellayer",category="chatpdf") {
+			let layer = $(container);
+			if(model_categories) {
+				let model_quest = model_categories[category];
+				model_quest.reverse().forEach((item,index) => {
+					let alink = $('<a href="#0" tabindex="-1"></a>');
+					let input = $('<input type="radio" name="model" id="model_'+index+'" value="'+item.model+'" data-agent="'+item.agent+'"></input>');
+					if(item.default) input.prop("checked",item.default);
+					if(item.disabled) input.prop("disabled",item.disabled);
+					let label = $('<label for="model_'+index+'"></label>');
+					label.html(item.name);
+					alink.append(input).append(label);
+					layer.prepend(alink);
+				});
+			}
+		}		
 		function submitQuest() {
 			if($.trim($('#query').val())=="") { $('#query').focus(); return false; }
 			//if($.trim($("#fileid").val())=="") { $("#filename").click(); return false; }

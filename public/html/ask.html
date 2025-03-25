@@ -56,7 +56,7 @@
 	  .dropdown-content a:hover { background-color: #ddd; }
 	  .dropdown:hover .dropdown-content { display: block; }
     </style>	
-    <script src="/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="/cryptojs/dh/jsbn.js" defer></script>
 	<script type="text/javascript" src="/cryptojs/dh/jsbn2.js" defer></script>
 	<script type="text/javascript" src="/cryptojs/rollups/aes.js" defer></script>
@@ -66,8 +66,10 @@
 	<script type="text/javascript" src="/js/dh.js"></script>
 	<script type="text/javascript" src="/js/fsutil-min.js"></script>
 	<script type="text/javascript" src="/js/fslib-min.js"></script>
+	<script type="text/javascript" src="/main/model.js"></script>
     <script nonce="YXNzdXJl">
 		$(function() {
+			buildModelers("#modellayer","ask");
 			$('#questform').submit(function() {
 				if($('#query').val().trim()=="") return false;
 				sendQuery($('#query').val());
@@ -168,6 +170,22 @@
 				}
 			});
 		} 
+		function buildModelers(container="#modellayer",category="ask") {
+			let layer = $(container);
+			if(model_categories) {
+				let model_quest = model_categories[category];
+				model_quest.reverse().forEach((item,index) => {
+					let alink = $('<a href="#0" tabindex="-1"></a>');
+					let input = $('<input type="radio" name="model" id="model_'+index+'" value="'+item.model+'" data-agent="'+item.agent+'"></input>');
+					if(item.default) input.prop("checked",item.default);
+					if(item.disabled) input.prop("disabled",item.disabled);
+					let label = $('<label for="model_'+index+'"></label>');
+					label.html(item.name);
+					alink.append(input).append(label);
+					layer.prepend(alink);
+				});
+			}
+		}
 	</script>
   </head>
   <body>
@@ -175,12 +193,15 @@
 		<div id="headtitle"><span class="q">Question</span> &amp; <span class="a">Answer</span></div>
 		<div class="menu dropdown">			
 			<span class="m dropbtn">&#9776;</span>
-			<div class="dropdown-content">
-				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_1" value="gemini-1.5-flash" data-agent="GEMINI" checked /><label for="mobel_1">Gemini 1.5 Flash<label></a>
-				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_2" value="gemini-pro" data-agent="GEMINI" /><label for="mobel_2">Gemini Pro<label></a>
+			<div class="dropdown-content" id="modellayer">
+				<!--
+				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_1" value="gemini-2.0-flash" data-agent="GEMINI" checked /><label for="mobel_1">Gemini 2.0 Flash<label></a>
+				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_2" value="gemini-1.5-flash" data-agent="GEMINI" /><label for="mobel_2">Gemini 1.5 Flash<label></a>
 				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_3" value="gemini-1.5-pro" data-agent="GEMINI" /><label for="mobel_3">Gemini 1.5 Pro</label></a>
-				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_4" value="llama3.1" data-agent="LLAMA" disabled /><label for="mobel_4">Llama 3.1 8B</label></a>
-				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_5" value="gemma2" data-agent="GEMMA" disabled /><label for="mobel_5">Gemma 2 9B</label></a>
+				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_4" value="gemini-pro" data-agent="GEMINI" /><label for="mobel_4">Gemini Pro<label></a>
+				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_5" value="llama3.1" data-agent="LLAMA" disabled /><label for="mobel_5">Llama 3.1 8B</label></a>
+				<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_6" value="gemma2" data-agent="GEMMA" disabled /><label for="mobel_6">Gemma 2 9B</label></a>
+				-->
 			</div>
 		</div>
 	</div>	

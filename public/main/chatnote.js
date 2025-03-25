@@ -1,6 +1,7 @@
 const system_categories = { };
 var forum_id = "";
 $(function() {
+	buildModelers("#modellayer","chatnote");
 	$('#questform').submit(function() {
 		if($('#query').val().trim()=="") {
 			$('#query').focus();
@@ -49,6 +50,22 @@ $(function() {
 	$('#query').focus();
 	checkOllamaConnection();
 });
+function buildModelers(container="#modellayer",category="chatnote") {
+	let layer = $(container);
+	if(model_categories) {
+		let model_quest = model_categories[category];
+		model_quest.reverse().forEach((item,index) => {
+			let alink = $('<a href="#0" tabindex="-1"></a>');
+			let input = $('<input type="radio" name="model" id="model_'+index+'" value="'+item.model+'" data-agent="'+item.agent+'"></input>');
+			if(item.default) input.prop("checked",item.default);
+			if(item.disabled) input.prop("disabled",item.disabled);
+			let label = $('<label for="model_'+index+'"></label>');
+			label.html(item.name);
+			alink.append(input).append(label);
+			layer.prepend(alink);
+		});
+	}
+}
 function sendQuery(quest) {
 	let li = $('<li>').addClass("fxc li-topic").append($('<span>').addClass("topic topic-quest").text("Question")).append($('<span>').addClass("text text-quest").text(quest));
 	$('#listmessages').append(li);

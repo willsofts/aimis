@@ -11,7 +11,7 @@
 	<link href="/img/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 	<link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css" />
 	<link rel="stylesheet" type="text/css" href="/main/chatimageollama.css" />
-    <script src="/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="/cryptojs/dh/jsbn.js" defer></script>
 	<script type="text/javascript" src="/cryptojs/dh/jsbn2.js" defer></script>
 	<script type="text/javascript" src="/cryptojs/rollups/aes.js" defer></script>
@@ -21,7 +21,8 @@
 	<script type="text/javascript" src="/js/dh.js"></script>
 	<script type="text/javascript" src="/js/fsutil-min.js"></script>
 	<script type="text/javascript" src="/js/fslib-min.js"></script>
-    <script src="/main/chatimageollama.js"></script>
+    <script type="text/javascript" src="/main/model.js"></script>
+    <script type="text/javascript" src="/main/chatimageollama.js"></script>
   </head>
   <body>
 	<div id="headlayer">
@@ -39,9 +40,11 @@
 			<div id="settinglayer">
 				<div id="questsetting" class="menu dropdown setting-menu">
 					<span class="m dropbtn setting"><em class="fa fa-gear"></em></span>
-					<div class="dropdown-content setting-content">
+					<div class="dropdown-content setting-content" id="modellayer">
+						<!--
 						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_1" value="llama3.2-vision" data-agent="LLAMA" disabled checked/><label for="model_1">Llama 3.2-Vision</label></a>
 						<a href="#0" tabindex="-1"><input type="radio" name="model" id="model_2" value="gemma2" data-agent="GEMMA" disabled /><label for="model_2">Gemma 2-Tesseract</label></a>
+						-->
 						<a href="#0" tabindex="-1" class="separator-linker"><input type="checkbox" id="datasetbox" checked /><label for="datasetbox">Data Set</label></a>
 						<a href="#0" tabindex="-1" class="separator-linker" id="clearlinker"><span><em class="fa fa-trash"></em></span><label id="clearlabel">Clear</label></a>
 					</div>
