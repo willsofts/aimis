@@ -1,0 +1,29 @@
+	
+	<table id="datatablefile" class="table table-bordered table-hover table-striped tablesorter">
+		<thead>
+			<tr>
+				<th class="text-center th-sequence"><label id="seqno_headerlabel"><%=label.get('seqno_headerlabel','No.')%></label></th>
+				<th class="text-center th-data"><label id="sourcefile_headerlabel"><%=label.get('sourcefile_headerlabel','File')%></label></a></th>
+				<th class="text-center th-data"><label id="attachdate_headerlabel"><%=label.get('attachdate_headerlabel','Date')%></label></a></th>
+				<th class="text-center th-data"><label id="attachtime_headerlabel"><%=label.get('attachtime_headerlabel','Time')%></label></a></th>
+				<th class="text-center th-action"><em class="fa fa-bolt" aria-hidden="true"></em></th>
+			</tr>
+		</thead>
+		<tbody id="datatablebodyfile">	
+			<%	let rows = data.entity;
+				if(rows && rows.length>0) { 
+					for(let index=0; index < rows.length; index++) { 
+						let item = rows[index]; %>
+						<tr data-key="<%=item?.attachid%>">
+							<td class="text-center"><%=index+1%></td>
+							<td><a href="javascript:void(0)" class="alink-data fa-data-edit fa-data-file"><%=item?.sourcefile%></td>
+							<td class="text-center"><%=page.format({value: item?.attachdate, field:{type:"DATE"}})%></td>
+							<td class="text-center"><%=item?.attachtime%></td>
+							<td class="text-center">
+								<button class="btn-delete fa-data-delete" data-name="<%=item?.sourcefile%>" title="<%=label.get('btndelete_tooltip')%>" ></button>
+							</td>
+						</tr>
+			<%		}
+				}	%>
+		</tbody>
+	</table>		

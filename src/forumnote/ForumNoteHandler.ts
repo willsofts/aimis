@@ -1,6 +1,6 @@
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnDBConnector, KnRecordSet, KnSQL, KnResultSet } from "@willsofts/will-sql";
-import { KnContextInfo, KnDataTable } from '@willsofts/will-core';
+import { KnContextInfo, KnDataTable, KnDataEntity, KnDataSet } from '@willsofts/will-core';
 import { ForumHandler } from "../forum/ForumHandler";
 import { TknAttachHandler } from "@willsofts/will-core";
 import { FileImageInfo } from "../models/QuestionAlias";
@@ -9,6 +9,7 @@ import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { PromptUtility } from "../question/PromptUtility";
+import { SumDocHandler } from "../sumdoc/SumDocHandler";
 import path from 'path';
 
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -164,5 +165,21 @@ export class ForumNoteHandler extends ForumHandler {
         dt.renderer = this.progid+"/"+this.progid+"_note"+(dialog ? "_dialog" : "");
         return dt;
     }    
+
+    protected override async performCategories(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnDataTable> {
+        let dt = await super.performCategories(context,model,db);
+        let handler = new SumDocHandler();
+        handler.obtain(this.broker,this.logger);
+        let sumdocs : KnDataSet = { };
+        let entity = dt.entity as KnDataEntity;
+        let rs = await handler.sumlist(context);
+        if(rs.rows.length>0) {
+            for(let row of rs.rows) {
+                sumdocs[row.summaryid] = row.summarytitle;
+            }
+        }
+        entity["sumdocs"] = sumdocs;
+        return dt;
+    }
 
 }

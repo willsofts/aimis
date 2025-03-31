@@ -1,0 +1,11 @@
+2025-03-31
++ alter table
+ALTER TABLE `tforum`
+	ADD COLUMN `summaryid` VARCHAR(50) NULL DEFAULT NULL COMMENT 'tsummarydocument.summaryid' AFTER `webhook`;
+
+INSERT INTO `tprog` (`product`, `programid`, `progname`, `prognameth`, `progtype`, `description`, `progsystem`, `shortname`, `shortnameth`) VALUES ('AI', 'sumdoc', 'Summary Doc Setting', 'Summary Doc Setting', 'F', 'Summary Doc Setting', 'F', 'Summary Doc', 'Summary Doc');
+INSERT INTO `tproggrp` (`groupname`, `programid`, `seqno`) VALUES ('MENU', 'sumdoc', 13);
+
++ support screen sumdoc - summary document setting
++ forumnote setting support summary document reference
++ chatnote can read prompt from summary document

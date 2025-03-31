@@ -4,10 +4,9 @@ var mouseY = 0;
 //#(10000) programmer code end;
 $(function(){
 	$(this).mousedown(function(e) { mouseX = e.pageX; mouseY = e.pageY; });
-	try { startApplication("forumnote"); }catch(ex) { }
+	try { startApplication("sumdoc"); }catch(ex) { }
 	initialApplication();
 	//#(20000) programmer code begin;
-	$(window).on("unload",function() { closeChildWindows(); });
 	//#(20000) programmer code end;
 });
 function initialApplication() {
@@ -44,11 +43,9 @@ function setupComponents() {
 		deleted();  return false;
 	});
 	//#(60000) programmer code begin;
-	$("#addquestion").click(function() { addNewQuestion(); });
-	$("#fileuploadbutton").click(function() { showUploadDialog(); });
-	$("#fileviewbutton").click(function() { showFileInfoDialog(); });
 	$("#uploadbutton").click(function() { startUploadFile(); });
 	$("#uploaddialogpanel").find(".modal-dialog").draggable();
+	setupDialogButtons();
 	//#(60000) programmer code end;
 }
 function resetFilters() {
@@ -82,7 +79,7 @@ function search(aform) {
 	let formdata = serializeDataForm(aform);
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/search",
+		url: API_URL+"/api/sumdoc/search",
 		data: formdata.jsondata,
 		headers : formdata.headers,
 		type: "POST",
@@ -112,11 +109,11 @@ function insert() {
 	//#(110000) programmer code begin;
 	//#(110000) programmer code end;
 	let aform = fslistform;
-	aform.forumid.value = "";
+	aform.summaryid.value = "";
 	let formdata = serializeDataForm(aform);
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/add",
+		url: API_URL+"/api/sumdoc/add",
 		data: formdata.jsondata,
 		headers : formdata.headers,
 		type: "POST",
@@ -163,26 +160,20 @@ function validSaveForm(callback) {
 function save(aform) {
 	//#(190000) programmer code begin;
 	fs_requiredfields = {
-		"forumid":{msg:""}, 
-		"forumtitle":{msg:""}, 
-		"forumfile":{msg:""},
-		"forumtable":{msg:""}
+		"summaryid":{msg:""}, 
+		"summarytitle":{msg:""}, 
 	};
-	if($.trim($("#summaryid").val())!="") {
-		delete fs_requiredfields["forumfile"];
-	}
 	//#(190000) programmer code end;
 	if(!aform) aform = fsentryform;
 	if(!validNumericFields(aform)) return false;
 	validSaveForm(function() {
 		//#(195000) programmer code begin;
-		if(!validateUploadFile()) return false;
 		//#(195000) programmer code end;
 		confirmSave(function() {
 			let formdata = serializeDataForm(aform);
 			startWaiting();
 			jQuery.ajax({
-				url: API_URL+"/api/forumnote/insert",
+				url: API_URL+"/api/sumdoc/insert",
 				data: formdata.jsondata,
 				headers : formdata.headers,
 				type: "POST",
@@ -213,26 +204,20 @@ function save(aform) {
 function update(aform) {
 	//#(230000) programmer code begin;
 	fs_requiredfields = {
-		"forumid":{msg:""}, 
-		"forumtitle":{msg:""}, 
-		"forumfile":{msg:""},
-		"forumtable":{msg:""}
-	};	
-	if($.trim($("#summaryid").val())!="") {
-		delete fs_requiredfields["forumfile"];
-	}
+		"summaryid":{msg:""}, 
+		"summarytitle":{msg:""}, 
+	};
 	//#(230000) programmer code end;
 	if(!aform) aform = fsentryform;
 	if(!validNumericFields(aform)) return false;
 	validSaveForm(function() {
 		//#(235000) programmer code begin;
-		//if(!validateUploadFile()) return false;
 		//#(235000) programmer code end;
 		confirmUpdate(function() {
 			let formdata = serializeDataForm(aform);
 			startWaiting();
 			jQuery.ajax({
-				url: API_URL+"/api/forumnote/update",
+				url: API_URL+"/api/sumdoc/update",
 				data: formdata.jsondata,
 				headers : formdata.headers,
 				type: "POST",
@@ -260,15 +245,15 @@ function update(aform) {
 	//#(240000) programmer code begin;
 	//#(240000) programmer code end;
 }
-function submitRetrieve(src,forumid) {
+function submitRetrieve(src,summaryid) {
 	//#(250000) programmer code begin;
 	//#(250000) programmer code end;
 	let aform = fslistform;
-	aform.forumid.value = forumid;
+	aform.summaryid.value = summaryid;
 	let formdata = serializeDataForm(aform);
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/retrieval",
+		url: API_URL+"/api/sumdoc/retrieval",
 		data: formdata.jsondata,
 		headers: formdata.headers,
 		type: "POST",
@@ -295,7 +280,7 @@ function submitChapter(aform,index) {
 	let formdata = serializeDataForm(aform, $("#listpanel").data("searchfilters"));
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/search",
+		url: API_URL+"/api/sumdoc/search",
 		data: formdata.jsondata,
 		headers: formdata.headers,
 		type: "POST",
@@ -322,7 +307,7 @@ function submitOrder(src,sorter) {
 	//#(290000) programmer code end;
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/search",
+		url: API_URL+"/api/sumdoc/search",
 		data: formdata.jsondata,
 		headers: formdata.headers,
 		type: "POST",
@@ -355,12 +340,12 @@ function deleteRecord(fsParams) {
 	//#(330000) programmer code end;
 	let params = {
 		ajax: true,
-		forumid : fsParams[0]
+		summaryid : fsParams[0]
 	};
 	let formdata = serializeParameters(params);
 	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/api/forumnote/remove",
+		url: API_URL+"/api/sumdoc/remove",
 		data: formdata.jsondata,
 		headers: formdata.headers,
 		type: "POST",
@@ -393,7 +378,7 @@ function deleted(aform) {
 		//#(347000) programmer code end;
 		startWaiting();
 		jQuery.ajax({
-			url: API_URL+"/api/forumnote/remove",
+			url: API_URL+"/api/sumdoc/remove",
 			data: formdata.jsondata,
 			headers: formdata.headers,
 			type: "POST",
@@ -438,17 +423,23 @@ function setupDialogComponents() {
 	initialApplicationControls($("#dialogpanel"));
 	$("#dialogpanel").find(".modal-dialog").draggable();
 	//#(385000) programmer code begin;
-	$("#addquestion").click(function() { addNewQuestion(); });
-	$("#fileuploadbutton").click(function() { showUploadDialog(); });
-	$("#fileviewbutton").click(function() { showFileInfoDialog(); });
-	setTimeout(function() { $("#forumtitle").focus(); },500);
+	setupDialogButtons();
+	setTimeout(function() { $("#summarytitle").focus(); },500);
 	//#(385000) programmer code end;
 }
+function setupDialogButtons() {
+	$("#addsumdoc").click(function() { addNewFile(); });
+	$("#processfilelinker").on("click",function() {
+		submitDownloadSummaryFile($("#processfilelinker").attr("data-key"));
+	});
+	$("#processbutton").on("click",function() {
+		processSummaryFile();
+	});
+	setupFileDataTable();
+}
 var fs_requiredfields = {
-	"forumid":{msg:""}, 
-	"forumtitle":{msg:""}, 
-	"forumfile":{msg:""},
-	"forumtable":{msg:""}
+	"summaryid":{msg:""}, 
+	"summarytitle":{msg:""}, 
 };
 //#(390000) programmer code begin;
 function setupDataTable() {
@@ -467,15 +458,11 @@ function setupDataTable() {
 		});
 	});
 }
-function addNewQuestion() {
-	let div = $('<div class="quest-input"></div>');
-	let input = $('<input type="text" name="question" class="form-control input-md"></input>');
-	div.append(input);
-	$("#questionslayer").append(div);
+function addNewFile() {
+	showUploadDialog();
 }
 function validateUploadFile() {
-	if($.trim($("#summaryid").val())!="") return true;
-	if($.trim($("#fileid").val())=="" && $.trim($("#forumurl").val())=="") {
+	if($.trim($("#fileid").val())=="") {
 		alertmsg("Please upload a file first");
 		return false;
 	}
@@ -499,8 +486,7 @@ function uploadFile(aform) {
 		alertmsg("Only pdf or text file type are allowed : "+fileExtension.join(', '));
 		return false;
 	}			
-	if($.trim($("#fileid").val())!="") $("#attachid").val($("#fileid").val());
-	if($.trim($("#forumurl").val())!="") $("#attachid").val($("#forumurl").val());
+	$("#attachno").val($("#summaryid").val());
 	startWaiting();
 	let fd = new FormData(aform);
 	jQuery.ajax({
@@ -525,48 +511,121 @@ function uploadFile(aform) {
 		success: function(data,status,transport){ 
 			console.log("response : "+transport.responseText);
 			stopWaiting();
-			$("#forumfile").val($("#filename").val());
-			let json = $.parseJSON($.trim(data));
-			if(json && json["body"]) {
-				let rows = json.body["rows"];
-				if(rows && rows["attachid"]) {
-					$("#fileid").val(rows["attachid"]);
-				}
-				if(rows && rows["sourcefile"]) {
-					$("#forumfile").val(rows["sourcefile"]);
-				}
-			}
+			submitViewFile();
 			$("#fsfilemodaldialog_layer").modal("hide");
 		}
 	});	
 }
-function showDocumentInfo() {
-	startWaiting();
+function setupFileDataTable() {
+	$("#datatablebodyfile").find(".fa-data-file").each(function(index,element) {
+		$(element).click(function() {
+			if($(this).is(":disabled")) return;
+			submitDownloadFile(element,$(this).parent().parent().attr("data-key"));
+		});
+	});
+	$("#datatablebodyfile").find(".fa-data-delete").each(function(index,element) {
+		$(element).click(function() {
+			if($(this).is(":disabled")) return false;
+			submitDeleteFile(element,[$(this).parent().parent().attr("data-key"),$(this).attr("data-name")]);
+			return false;
+		});
+	});
+}
+function submitDownloadFile(src,attachid) {
+	$("#dnattachid").val(attachid);
+	$("#sumdocdownloadform").attr("action",BASE_URL+"/export/sumdoc/attach").trigger("submit");
+}
+function submitDownloadSummaryFile(summaryid) {
+	$("#dnsummaryid").val(summaryid);
+	$("#sumdocdownloadform").attr("action",BASE_URL+"/export/sumdoc").trigger("submit");
+}
+function submitDeleteFile(src,fsParams) {
+	//#(310000) programmer code begin;
+	//#(310000) programmer code end;
+	confirmDelete([fsParams[1]],function() {
+		deleteAttachFile(fsParams);
+	});
+	//#(320000) programmer code begin;
+	//#(320000) programmer code end;
+}
+function deleteAttachFile(fsParams) {
 	let params = {
 		ajax: true,
-		dialog: "dialog",
-		forumid : $("#forumid").val()
+		attachid : fsParams[0]
 	};
 	let formdata = serializeParameters(params);
+	startWaiting();
 	jQuery.ajax({
-		url: API_URL+"/gui/forumnote/note",
+		url: API_URL+"/api/sumdoc/attachremove",
 		data: formdata.jsondata,
 		headers: formdata.headers,
 		type: "POST",
 		dataType: "html",
 		contentType: defaultContentType,
-		error : function(transport,status,errorThrown) { 
+		error : function(transport,status,errorThrown) {
 			submitFailure(transport,status,errorThrown);
 		},
-		success: function(data,status,transport){ 
+		success: function(data,status,transport){
 			stopWaiting();
-			$("#infodialogpanel").html(data);
-			$("#infodialogpanel").find(".modal-dialog").draggable();
-			$("#fsinfomodaldialog_layer").modal("show");
+			submitViewFile();
 		}
-	});	
+	});
 }
-function showFileInfoDialog() {
-	openNewWindow({url: BASE_URL+"/gui/forumnote/note", params: {authtoken: getAccessorToken(), forumid : $("#forumid").val()}, windowName: "document_info_window"});
+function submitViewFile(summaryid) {
+	if(!summaryid) summaryid = $("#summaryid").val();
+	let params = {
+		ajax: true,
+		summaryid : summaryid
+	};
+	let formdata = serializeParameters(params);
+	startWaiting();
+	jQuery.ajax({
+		url: API_URL+"/api/sumdoc/view",
+		data: formdata.jsondata,
+		headers: formdata.headers,
+		type: "POST",
+		dataType: "html",
+		contentType: defaultContentType,
+		error : function(transport,status,errorThrown) {
+			submitFailure(transport,status,errorThrown);
+		},
+		success: function(data,status,transport){
+			stopWaiting();
+			$("#docfilelayer").html(data);
+			setupFileDataTable();
+		}
+	});
+	return false;
+}
+
+function processSummaryFile(summaryid) {
+	confirmProcess(function() {
+		processSummary(summaryid);
+	});
+}
+function processSummary(summaryid) {
+	if(!summaryid) summaryid = $("#summaryid").val();
+	let params = {
+		ajax: true,
+		summaryid : summaryid
+	};
+	let formdata = serializeParameters(params);
+	startWaiting();
+	jQuery.ajax({
+		url: API_URL+"/api/sumdoc/summary",
+		data: formdata.jsondata,
+		headers: formdata.headers,
+		type: "POST",
+		dataType: "html",
+		contentType: defaultContentType,
+		error : function(transport,status,errorThrown) {
+			submitFailure(transport,status,errorThrown);
+		},
+		success: function(data,status,transport){
+			stopWaiting();
+			$("#processfilelinker").show();
+		}
+	});
+	return false;
 }
 //#(390000) programmer code end;

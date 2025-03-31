@@ -221,6 +221,7 @@ CREATE TABLE IF NOT EXISTS `tforum` (
   `inactive` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '0' COMMENT '1=Inactive',
   `hookflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Hook',
   `webhook` VARCHAR(250) NULL DEFAULT NULL,
+  `summaryid` VARCHAR(50) NULL DEFAULT NULL COMMENT 'tsummarydocument.summaryid' COLLATE 'utf8mb3_general_ci',
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,

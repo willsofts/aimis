@@ -66,3 +66,17 @@ export interface KnInquirySet extends KnRecordSet {
     correlation: string;
     questionid: string;
 }
+
+export interface SummaryDocumentInfo {
+    summaryid: string;
+    summarytitle: string;
+    summaryprompt: string;
+    summarydocument: string;
+    summaryflag?: string;
+    summarystreams?: SummaryStreamInfo[];
+}
+
+export interface SummaryStreamInfo {
+    mime: string;
+    stream: string;
+}

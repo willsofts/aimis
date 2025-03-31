@@ -193,9 +193,16 @@ export class PromptUtility {
     }
 
     public createCleansingPrompt(text: string, input: string = "Please correct text from info") : string {
+        if(input.trim().length==0) input = "Please correct text from info";
         return `${input}.
     
         ${text}
+        `;
+    }
+
+    public createSummaryPrompt(input: string = "Summarize into plain text answer only from given info") : string {
+        if(input.trim().length==0) input = "Summarize into plain text answer only from given info";
+        return `${input}.
         `;
     }
 

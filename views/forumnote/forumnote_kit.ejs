@@ -4,7 +4,7 @@
 				<div class="row row-height">
 					<div class="col-height col-md-10">
 <label for="forumfile" id="forumfile_label" class="control-label"><%=label.get('filename_label','Document File')%></label>
-<% if(page.isUpdateMode()) {%>
+<% if(page.isUpdateMode() && !data.dataset.summaryid) {%>
 &nbsp;&nbsp;<a href="javascript:void(0)" id="fileviewbutton"><em class="fa fa-eye" aria-hidden="true"></em></a>
 <% } %>
 <div class="input-group">
@@ -15,6 +15,20 @@
 	<div class="input-group-required"><label class="required">*</label></div>
 </div>
 <div id="forumfile_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('forumfile_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-6">
+						<label for="summaryid" id="summaryid_label" class="control-label"><%=label.get('summaryid_label','Summary Document')%></label>
+						<div class="input-group">
+							<%-page.html('select',{map: data.entity?.sumdocs, value: data.dataset?.summaryid, id: "summaryid", name: "summaryid", class: "form-control input-md", empty: true })%>
+						</div>
 					</div>
 				</div>
 			</div>

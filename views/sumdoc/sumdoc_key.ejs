@@ -1,0 +1,31 @@
+<% let display = page.isUpdateMode()?"readonly":""; %>
+		<div class="row row-height">
+			<div class="col-md-12 col-height">
+					<div class="table-layer-class">
+						<div class="row row-height">
+							<div class="col-height col-md-7">
+<label for="summaryid" id="summaryid_label" class="control-label"><%=label.get('summaryid_label','ID')%></label>
+<div class="input-group"><input type="text" id="summaryid" name="summaryid" class="form-control input-md irequired alert-input" class="form-control input-md irequired alert-input" maxlength="50" value="<%=data.dataset?.summaryid%>" <%=display%>/><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="summaryid_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('summaryid_alert','You can not leave this empty')%></div>
+							</div>
+							<div class="col-height col-md-3">
+								<div class="checkbox checkbox form-check" id="shareflagbox">									
+									<input type="checkbox" id="shareflag" name="shareflag" class="form-control input-md form-check-input" class="form-control input-md" value="1" <%=page.checked('1',data.dataset?.shareflag)%> />
+									<label for="shareflag" id="shareflag_label" class="control-label form-check-label"><%=label.get('shareflag_label','Sharing')%></label>
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>
+		<div class="row row-height">
+			<div class="col-md-12 col-height">
+					<div class="table-layer-class">
+						<div class="row row-height">
+							<div class="col-height col-md-10">
+<label for="summarytitle" id="summarytitle_label" class="control-label"><%=label.get('summarytitle_label','Title')%></label>
+<div class="input-group"><input type="text" id="summarytitle" name="summarytitle" class="form-control input-md irequired alert-input" maxlength="50" value="<%=data.dataset?.summarytitle%>" /><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="summarytitle_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('summarytitle_alert','You can not leave this empty')%></div>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>

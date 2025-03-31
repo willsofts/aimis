@@ -7,6 +7,7 @@ import { Utilities } from "@willsofts/will-util";
 import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { ForumConfig } from "../models/QuestionAlias";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { SumDocHandler } from "../sumdoc/SumDocHandler";
 
 export class ForumHandler extends TknOperateHandler {
     public section = PRIVATE_SECTION;
@@ -42,6 +43,7 @@ export class ForumHandler extends TknOperateHandler {
             webhook: { type: "STRING", updated: true },
             editflag: { type: "STRING", selected: true, created: true, updated: false, defaultValue: "1" },
             shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
+            summaryid: { type: "STRING", selected: true, created: true, updated: true },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
@@ -81,9 +83,10 @@ export class ForumHandler extends TknOperateHandler {
 
     /* try to assign individual parameters under this context */
     protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {
-        sql.set("editmillis",Utilities.currentTimeMillis());
-        sql.set("editdate",Utilities.now(),"DATE");
-        sql.set("edittime",Utilities.now(),"TIME");
+        let now = Utilities.now();
+        sql.set("editdate",now,"DATE");
+        sql.set("edittime",now,"TIME");
+        sql.set("editmillis",Utilities.currentTimeMillis(now));
         sql.set("edituser",this.userToken?.userid);
         sql.set("forumprompt",context.params.forumprompt || context.params.forumprompt_gemini);
         sql.set("forumtable",context.params.forumtable || context.params.forumtable_gemini);
@@ -229,7 +232,7 @@ export class ForumHandler extends TknOperateHandler {
         return super.performUpdating(context, model, db);
     }
 
-    protected async performClearing(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+    protected override async performClearing(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
         await this.deleteQuestions(context, model, db, context.params.forumid);
         await this.deleteForumAgent(context, model, db, context.params.forumid);
         return super.performClearing(context, model, db);
@@ -676,6 +679,14 @@ export class ForumHandler extends TknOperateHandler {
                     dialectoptions = JSON.parse(row.dialectoptions);
                 } catch(ex: any) {
                     this.logger.error(this.constructor.name,ex);
+                }
+            }
+            if(row.summaryid && row.summaryid.trim().length>0) {
+                let handler = new SumDocHandler();
+                handler.obtain(this.broker,this.logger);
+                let suminfo = await handler.getSummaryDocumentInfo(row.summaryid,db,context);
+                if(suminfo && suminfo.summarydocument && suminfo.summarydocument.length>0) {
+                    row.forumprompt = suminfo.summarydocument;
                 }
             }
             result = {
