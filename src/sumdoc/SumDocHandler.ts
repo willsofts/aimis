@@ -496,6 +496,7 @@ export class SumDocHandler extends TknOperateHandler {
         dt.renderer = this.progid+"/"+this.progid+"_dialog";
         dt.dataset["summaryid"] = uuid();
         dt.dataset["summaryflag"] = "0";
+        dt.dataset["summaryprompt"] = "Summarize into plain text answer only from given info";
         return dt;
     }
 
