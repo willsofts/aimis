@@ -61,6 +61,7 @@ function buildModelers(container="#modellayer",category="chatdoc") {
 			let input = $('<input type="radio" name="model" id="model_'+index+'" value="'+item.model+'" data-agent="'+item.agent+'"></input>');
 			if(item.default) input.prop("checked",item.default);
 			if(item.disabled) input.prop("disabled",item.disabled);
+			if(item.class) input.addClass(item.class);
 			let label = $('<label for="model_'+index+'"></label>');
 			label.html(item.name);
 			alink.append(input).append(label);

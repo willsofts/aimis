@@ -57,6 +57,7 @@ function buildModelers(container="#modellayer",category="quest") {
 			let input = $('<input type="radio" name="model" id="model_'+index+'" value="'+item.model+'" data-agent="'+item.agent+'"></input>');
 			if(item.default) input.prop("checked",item.default);
 			if(item.disabled) input.prop("disabled",item.disabled);
+			if(item.class) input.addClass(item.class);
 			let label = $('<label for="model_'+index+'"></label>');
 			label.html(item.name);
 			alink.append(input).append(label);
@@ -297,12 +298,15 @@ function checkOllamaConnection(){
 				console.log(status);
 			},
 			success: function(data,status,transport) {
-				//console.log(data);
+				console.log("checkOllamaConnection",data);
 				if (data.body && data.body.data){
 					if (data.body.data.trim().toLowerCase()=="ollama is running"){
-						
-						$("#model_5").removeAttr('disabled');
-						$("#model_6").removeAttr('disabled');
+						$("input",$("#modellayer")).each(function(index,element) {
+							let e = $(element);
+							if(e.hasClass("llama")) {
+								e.removeAttr("disabled");
+							}
+						});
 					}
 				}
 			}

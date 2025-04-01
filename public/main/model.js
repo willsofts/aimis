@@ -5,8 +5,8 @@ const model_categories = {
         { agent: "GEMINI", model: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
         { agent: "GEMINI", model: "gemini-pro", name: "Gemini Pro" },
         { agent: "CLAUDE", model: "claude-3-5-sonnet-20240620", name: "Claude" },
-        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true },
-        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true },
+        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true, class: "llama" },
+        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true, class: "llama" },
     ],
     "vision": [
         { agent: "GEMINI", model: "gemini-2.0-flash", name: "Gemini 2.0 Flash", default: true },
@@ -24,12 +24,12 @@ const model_categories = {
         { agent: "GEMINI", model: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
         { agent: "GEMINI", model: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
         { agent: "GEMINI", model: "gemini-pro", name: "Gemini Pro" },
-        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true },
-        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true },
+        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true, class: "llama" },
+        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true, class: "llama" },
     ],
     "chatimageollama": [
-        { agent: "LLAMA", model: "llama3.2-vision", name: "Llama 3.2-Vision", default: true },
-        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true },
+        { agent: "LLAMA", model: "llama3.2-vision", name: "Llama 3.2-Vision", default: true, class: "llama" },
+        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true, class: "llama" },
     ],
     "chatimage": [
         { agent: "GEMINI", model: "gemini-2.0-flash", name: "Gemini 2.0 Flash", default: true },
@@ -48,8 +48,8 @@ const model_categories = {
         { agent: "GEMINI", model: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
         { agent: "GEMINI", model: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
         { agent: "GEMINI", model: "gemini-pro", name: "Gemini Pro" },
-        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true },
-        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true },
+        { agent: "LLAMA", model: "llama3.1", name: "Llama 3.1 8B", disabled: true, class: "llama" },
+        { agent: "GEMMA", model: "gemma2", name: "Gemma 2 9B", disabled: true, class: "llama" },
     ],
 };
 
