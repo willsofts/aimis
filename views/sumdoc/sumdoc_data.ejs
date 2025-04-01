@@ -33,7 +33,7 @@
 						<td class="text-center"><%=page.recordsNumber(index+1)%></td>
 						<td><a href="javascript:void(0)" class="alink-data fa-data-edit"><%=item?.summarytitle%></a></td>
 						<td class="text-center"><a href="javascript:void(0)" class="alink-data fa-data-edit"><%=page.format({value: item?.createdate, field:{type:"DATE"}})%></a></td>
-						<td class="text-center"><a href="javascript:void(0)" class="alink-data fa-data-edit"><%=item?.createtime%></a></td>
+						<td class="text-center"><a href="javascript:void(0)" class="alink-data fa-data-edit"><%=page.format({value: item?.createtime, field:{type:"TIME"}})%></a></td>
 						<td class="text-center"><a href="javascript:void(0)" class="alink-data fa-data-edit"><%-page.serializeInactive(item?.inactive)%></a></td>
 						<td class="text-center">
 							<button class="btn-edit fa-data-edit" title="<%=label.get('btnedit_tooltip')%>"></button>
