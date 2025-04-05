@@ -434,6 +434,7 @@ CREATE TABLE IF NOT EXISTS `tprog` (
   `shortname` varchar(50) DEFAULT NULL,
   `shortnameth` varchar(50) DEFAULT NULL,
   `progpath` varchar(150) DEFAULT NULL,
+  `newflag` VARCHAR(1) NULL DEFAULT NULL,
   `editdate` date DEFAULT NULL,
   `edittime` time DEFAULT NULL,
   `edituser` varchar(50) DEFAULT NULL,
