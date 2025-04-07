@@ -125,3 +125,12 @@ See [Chat Query](./CHAT_QUERY.md)
 
 ## Chat With Image
 See [Chat Image](./CHAT_IMAGE.md)
+
+## Forum Setting
+See [Forum Setting](./CHAT_FORUM.md)
+
+## Document Note Setting
+See [Note Setting](./CHAT_NOTE.md)
+
+## Summary Document Setting
+See [Summary Setting](./SUM_DOC.md)

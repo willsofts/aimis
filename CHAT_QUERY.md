@@ -6,14 +6,14 @@ About question with query API provided
 
 Ask/Question with query using forum API setting, then it need category setting up before use. \
 
-1. setting
+##### 1. setting
 
 In case of new setting, you can use gui to entry with url:\
 ex. http://localhost:8080/gui/forum/entry
 
 After setting, try to obtain forum `ID` from entry in order to use in next step
 
-2. quest
+##### 2. quest
 
 | Classification | Description |
 | -------- | ----------- |
@@ -121,7 +121,7 @@ reponse:
 (url depending on your host deployment)
 
 
-3. quest classify
+##### 3. quest classify
 
 This api support classification of question into categories setting by Classify Setting screen
 

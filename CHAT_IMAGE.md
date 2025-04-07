@@ -6,7 +6,7 @@ Let's talk about quest with image API provided
 
 Ask/Question With Image using forum docucment API setting, then it need category setting up before use.
 
-1. insert
+##### 1. insert
 
 | Classification | Description |
 | -------- | ----------- |
@@ -73,8 +73,7 @@ response:
 }
 ```
 
-2. retrieve 
-
+##### 2. retrieve 
 
 | Classification | Description |
 | -------- | ----------- |
@@ -155,7 +154,7 @@ reponse:
 }
 ```
 
-3. update
+##### 3. update
 
 | Classification | Description |
 | -------- | ----------- |
@@ -195,7 +194,7 @@ response:
 }
 ```
 
-4. delete
+##### 4. delete
 
 | Classification | Description |
 | -------- | ----------- |
@@ -237,7 +236,7 @@ response
 In case of new setting, you can use gui to entry instead with url:\
 ex. http://localhost:8080/gui/forumdoc/entry
 
-5. ask
+##### 5. ask
 
 - 5.1 direct upload file and ask
 
