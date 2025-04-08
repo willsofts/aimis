@@ -3,7 +3,7 @@ import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnDBConnector, KnRecordSet, KnSQL, KnResultSet } from "@willsofts/will-sql";
 import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnDataEntity, KnDataSet } from '@willsofts/will-core';
 import { ForumHandler } from "../forum/ForumHandler";
-import { TknAttachHandler } from "@willsofts/will-core";
+import { TknAttachHandler, KnPageUtility } from "@willsofts/will-core";
 import { FileImageInfo } from "../models/QuestionAlias";
 import { QuestionUtility } from "../question/QuestionUtility";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
@@ -54,7 +54,8 @@ export class ForumNoteHandler extends ForumHandler {
 
     protected override async validateRequireFields(context: KnContextInfo, model: KnModel, action: string) : Promise<KnValidateInfo> {
         let vi = await super.validateRequireFields(context,model,action);
-        if(["insert","update"].includes(action)) {
+        let page = new KnPageUtility(this.progid, context);
+        if(page.isInsertMode(action)) {
             let fvi = this.validateParameters(context.params,"fileid");
             let svi = this.validateParameters(context.params,"summaryid");
             if(!fvi.valid && !svi.valid) {
