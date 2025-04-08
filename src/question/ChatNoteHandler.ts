@@ -3,7 +3,7 @@ import { KnContextInfo } from "@willsofts/will-core";
 import { ChatDOCHandler } from "./ChatDOCHandler";
 import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
 import { ChatRepository } from "./ChatRepository";
-import { ollamaChat } from "../ollama/generateOllama";
+import { ollamaChat, LlamaSession } from "../ollama/generateOllama";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 
 export class ChatNoteHandler extends ChatDOCHandler {
@@ -38,7 +38,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestGeminiAsync(context, quest, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -78,7 +78,6 @@ export class ChatNoteHandler extends ChatDOCHandler {
             
             if(!chat) {
                 let history = this.getChatHistory(forum.prompt, table_info);
-                history = this.getChatHistory(forum.prompt, table_info);
                 chat = aimodel.startChat({
                     history: history,
                     generationConfig: {
@@ -119,7 +118,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestOllamaAsync(context, quest, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -143,11 +142,16 @@ export class ChatNoteHandler extends ChatDOCHandler {
         let input = quest.question;
         let forum : ForumConfig | undefined = undefined;
         try {            
+            const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context,true);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum?.tableinfo;
-            
+            let chat = chatmap.get(category);
+            if(!chat) {
+                chat = new LlamaSession();
+                chatmap.set(category,chat);
+            }            
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
                 info.statuscode = "NO-DOCUMENT";
@@ -155,11 +159,11 @@ export class ChatNoteHandler extends ChatDOCHandler {
                 return Promise.resolve(info);
             }
             
-            var history = this.getChatHistoryOllama(forum.prompt, table_info);
+            let history = this.getChatHistoryOllama(forum.prompt, table_info);
             let msg = "Question: "+quest.question;
             
             // ollama normal
-            let response = await ollamaChat(JSON.stringify(history), msg, quest.model!);
+            let response = await ollamaChat(history, msg, quest.model!, chat as LlamaSession);
             // ollama use file model
             //let response = await ollamaChat(JSON.stringify(history), msg, forum.caption!);
             

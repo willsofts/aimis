@@ -39,7 +39,7 @@ export class VisionHandler extends GenerativeHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestionAsync(quest, context).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -84,7 +84,7 @@ export class VisionHandler extends GenerativeHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processAskAsync(quest, context).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }

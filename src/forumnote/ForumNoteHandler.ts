@@ -1,6 +1,7 @@
+import { HTTP } from "@willsofts/will-api";
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnDBConnector, KnRecordSet, KnSQL, KnResultSet } from "@willsofts/will-sql";
-import { KnContextInfo, KnDataTable, KnDataEntity, KnDataSet } from '@willsofts/will-core';
+import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnDataEntity, KnDataSet } from '@willsofts/will-core';
 import { ForumHandler } from "../forum/ForumHandler";
 import { TknAttachHandler } from "@willsofts/will-core";
 import { FileImageInfo } from "../models/QuestionAlias";
@@ -49,6 +50,18 @@ export class ForumNoteHandler extends ForumHandler {
 		} finally {
 			if(db) db.close();
         }        
+    }
+
+    protected override async validateRequireFields(context: KnContextInfo, model: KnModel, action: string) : Promise<KnValidateInfo> {
+        let vi = await super.validateRequireFields(context,model,action);
+        if(["insert","update"].includes(action)) {
+            let fvi = this.validateParameters(context.params,"fileid");
+            let svi = this.validateParameters(context.params,"summaryid");
+            if(!fvi.valid && !svi.valid) {
+                return Promise.reject(new VerifyError("Parameter not found ("+fvi.info+" or "+svi.info+")",HTTP.NOT_ACCEPTABLE,-16061));
+            }
+        }
+        return Promise.resolve(vi);
     }
 
     public async getAttachInfo(attachId: string, db?: KnDBConnector) : Promise<KnRecordSet> {

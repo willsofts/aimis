@@ -50,11 +50,9 @@ export class ChatPDFHandler extends VisionHandler {
         ];
     }
     
-    public getChatHistoryOllama(document: string, prompt_info?: string) {
-    
+    public getChatHistoryOllama(document: string, prompt_info?: string) {    
         let prmutil = new PromptOLlamaUtility();
-        let prompt = prmutil.createChatDocumentPrompt(document, prompt_info);
-        return prompt;
+        return prmutil.createChatDocumentPrompt(document, prompt_info);
     }
     
     public override validateParameter(question: string, mime: string, image: string) : KnValidateInfo {
@@ -88,7 +86,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -188,7 +186,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestionAsync(quest, context, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -239,7 +237,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No document found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processAskAsync(quest, context, document).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }

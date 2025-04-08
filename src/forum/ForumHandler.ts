@@ -92,6 +92,7 @@ export class ForumHandler extends TknOperateHandler {
         sql.set("forumtable",context.params.forumtable || context.params.forumtable_gemini);
         sql.set("classifyprompt",context.params.classifyprompt);
         sql.set("webhook",context.params.webhook);
+        sql.set("summaryid",context.params.summaryid);
     }
 
     /* try to validate fields for insert, update, delete, retrieve */
@@ -249,7 +250,7 @@ export class ForumHandler extends TknOperateHandler {
         let result : KnRecordSet = { records: 0, rows: [], columns: []};
         let forumid = context.params.forumid;
         await this.deleteQuestions(context, model, db, forumid);
-        let question = context.params["question[]"];
+        let question = this.getParameterArray("question",context.params);
         if(question && Array.isArray(question) && question.length>0) {
             let knsql = new KnSQL();
             knsql.append("insert into tforumquest(forumid,questid,question,seqno) values(?forumid,?questid,?question,?seqno) ");

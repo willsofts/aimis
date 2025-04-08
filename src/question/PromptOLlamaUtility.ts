@@ -44,7 +44,7 @@ export class PromptOLlamaUtility {
         Use the following format (without any explaination):
 
         Question: "Question here"
-        Answer: "SQL Query to run with plain text in double quotes"
+        Answer: "SQL Query to run with plain text in double quotes without \\ and \\""
 
         ${current_version}
         The fields you answer must only declared in following tables:
@@ -166,7 +166,7 @@ export class PromptOLlamaUtility {
     
     public createChatDocumentPrompt(document_info: string, prompt_info: string|null|undefined = "") : string {
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        let current_date = this.getCurrentDate();
+        //let current_date = this.getCurrentDate();
         
         return `
 
@@ -199,7 +199,7 @@ export class PromptOLlamaUtility {
         , enquiry: string|null|undefined = "") : string {
         if(!document_info || document_info==null) document_info = "";
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        let current_date = this.getCurrentDate();
+        //let current_date = this.getCurrentDate();
 
         return `
 
@@ -217,7 +217,7 @@ export class PromptOLlamaUtility {
         , enquiry: string|null|undefined = "") : string {
         if(!document_info || document_info==null) document_info = "";
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        let current_date = this.getCurrentDate();
+        //let current_date = this.getCurrentDate();
 
         return `${document_info}
 

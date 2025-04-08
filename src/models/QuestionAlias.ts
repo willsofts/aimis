@@ -70,6 +70,8 @@ export interface KnInquirySet extends KnRecordSet {
 export interface SummaryDocumentInfo {
     summaryid: string;
     summarytitle: string;
+    summaryagent: string;
+    summarymodel: string;
     summaryprompt: string;
     summarydocument: string;
     summaryflag?: string;

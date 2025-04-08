@@ -10,7 +10,7 @@ import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
 import { ChatRepository } from "./ChatRepository";
 import { claudeProcess } from "../claude/generateClaudeSystem";
 import { PromptOLlamaUtility } from "./PromptOLlamaUtility";
-import { ollamaChat, ollamaGenerate } from "../ollama/generateOllama";
+import { ollamaChat, ollamaGenerate, LlamaSession } from "../ollama/generateOllama";
 
 export class ChatHandler extends QuestionHandler {
     public section = PRIVATE_SECTION;
@@ -35,16 +35,14 @@ export class ChatHandler extends QuestionHandler {
         ];
     }
 
-    public getChatHistoryOllama(category: string, table_info: string, version: string) {
+    public getChatHistoryOllama(category: string, table_info: string, version: string) : string {
         let prmutil = new PromptOLlamaUtility();
-        let prompt = prmutil.createChatPrompt(category, "", table_info, version);
-        return prompt;
+        return prmutil.createChatPrompt(category, "", table_info, version);
     }
 
-    public getChatHistoryGemma(category: string, table_info: string, version: string) {
+    public getChatHistoryGemma(category: string, table_info: string, version: string) : string {
         let prmutil = new PromptOLlamaUtility();
-        let prompt = prmutil.createChatPrompt_ori("", table_info, version);
-        return prompt;
+        return prmutil.createChatPrompt_ori("", table_info, version);
     }
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
@@ -72,7 +70,7 @@ export class ChatHandler extends QuestionHandler {
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestGeminiAsync(context, quest).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -100,6 +98,7 @@ export class ChatHandler extends QuestionHandler {
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;
             let chat = chatmap.get(category);
+            if(chat && chat instanceof LlamaSession) chat = undefined;
             if(!chat) {
                 let version = await this.getDatabaseVersioning(forum);
                 let history = this.getChatHistory(category, table_info, version);
@@ -226,7 +225,7 @@ export class ChatHandler extends QuestionHandler {
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestClaudeAsync(context, quest).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -311,7 +310,7 @@ export class ChatHandler extends QuestionHandler {
             info.answer = "No question found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestOllamaAsync(context, quest).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
@@ -339,6 +338,10 @@ export class ChatHandler extends QuestionHandler {
             this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
             let table_info = forum.tableinfo;            
             let chat = chatmap.get(category);
+            if(!chat) {
+                chat = new LlamaSession();
+                chatmap.set(category,chat);
+            }
             let version = await this.getDatabaseVersioning(forum);
             let history = this.getChatHistoryOllama(category, table_info, version);
             if (quest.agent?.toLocaleUpperCase() == "GEMMA"){
@@ -350,9 +353,11 @@ export class ChatHandler extends QuestionHandler {
             if(quest.property && quest.property.trim().length>0) {
                 msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
             }
-            let response = await ollamaChat(history, msg, quest.model!);
-            let text = response.message.content;
+            let response = await ollamaChat(history, msg, quest.model!, chat as LlamaSession);
+            this.logger.debug(this.constructor.name+".processQuest: response:",response);
+            let text = response?.message?.content;
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            //(chat as LlamaSession).add(contents);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);

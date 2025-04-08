@@ -144,7 +144,7 @@ export class GenerativeHandler extends TknOperateHandler {
     }
 
     public isValidQuery(sql: string, info: InquiryInfo) : boolean {
-        if(sql.trim().length == 0) {
+        if(!sql || sql.trim().length == 0) {
             info.error = true;
             info.answer = "No SQL found in the response.";
             return false;

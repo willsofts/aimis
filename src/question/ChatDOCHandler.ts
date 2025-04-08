@@ -40,7 +40,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        if(quest.async=="true") {
+        if(String(quest.async)=="true") {
             this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }

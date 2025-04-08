@@ -11,6 +11,7 @@ export class QuestionUtility {
     }
 
     public static parseAnswer(answer: string, defaultAnswer: boolean = true) : string {
+        if(!answer) return answer;
         answer = answer.trim();
         let ans = answer;
         let idx = answer.indexOf("Answer:");
@@ -46,7 +47,15 @@ export class QuestionUtility {
         if(hasGrave && ans.endsWith("`")) {
             ans = ans.substring(0,ans.length-1);
         }
-        return this.trime(ans.trim());
+        let result = this.trime(ans.trim());
+        //result = result.replaceAll("\\","");
+        if(result.startsWith('"')) {
+            result = result.substring(1,result.length-1);
+        }
+        if(result.endsWith('"')) {
+            result = result.substring(0,result.length-1);
+        }
+        return result;
     }
 
     public static readDatabaseFileInfo(schemafile: string = "aidb_schema.sql", dbDir: string = "database", curDir?: string) : string {
@@ -102,6 +111,7 @@ export class QuestionUtility {
     }
 
     public static parseJSONAnswer(answer: string) : string {
+        if(!answer) return answer;
         answer = answer.trim();
         let ans = answer;
         let hasQuote = ans.startsWith("\"");
@@ -111,14 +121,14 @@ export class QuestionUtility {
         if(hasQuote && ans.endsWith("\"")) {
             ans = ans.substring(0,ans.length-1);
         }
-        let foundsql = false;
+        let found = false;
         let idx = ans.indexOf("```json");
         if(idx>=0) {
-            foundsql = true;
+            found = true;
             ans = ans.substring(idx+7);
         }
         idx = ans.indexOf("```");
-        if(!foundsql && idx>=0) {
+        if(!found && idx>=0) {
             ans = ans.substring(idx+3);
         }
         idx = ans.lastIndexOf("```");

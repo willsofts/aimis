@@ -10,3 +10,19 @@
 			</div>
 	</div>
 </div>
+
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-4">
+	<label for="summarymodel" id="summarymodel_label" class="control-label"><%=label.get('summarymodel_label','Model')%></label>
+	<div class="input-group">
+	<%-page.html('select',{map: data.entity?.tmodels, value: data.dataset?.summarymodel, id: "summarymodel", name: "summarymodel", class: "form-control input-md"})%>
+	<div class="input-group-required"><label class="required">*</label></div></div><div id="summarymodel_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('summarymodel_alert','You can not leave this empty')%></div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+	

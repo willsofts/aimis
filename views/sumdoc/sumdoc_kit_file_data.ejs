@@ -10,7 +10,7 @@
 			</tr>
 		</thead>
 		<tbody id="datatablebodyfile">	
-			<%	let rows = data.entity;
+			<%	let rows = data.entity?.attachfiles;
 				if(rows && rows.length>0) { 
 					for(let index=0; index < rows.length; index++) { 
 						let item = rows[index]; %>

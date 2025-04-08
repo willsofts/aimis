@@ -1,7 +1,23 @@
-import { Ollama } from 'ollama'
+import { Ollama, Message } from 'ollama'
 import { API_OLLAMA_HOST, API_OLLAMA_TIMEOUT } from "../utils/EnvironmentVariable";
+import { ChatSession, Content } from "@google/generative-ai";
+import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
 
-export class OllamaObj{
+export class LlamaSession extends ChatSession {
+    public history : Content[] = new Array<Content>();
+    constructor(apiKey: string = API_KEY, model: string = API_MODEL) {
+        super(apiKey,model);
+    }
+    public override getHistory(): Promise<Content[]> {
+        return Promise.resolve(this.history);
+    }
+    public add(contents: Content[]) {
+        if(!contents) return;
+        this.history = this.history.concat(contents);
+    }
+}
+
+export class OllamaObj {
 
     private static _instance: OllamaObj;
     private _ollama = new Ollama({ host: API_OLLAMA_HOST })
@@ -38,25 +54,42 @@ export async function ollamaCreateModel(systemPrompt: string, title: string) {
     }
 }
 
-export async function ollamaChat(systemPrompt: string, userPrompt: string, model: string): Promise<any> {
-
-    try{
-        const response = OllamaObj.getInstance().ollama()?.chat({
+export async function ollamaChat(systemPrompt: string, userPrompt: string, model: string, chat?: LlamaSession): Promise<any> {
+    try {
+        let histories : Message[] = [];
+        let texts = systemPrompt;
+        if(chat) {
+            if(chat.history.length==0) {
+                chat.history.push({ role: "system", parts: [{text: texts}] });
+            }
+            chat.history.push({ role: "user", parts: [{text: userPrompt}] });
+            chat.history.forEach((item:Content,index:number) => {
+                histories.push({ role: item.role, content: item.parts[0].text as string});
+            });
+        } else {
+            histories.push({ role: "system", content: texts });
+            histories.push({ role: "user", content: userPrompt });
+        }
+        const response = await OllamaObj.getInstance().ollama()?.chat({
         model: model!,
         keep_alive: API_OLLAMA_TIMEOUT,
-        messages: [
-            { role: 'system', content: JSON.stringify(systemPrompt) },
-            { role: 'user', content: userPrompt }],
-        })
+        messages: histories,
+        });
+        let contents = [
+            { role: "assistant", parts: [{text: response?.message?.content as string }] }
+        ];
+        if(chat) {
+            chat.add(contents);
+        }
         return response;
     }
     catch(ex: any) {
-        console.log(ex.message);
+        console.error(ex.message);
+        return Promise.reject(ex);
     }
 }
 
 export async function ollamaGenerate(prompt: string, model: string): Promise<any> {
-
     let response = OllamaObj.getInstance().ollama()?.generate({
         model: model!,
         keep_alive: API_OLLAMA_TIMEOUT,
@@ -68,7 +101,6 @@ export async function ollamaGenerate(prompt: string, model: string): Promise<any
 
 //Llava
 export async function ollamaImageAsk(prompt: string, model: string, imgbase64: string): Promise<any>{
-
     let response = OllamaObj.getInstance().ollama()?.generate({
         model: model!,
         keep_alive: API_OLLAMA_TIMEOUT,
@@ -81,14 +113,12 @@ export async function ollamaImageAsk(prompt: string, model: string, imgbase64: s
 
 //Llama
 export async function ollamaImageChat(userPrompt: string, image: string,  model: string): Promise<any> {
-
     let response = OllamaObj.getInstance().ollama()?.chat({
         model: model!,
         keep_alive: API_OLLAMA_TIMEOUT,
         messages: [
             { role: 'user', content: userPrompt, images: [ image ] }
         ],
-    });
-    
+    });    
     return response;
 }

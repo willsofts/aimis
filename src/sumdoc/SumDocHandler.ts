@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnDBConnector, KnSQLInterface, KnRecordSet, KnResultSet, KnSQL } from "@willsofts/will-sql";
 import { HTTP } from "@willsofts/will-api";
-import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility } from '@willsofts/will-core';
+import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility, KnDataSet } from '@willsofts/will-core';
 import { Utilities } from "@willsofts/will-util";
 import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { TknAttachHandler } from "@willsofts/will-core";
@@ -12,6 +12,10 @@ import { SummaryDocumentInfo, InlineImage } from "../models/QuestionAlias";
 import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
 import { PromptUtility } from "../question/PromptUtility";
+import { ollamaGenerate } from "../ollama/generateOllama";
+import { PDFReader } from "../detect/PDFReader";
+
+import agent_models from "../../config/model.json";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -26,6 +30,8 @@ export class SumDocHandler extends TknOperateHandler {
         fields: {
             summaryid: { type: "STRING", key: true },
             summarytitle: { type: "STRING" },
+            summaryagent: { type: "STRING", created: true, updated: true },
+            summarymodel: { type: "STRING", created: true, updated: true },
             summaryfile: { type: "STRING" },
             summaryprompt: { type: "STRING", created: true, updated: true },
             summaryflag: { type: "STRING", selected: true, created: true, defaultValue: "0" },
@@ -73,7 +79,8 @@ export class SumDocHandler extends TknOperateHandler {
         return await this.createCipherData(context, KnOperation.REMOVE, rs);
     }
 
-    protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {
+    protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {        
+        let model_item = agent_models.find((item:any) => item.model == context.params.summarymodel);
         let now = Utilities.now();
         sql.set("createdate",now,"DATE");
         sql.set("createtime",now,"TIME");
@@ -84,6 +91,8 @@ export class SumDocHandler extends TknOperateHandler {
         sql.set("editmillis",Utilities.currentTimeMillis(now));
         sql.set("edituser",this.userToken?.userid);
         sql.set("summaryprompt",context.params.summaryprompt);
+        sql.set("summaryagent",model_item?.agent || "GEMINI");
+        sql.set("summarymodel",context.params.summarymodel || API_MODEL);
     }
 
     /* try to validate fields for insert, update, delete, retrieve */
@@ -166,6 +175,12 @@ export class SumDocHandler extends TknOperateHandler {
         return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryfile,summaryflag,summarydocument");
     }    
 
+    protected async getAgentModels() : Promise<KnDataSet> {
+        let result : KnDataSet = {};
+        agent_models.forEach((item:any) => { result[item.model] = item.name; });
+        return result;
+    }
+
     protected override async doRetrieving(context: KnContextInfo, model: KnModel = this.model, action: string = KnOperation.RETRIEVE): Promise<KnDataTable> {
         let db = this.getPrivateConnector(model);
         try {
@@ -175,8 +190,9 @@ export class SumDocHandler extends TknOperateHandler {
                 if(row.summaryflag == '1') {
                     row.summaryfilename = row.summaryfile || row.summarytitle;
                 }
+                let models = await this.getAgentModels();
                 let list = await this.performListing(context,model,db);
-                return this.createDataTable(KnOperation.RETRIEVE, row, list.rows);
+                return this.createDataTable(KnOperation.RETRIEVE, row, {tmodels: models, attachfiles: list.rows});
             }
             return this.recordNotFound();
         } catch(ex: any) {
@@ -310,10 +326,14 @@ export class SumDocHandler extends TknOperateHandler {
         return rcs;
     }
 
-    protected async doSummarying(context: KnContextInfo, model: KnModel, action: string = KnOperation.GENERATE) : Promise<KnRecordSet> {
+    public async doSummarying(context: KnContextInfo, model: KnModel, action: string = KnOperation.GENERATE) : Promise<KnRecordSet> {
         let db = this.getPrivateConnector(model);
         try {
-            return await this.performSummarying(context, db, context.params.summaryid);
+            let rs = await this.performSummarying(context, db, context.params.summaryid);
+            if(rs.records == 0) {
+                return Promise.reject(new VerifyError("Document files not found",HTTP.NOT_FOUND,-16064));
+            }
+            return rs;
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             return Promise.reject(this.getDBError(ex));
@@ -322,21 +342,47 @@ export class SumDocHandler extends TknOperateHandler {
         }        
     }
 
-    public getAIModel(context?: KnContextInfo) : GenerativeModel {
+    public getAIModel(suminfo: SummaryDocumentInfo, context?: KnContextInfo) : GenerativeModel {
         let model = context?.params?.model;
+        if(!model || model.trim().length==0) model = suminfo.summarymodel;
         if(!model || model.trim().length==0) model = API_MODEL;
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
     }
 
     public async generateSummaryDocument(suminfo: SummaryDocumentInfo, context: KnContextInfo) : Promise<SummaryDocumentInfo> {
         if(suminfo.summarystreams && suminfo.summarystreams.length>0) {
-            this.logger.debug(this.constructor.name+".generateSummaryDucument: starting with stream ",suminfo.summarystreams.length);
-            const aimodel = this.getAIModel(context);
+            let agent = suminfo.summaryagent || "GEMINI";
+            if("LLAMA" == agent || "GEMMA" == agent) {
+                return this.generateSummaryDocumentByLlama(suminfo,context);
+            }
+            return this.generateSummaryDocumentByGemini(suminfo,context);
+        }
+        return Promise.resolve(suminfo);
+    }
+
+    public async generateSummaryDocumentByGemini(suminfo: SummaryDocumentInfo, context: KnContextInfo) : Promise<SummaryDocumentInfo> {
+        if(suminfo.summarystreams && suminfo.summarystreams.length>0) {
+            this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: starting with stream ",suminfo.summarystreams.length);
+            const aimodel = this.getAIModel(suminfo,context);
             let prompt = await this.createSummaryPrompt(suminfo);
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".generateSummaryDucument: response:",text);
+            this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: response:",text);
+            suminfo.summarydocument = text;
+        }
+        return Promise.resolve(suminfo);
+    }
+
+    public async generateSummaryDocumentByLlama(suminfo: SummaryDocumentInfo, context: KnContextInfo) : Promise<SummaryDocumentInfo> {
+        if(suminfo.summarystreams && suminfo.summarystreams.length>0) {
+            let model = context?.params?.model;
+            if(!model || model.trim().length==0) model = suminfo.summarymodel;    
+            this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: starting with stream ",suminfo.summarystreams.length);
+            let prompt = await this.createSummaryPromptLlama(suminfo);
+            let result = await ollamaGenerate(prompt, model);
+            let text = result.response;
+            this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: response:",text);
             suminfo.summarydocument = text;
         }
         return Promise.resolve(suminfo);
@@ -355,6 +401,27 @@ export class SumDocHandler extends TknOperateHandler {
         return contents;
     }
 
+    protected async createSummaryPromptLlama(suminfo: SummaryDocumentInfo) : Promise<string> {
+        let prmutil = new PromptUtility();
+        let prompt = prmutil.createSummaryPrompt(suminfo.summaryprompt);
+        let contents : string[] = [prompt];
+        if(suminfo.summarystreams) {
+            for(let stream of suminfo.summarystreams) {
+                if(stream.mime == "application/pdf") {
+                    let buffer = Buffer.from(stream.stream,"base64");
+                    let detector = new PDFReader();
+                    let data = await detector.extractText(buffer);
+                    let info = data.text;
+                    if(info) contents.push(data.text);
+                } else {
+                    let info = Buffer.from(stream.stream,"base64").toString();
+                    contents.push(info);
+                }
+            }
+        }
+        return contents.join("\n\n");
+    }
+
     public getInlineInfo(mime: string, data: string) : InlineImage {
         return {
             inlineData : {
@@ -364,7 +431,7 @@ export class SumDocHandler extends TknOperateHandler {
         }
     }
 
-    protected async performSummarying(context: KnContextInfo, db: KnDBConnector, summaryid: string): Promise<KnRecordSet> {
+    public async performSummarying(context: KnContextInfo, db: KnDBConnector, summaryid: string): Promise<KnRecordSet> {
         let result = this.createRecordSet();
         let suminfo = await this.getSummaryDocumentInfo(summaryid,db,context);
         if(suminfo) {
@@ -412,7 +479,7 @@ export class SumDocHandler extends TknOperateHandler {
     }
 
     public async getSummaryDocumentRecord(summaryid: string, db: KnDBConnector, context?: KnContextInfo): Promise<KnRecordSet> {
-        return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryprompt,summarydocument");
+        return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryagent,summarymodel,summaryprompt,summarydocument");
     }    
 
     public async getSummaryDocument(summaryid: string, context?: KnContextInfo, model: KnModel = this.model) : Promise<KnRecordSet> {
@@ -432,7 +499,7 @@ export class SumDocHandler extends TknOperateHandler {
         let rs = db ? await this.getSummaryDocumentRecord(summaryid,db,context) : await this.getSummaryDocument(summaryid,context);
         if(rs.rows && rs.rows.length > 0) {
             let row = rs.rows[0];
-            return { summaryid: summaryid, summarytitle: row.summarytitle, summaryprompt: row.summaryprompt, summarydocument: row.summarydocument };
+            return { summaryid: summaryid, summarytitle: row.summarytitle, summaryagent: row.summaryagent, summarymodel: row.summarymodel, summaryprompt: row.summaryprompt, summarydocument: row.summarydocument };
         }
         return undefined;
     }
@@ -472,8 +539,9 @@ export class SumDocHandler extends TknOperateHandler {
                 if(row.summaryflag == '1') {
                     row.summaryfilename = row.summaryfile || row.summarytitle;
                 }
+                let models = await this.getAgentModels();
                 let list = await this.performListing(context,model,db);
-                return this.createDataTable(KnOperation.RETRIEVAL, row, list.rows, this.progid+"/"+this.progid+"_dialog");
+                return this.createDataTable(KnOperation.RETRIEVAL, row, {tmodels: models, attachfiles: list.rows}, this.progid+"/"+this.progid+"_dialog");
             }
             return this.recordNotFound();
         } catch(ex: any) {
@@ -491,7 +559,8 @@ export class SumDocHandler extends TknOperateHandler {
      * @returns KnDataTable
      */
     public override async getDataAdd(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
-        let dt = this.createDataTable(KnOperation.ADD,{});
+        let models = await this.getAgentModels();
+        let dt = this.createDataTable(KnOperation.ADD,{},{tmodels: models});
         dt.action = KnOperation.ADD;
         dt.renderer = this.progid+"/"+this.progid+"_dialog";
         dt.dataset["summaryid"] = uuid();
@@ -501,8 +570,9 @@ export class SumDocHandler extends TknOperateHandler {
     }
 
     public override async getDataView(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
+        let models = await this.getAgentModels();
         let rs = await this.doList(context,model);
-        let dt = this.createDataTable(KnOperation.VIEW,{},rs.rows);
+        let dt = this.createDataTable(KnOperation.VIEW,{},{tmodels: models, attachfiles: rs.rows});
         dt.renderer = this.progid+"/"+this.progid+"_kit_file_data";
         return dt;
     }    
