@@ -8,10 +8,10 @@ import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 
 export const PREFIX_PROMPT = "Try to classify the question into the following categories:";
-export const JSON_PROMPT = `After classified the question then answer in JSON data with the following format (with out mark down code):
+export const JSON_PROMPT = `After classified the question then answer in JSON data with the following format (with out mark down code and double quote on key attributes):
     {
-        category_name: "The category_name found from defined categories ex. 'Category1', but if not found then let null",
-        category_feedback: "In case of not found from defined categories then try to feedback by answer the question ex. your question out of scope, otherwise let it null",
+        "category_name": "The category_name found from defined categories ex. 'Category1', but if not found then let null",
+        "category_feedback": "In case of not found from defined categories then try to feedback by answer the question ex. your question out of scope, otherwise let it null",
     }
 `;
 
