@@ -250,7 +250,7 @@ export class FilterQuestHandler extends TknOperateHandler {
         knsql.append("select forumid,forumgroup,forumtitle ");
         knsql.append("from tforum ");
         knsql.append("where forumgroup in ('DB','NOTE') ");
-        knsql.append("and (createuser = ?createuser or createuser is null ) ");
+        knsql.append("and (createuser = ?createuser or createuser is null or shareflag = '1') ");
         knsql.set("createuser",this.userToken?.userid);
         let rs = await knsql.executeQuery(db,context);
         return this.createRecordSet(rs);
