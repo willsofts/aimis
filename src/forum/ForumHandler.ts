@@ -9,6 +9,8 @@ import { ForumConfig } from "../models/QuestionAlias";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
 
+const crypto = require('crypto');
+
 export class ForumHandler extends TknOperateHandler {
     public section = PRIVATE_SECTION;
     public group = "DB";
@@ -690,8 +692,10 @@ export class ForumHandler extends TknOperateHandler {
                     row.forumprompt = suminfo.summarydocument;
                 }
             }
+            let texts = forumid+row.forumurl+row.forumuser+row.forumpassword+row.forumhost+row.forumport+row.forumdatabase;
+            let hash = this.toHashString(texts);
             result = {
-                schema: forumid,
+                schema: hash,
                 caption: row.forumtitle,
                 alias: row.dialectalias,
                 dialect: row.forumdialect,
@@ -711,7 +715,7 @@ export class ForumHandler extends TknOperateHandler {
                 version: row.forumdbversion,
                 webhook: row.webhook,
                 hookflag: row.hookflag,
-            };            
+            };  
         }
         return result;
     }
@@ -727,5 +731,12 @@ export class ForumHandler extends TknOperateHandler {
         dt.renderer = this.progid+"/"+this.progid+"_edit";
         return dt;
     }    
+
+    public toHashString(texts: string) : string {
+        if(texts && texts.trim().length>0) {
+            return crypto.createHash('md5').update(texts).digest('hex');
+        }
+        return texts;
+    }
 
 }
