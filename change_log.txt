@@ -1,5 +1,7 @@
 2025-04-09
 + support example questions in classify quest setting
++ swap ollama prompt info & document info order
++ chat/chatnote send correlation id from message sent as a parameter to view history
 
 2025-04-08
 + chatter: fixed prompt for json with double quote on key attributes
