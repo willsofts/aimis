@@ -43,6 +43,7 @@ function setupComponents() {
 		deleted();  return false;
 	});
 	//#(60000) programmer code begin;
+	$("#addquestion").click(function() { addNewQuestion(); });
 	$("#forumupdatebutton").click(function() {
 		disableControls($("#forumupdatebutton"));
 		saveForum(); return false;
@@ -436,6 +437,7 @@ function setupDialogComponents() {
 	initialApplicationControls($("#dialogpanel"));
 	$("#dialogpanel").find(".modal-dialog").draggable();
 	//#(385000) programmer code begin;
+	$("#addquestion").click(function() { addNewQuestion(); });
 	setTimeout(function() { $("#filtername").focus(); },500);
 	setupForumSettings($("#dialogpanel"));
 	//#(385000) programmer code end;
@@ -558,5 +560,11 @@ function saveForum(aform) {
 }
 function openForumLinker(url,winname,params) {
 	openNewWindow({url: url, params: {...params, authtoken: getAccessorToken()}, windowName: winname });
+}
+function addNewQuestion() {
+	let div = $('<div class="quest-input"></div>');
+	let input = $('<input type="text" name="question" class="form-control input-md"></input>');
+	div.append(input);
+	$("#questionslayer").append(div);
 }
 //#(390000) programmer code end;

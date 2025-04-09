@@ -226,7 +226,7 @@ function update(aform) {
 	if(!validNumericFields(aform)) return false;
 	validSaveForm(function() {
 		//#(235000) programmer code begin;
-		//if(!validateUploadFile()) return false;
+		if(!validateUploadFile()) return false;
 		//#(235000) programmer code end;
 		confirmUpdate(function() {
 			let formdata = serializeDataForm(aform);

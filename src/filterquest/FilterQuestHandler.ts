@@ -6,6 +6,7 @@ import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility,
 import { Utilities } from "@willsofts/will-util";
 import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { ForumHandler } from "../forum/ForumHandler";
 
 export const PREFIX_PROMPT = "Try to classify the question into the following categories:";
 export const JSON_PROMPT = `After classified the question then answer in JSON data with the following format (with out mark down code and double quote on key attributes):
@@ -238,6 +239,16 @@ export class FilterQuestHandler extends TknOperateHandler {
             row["categories"] = categories.join(",");
             row["forumlists"] = ars.rows;
         }
+        let questions = [];
+        let handler = new ForumHandler();
+        handler.obtain(this.broker,this.logger);
+        let qrs = await handler.performQuestionGetting(db, filterid, context);
+        if(qrs && qrs.rows.length>0) {
+            for(let i=0; i<qrs.rows.length; i++) {
+                questions.push(qrs.rows[i].question);                    
+            }
+        }
+        row.questions = questions;
         return row;
     }
 
@@ -330,7 +341,10 @@ export class FilterQuestHandler extends TknOperateHandler {
             createtime: Utilities.currentTime(now),
         };
         context.params.filterid = record.filterid;
-        await this.insertForumInGroup(db, context);
+        let handler = new ForumHandler();
+        handler.obtain(this.broker,this.logger);
+        await handler.insertQuestions(context, db, record.filterid);
+        await this.insertForumInGroup(context, db, record.filterid);
         let knsql = this.buildInsertQuery(context, model, KnOperation.CREATE);
         await this.assignParameters(context,knsql,KnOperation.CREATE,KnOperation.CREATE);
         knsql.set("filterid",record.filterid);
@@ -352,9 +366,8 @@ export class FilterQuestHandler extends TknOperateHandler {
         return rcs;
     }
 
-    protected async insertForumInGroup(db: KnDBConnector, context: KnContextInfo) : Promise<KnRecordSet> {
+    protected async insertForumInGroup(context: KnContextInfo, db: KnDBConnector, filterid: string) : Promise<KnRecordSet> {
         let result : KnRecordSet = { records: 0, rows: [], columns: []};
-        let filterid = context.params.filterid;
         await this.deleteForumInGroup(db, filterid, context);
         let categories = this.getParameterArray("forumcategories",context.params);
         if(categories && Array.isArray(categories) && categories.length>0) {
@@ -374,7 +387,7 @@ export class FilterQuestHandler extends TknOperateHandler {
         return result;
     }
 
-    protected async deleteForumInGroup(db: KnDBConnector, filterid: string,context?: KnContextInfo) : Promise<KnResultSet> {
+    protected async deleteForumInGroup(db: KnDBConnector, filterid: string, context?: KnContextInfo) : Promise<KnResultSet> {
         if(!filterid || filterid.trim().length == 0) return this.createRecordSet();
         let knsql = new KnSQL();
         knsql.append("delete from tfilterquestforum where filterid = ?filterid ");
@@ -383,11 +396,17 @@ export class FilterQuestHandler extends TknOperateHandler {
     }
 
     protected override async performUpdating(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
-        await this.insertForumInGroup(db, context);
+        let handler = new ForumHandler();
+        handler.obtain(this.broker,this.logger);
+        await handler.insertQuestions(context, db, context.params.filterid);
+        await this.insertForumInGroup(context, db, context.params.filterid);
         return super.performUpdating(context, model, db);
     }
 
     protected async performClearing(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+        let handler = new ForumHandler();
+        handler.obtain(this.broker,this.logger);
+        await handler.deleteQuestions(context, db, context.params.filterid);
         await this.deleteForumInGroup(db, context.params.filterid, context);
         return super.performClearing(context, model, db);
     }
@@ -444,7 +463,6 @@ export class FilterQuestHandler extends TknOperateHandler {
         return this.createRecordSet(rs);
     }
 
-    /* ------------ UI ------------- */
     /* override to handle launch router when invoked from menu */
     protected override async doExecute(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
         let db = this.getPrivateConnector(model);

@@ -44,7 +44,6 @@ function setupComponents() {
 		deleted();  return false;
 	});
 	//#(60000) programmer code begin;
-	$("#addquestion").click(function() { addNewQuestion(); });
 	//#(60000) programmer code end;
 }
 function resetFilters() {
@@ -432,7 +431,6 @@ function setupDialogComponents() {
 	initialApplicationControls($("#dialogpanel"));
 	$("#dialogpanel").find(".modal-dialog").draggable();
 	//#(385000) programmer code begin;
-	$("#addquestion").click(function() { addNewQuestion(); });
 	setupInputs();
 	setTimeout(function() { $("#forumtitle").focus(); },500);
 	//#(385000) programmer code end;
@@ -475,6 +473,7 @@ function addNewQuestion() {
 	$("#questionslayer").append(div);
 }
 function setupInputs() {
+	$("#addquestion").click(function() { addNewQuestion(); });
 	$("#forumtype").change(function() { 
 		let val = $(this).val();
 		if(val == "DB") {

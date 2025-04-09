@@ -225,33 +225,32 @@ export class ForumHandler extends TknOperateHandler {
         }
     }
 
-    protected override async performUpdating(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+    protected override async performUpdating(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
         let forumport = context.params.forumport;
         if(!forumport || forumport.trim().length==0) {
             context.params.forumport = 0;
         } 
-        await this.insertQuestions(context, model, db);
-        await this.insertForumAgent(context, model, db);
+        await this.insertQuestions(context, db, context.params.forumid);
+        await this.insertForumAgent(context, db, context.params.forumid);
         return super.performUpdating(context, model, db);
     }
 
-    protected override async performClearing(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
-        await this.deleteQuestions(context, model, db, context.params.forumid);
-        await this.deleteForumAgent(context, model, db, context.params.forumid);
+    protected override async performClearing(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+        await this.deleteQuestions(context, db, context.params.forumid);
+        await this.deleteForumAgent(context, db, context.params.forumid);
         return super.performClearing(context, model, db);
     }
 
-    protected async deleteQuestions(context: any, model: KnModel, db: KnDBConnector, forumid: string) : Promise<KnResultSet> {
+    public async deleteQuestions(context: KnContextInfo, db: KnDBConnector, forumid: string) : Promise<KnResultSet> {
         let knsql = new KnSQL();
         knsql.append("delete from tforumquest where forumid = ?forumid ");
         knsql.set("forumid",forumid);
         return await knsql.executeUpdate(db,context);
     }
 
-    protected async insertQuestions(context: any, model: KnModel, db: KnDBConnector) : Promise<KnRecordSet> {
+    public async insertQuestions(context: KnContextInfo, db: KnDBConnector, forumid: string) : Promise<KnRecordSet> {
         let result : KnRecordSet = { records: 0, rows: [], columns: []};
-        let forumid = context.params.forumid;
-        await this.deleteQuestions(context, model, db, forumid);
+        await this.deleteQuestions(context, db, forumid);
         let question = this.getParameterArray("question",context.params);
         if(question && Array.isArray(question) && question.length>0) {
             let knsql = new KnSQL();
@@ -272,14 +271,14 @@ export class ForumHandler extends TknOperateHandler {
         return result;
     }
 
-    protected async deleteForumAgent(context: any, model: KnModel, db: KnDBConnector, forumid: string) : Promise<KnResultSet> {
+    public async deleteForumAgent(context: KnContextInfo, db: KnDBConnector, forumid: string) : Promise<KnResultSet> {
         let knsql = new KnSQL();
         knsql.append("delete from tforumagent where forumid = ?forumid ");
         knsql.set("forumid",forumid);
         return await knsql.executeUpdate(db,context);
     }
 
-    protected async getAgentInfo(context: any, db: KnDBConnector) : Promise<string[]> {
+    public async getAgentInfo(context: KnContextInfo, db: KnDBConnector) : Promise<string[]> {
         let results : string[] = [];
         let knsql = new KnSQL();
         knsql.append("select agentid,seqno from tagent order by seqno ");
@@ -294,9 +293,8 @@ export class ForumHandler extends TknOperateHandler {
         return results;
     }
 
-    protected async insertForumAgent(context: any, model: KnModel, db: KnDBConnector) : Promise<KnRecordSet> {
+    public async insertForumAgent(context: KnContextInfo, db: KnDBConnector, forumid: string) : Promise<KnRecordSet> {
         let result : KnRecordSet = { records: 0, rows: [], columns: []};
-        let forumid = context.params.forumid;
         let curmillis = Utilities.currentTimeMillis();
         let curdate = Utilities.now();
         let curtime = curdate;
@@ -371,7 +369,7 @@ export class ForumHandler extends TknOperateHandler {
         }
         row.forumport = row.forumport.toString().replaceAll(",","");
         let questions = [];
-        let qrs = await this.performQuestionGetting(context, db, row.forumid);
+        let qrs = await this.performQuestionGetting(db, row.forumid, context);
         if(qrs && qrs.rows.length>0) {
             for(let i=0; i<qrs.rows.length; i++) {
                 questions.push(qrs.rows[i].question);                    
@@ -489,7 +487,7 @@ export class ForumHandler extends TknOperateHandler {
         return this.createDataTable(KnOperation.INSERT);
     }
 
-    protected override async performCreating(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+    protected override async performCreating(context: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
         let now = Utilities.now();
         let id = context.params.forumid;
         if(!id || id.trim().length == 0) id = uuid();
@@ -507,8 +505,8 @@ export class ForumHandler extends TknOperateHandler {
         };
         context.params.forumid = record.forumid;
         context.params.forumcode = record.forumcode;
-        await this.insertQuestions(context, model, db);
-        await this.insertForumAgent(context, model, db);
+        await this.insertQuestions(context, db, record.forumid);
+        await this.insertForumAgent(context, db, record.forumid);
         let knsql = this.buildInsertQuery(context, model, KnOperation.CREATE);
         await this.assignParameters(context,knsql,KnOperation.CREATE,KnOperation.CREATE);
         knsql.set("forumid",record.forumid);
@@ -529,7 +527,7 @@ export class ForumHandler extends TknOperateHandler {
         return rcs;
     }
 
-    protected async performQuestionGetting(context: KnContextInfo, db: KnDBConnector, forumid: string): Promise<KnRecordSet> {
+    public async performQuestionGetting(db: KnDBConnector, forumid: string, context?: KnContextInfo): Promise<KnRecordSet> {
         let knsql = new KnSQL();
         knsql.append("select seqno,question ");
         knsql.append("from tforumquest ");
@@ -540,7 +538,7 @@ export class ForumHandler extends TknOperateHandler {
         return this.createRecordSet(rs);
     }
 
-    protected async performListing(context: KnContextInfo, model: KnModel, db: KnDBConnector): Promise<KnRecordSet> {
+    public async performListing(context: KnContextInfo, model: KnModel, db: KnDBConnector): Promise<KnRecordSet> {
         let forumid = context.params.forumid;
         let group = context.params.group;
         if(!group || group.trim().length==0) group = this.group;
@@ -561,7 +559,7 @@ export class ForumHandler extends TknOperateHandler {
         return this.createRecordSet(rs);
     }
 
-    protected async performDialectGetting(context: KnContextInfo, db: KnDBConnector, dialectid: string): Promise<KnRecordSet> {
+    public async performDialectGetting(db: KnDBConnector, dialectid: string, context?: KnContextInfo): Promise<KnRecordSet> {
         let knsql = new KnSQL();
         knsql.append("select * ");
         knsql.append("from tdialect ");
@@ -571,7 +569,7 @@ export class ForumHandler extends TknOperateHandler {
         return this.createRecordSet(rs);
     }
 
-    protected async performDialectListing(context: KnContextInfo, model: KnModel, db: KnDBConnector): Promise<KnRecordSet> {
+    public async performDialectListing(context: KnContextInfo, model: KnModel, db: KnDBConnector): Promise<KnRecordSet> {
         let params = context.params;
         let knsql = new KnSQL();
         knsql.append("select dialectid,dialectalias,dialecttitle,dialectname,providedflag,urlflag,seqno ");
@@ -597,7 +595,7 @@ export class ForumHandler extends TknOperateHandler {
                     let row = rs.rows[i];
                     ds[row.forumid] = { title : row.forumtitle, selected: "1"==row.forumselected };
                     if(ds[row.forumid].selected) hasselected = true;
-                    let qrs = await this.performQuestionGetting(context, db, row.forumid);
+                    let qrs = await this.performQuestionGetting(db, row.forumid, context);
                     if(qrs.rows.length>0) {
                         ds[row.forumid].questions = qrs.rows;
                     }
