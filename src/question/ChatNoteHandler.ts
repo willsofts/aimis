@@ -69,6 +69,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
+            if(chat && chat instanceof LlamaSession) chat = undefined;
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
                 info.statuscode = "NO-DOCUMENT";
@@ -148,6 +149,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
+            if(chat && !(chat instanceof LlamaSession)) chat = undefined;
             if(!chat) {
                 chat = new LlamaSession();
                 chatmap.set(category,chat);

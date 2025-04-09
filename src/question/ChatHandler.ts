@@ -338,6 +338,7 @@ export class ChatHandler extends QuestionHandler {
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;            
             let chat = chatmap.get(category);
+            if(chat && !(chat instanceof LlamaSession)) chat = undefined;
             if(!chat) {
                 chat = new LlamaSession();
                 chatmap.set(category,chat);

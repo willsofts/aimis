@@ -60,6 +60,7 @@ export class ChatStore {
         return this._store;
     }
     public get(storeid: string) : ChatRepository | undefined {
+        console.log("ChatStore: get store:",storeid,", keys:",Array.from(this.storemap.keys()));
         return this.storemap.get(storeid);
     }
     public set(storeid: string, store: ChatRepository) {
@@ -102,6 +103,7 @@ export class ChatRepository {
         this.timemillis = new Date().getTime();
     }
     public get(category: string) : ChatSession | undefined {
+        console.log("ChatRepository: get repo:",category,", keys:",Array.from(this.chatmap.keys()));
         return this.chatmap.get(category);
     }
     public set(category: string, chat: ChatSession) {
