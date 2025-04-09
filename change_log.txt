@@ -1,3 +1,12 @@
+2025-04-09
++ support example questions in classify quest setting
+
+2025-04-08
++ chatter: fixed prompt for json with double quote on key attributes
++ forumnote: fixed bug fileid or summaryid in update mode 
++ forum: hash connection setting of scheme on get forum config
++ chat: support chat history on agent OLLAMA
+
 2025-03-31
 + alter table
 ALTER TABLE `tforum`
