@@ -25,20 +25,6 @@ export class PromptOLlamaUtility {
         let current_date = this.getCurrentDate();
         let current_version = version.trim().length>0 ? DATABASE_VERSION_INFO + version : "";
 
-        // 4 th 
-        // return `You are a ${dialect} (version ${version}) Database administrator. 
-        // You must answer with only 1 best syntactically correct SQL query statement in ${dialect} version ${version}. 
-        // Use the following format (without any explaination):
-
-        // Question: "Question here"
-        // Answer: "SQL Query to run with plain text in double quotes"
-        
-        // The fields you answer must only declared in following tables:
-
-        // ${table_info}
-
-        
-        // `;
         return `You are a ${dialect} (version ${version}) Database administrator. 
         You must answer with only 1 best syntactically correct SQL query statement in ${dialect} version ${version}. 
         Use the following format (without any explaination):
@@ -166,14 +152,13 @@ export class PromptOLlamaUtility {
     
     public createChatDocumentPrompt(document_info: string, prompt_info: string|null|undefined = "") : string {
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        //let current_date = this.getCurrentDate();
         
         return `
 
-        ${document_info}
+        ${prompt_info}
 
         
-        ${prompt_info}
+        ${document_info}
         `;
     }
 
@@ -199,7 +184,6 @@ export class PromptOLlamaUtility {
         , enquiry: string|null|undefined = "") : string {
         if(!document_info || document_info==null) document_info = "";
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        //let current_date = this.getCurrentDate();
 
         return `
 
@@ -217,7 +201,6 @@ export class PromptOLlamaUtility {
         , enquiry: string|null|undefined = "") : string {
         if(!document_info || document_info==null) document_info = "";
         if(!prompt_info || prompt_info==null) prompt_info = "";
-        //let current_date = this.getCurrentDate();
 
         return `${document_info}
 
