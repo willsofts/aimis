@@ -1,5 +1,4 @@
 var forum_id = "";
-var correlation_id;
 $(function() {
 	buildModelers("#modellayer","quest");
 	$('#questform').submit(function() {
@@ -66,6 +65,10 @@ function buildModelers(container="#modellayer",category="quest") {
 		});
 	}
 }
+function getCorrelation() {
+	let text = getAccessorToken();
+	return CryptoJS.MD5(text).toString();
+}
 function sendQuery(quest) {
 	let li = $('<li>').addClass("fxc li-topic").append($('<span>').addClass("topic topic-quest").text("Question")).append($('<span>').addClass("text text-quest").text(quest));
 	$('#listmessages').append(li);
@@ -76,9 +79,10 @@ function sendQuery(quest) {
 	let model = $("input[name='model']:checked").val();
 	let agent = $("input[name='model']:checked").attr("data-agent");
 	let authtoken = getAccessorToken();
+	let correlation = getCorrelation();
 	jQuery.ajax({
 		url: API_URL+"/api/chat/quest",
-		data: {category: cat, model: model, query: quest, agent: agent},
+		data: {category: cat, model: model, query: quest, agent: agent, correlation: correlation},
 		headers : { "authtoken": authtoken },
 		type: "POST",
 		dataType: "html",
@@ -95,7 +99,6 @@ function sendQuery(quest) {
 			$("#waitlayer").hide();
 			let json = $.parseJSON(data);
 			if(json) {
-				correlation_id = json.correlation;
 				displayQueryAnswer(json.query, json.answer, json.error);
 				displayDataSet(json.dataset);
 			}
@@ -202,7 +205,8 @@ function buildCategories(categories) {
 			let cat = $(this).attr("data-cat");
 			let title = $(this).attr("data-title");
 			let params = "query="+cat+"&title="+title;
-			if(correlation_id) params = params+"&correlation="+correlation_id;
+			let correlation = getCorrelation();
+			if(correlation) params = params+"&correlation="+correlation;
 			open_program("chathistory","",params,"/gui/chat/view",true);
 			return false;
 		});

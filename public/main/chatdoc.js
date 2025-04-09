@@ -69,6 +69,10 @@ function buildModelers(container="#modellayer",category="chatdoc") {
 		});
 	}
 }
+function getCorrelation() {
+	let text = getAccessorToken();
+	return CryptoJS.MD5(text).toString();
+}
 function sendQuery(quest) {
 	let li = $('<li>').addClass("fxc li-topic").append($('<span>').addClass("topic topic-quest").text("Question")).append($('<span>').addClass("text text-quest").text(quest));
 	$('#listmessages').append(li);
@@ -79,9 +83,10 @@ function sendQuery(quest) {
 	if(!cat || cat=="") cat = "DOCFILE";
 	let model = $("input[name='model']:checked").val();
 	let authtoken = getAccessorToken();
+	let correlation = getCorrelation();
 	jQuery.ajax({
 		url: API_URL+"/api/chatdoc/quest",
-		data: {category: cat, model: model, mime: "DOC", image: $("#fileid").val(), query: quest},
+		data: {category: cat, model: model, mime: "DOC", image: $("#fileid").val(), query: quest, correlation: correlation},
 		headers : { "authtoken": authtoken },
 		type: "POST",
 		dataType: "html",
@@ -201,7 +206,10 @@ function buildCategories(categories) {
 		link3.click(function() {
 			let cat = $(this).attr("data-cat");
 			let title = $(this).attr("data-title");
-			open_program("chatdochistory","","query="+cat+"&title="+title,"/gui/chatdoc/view",true);
+			let params = "query="+cat+"&title="+title;
+			let correlation = getCorrelation();
+			if(correlation) params = params+"&correlation="+correlation;
+			open_program("chatdochistory","",params,"/gui/chatdoc/view",true);
 			return false;
 		});
 		link4.click(function() {

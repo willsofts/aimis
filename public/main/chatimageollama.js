@@ -70,6 +70,10 @@ function buildModelers(container="#modellayer",category="chatimageollama") {
 		});
 	}
 }		
+function getCorrelation() {
+	let text = getAccessorToken();
+	return CryptoJS.MD5(text).toString();
+}
 function sendQuery(quest) {
 	let li = $('<li>').addClass("fxc li-topic").append($('<span>').addClass("topic topic-quest").text("Question")).append($('<span>').addClass("text text-quest").text(quest));
 	$('#listmessages').append(li);
@@ -81,9 +85,10 @@ function sendQuery(quest) {
 	let model = $("input[name='model']:checked").val();
 	let agent = $("input[name='model']:checked").attr("data-agent");
 	let authtoken = getAccessorToken();
+	let correlation = getCorrelation();
 	jQuery.ajax({
 		url: API_URL+"/api/chatimage/quest",
-		data: {category: cat, model: model, mime: "DOC", image: $("#fileid").val(), query: quest, agent: agent, imageocr: imageid, imagetmp: imagetmp},
+		data: {category: cat, model: model, mime: "DOC", image: $("#fileid").val(), query: quest, agent: agent, imageocr: imageid, imagetmp: imagetmp, correlation: correlation},
 		headers : { "authtoken": authtoken },
 		type: "POST",
 		dataType: "html",
@@ -203,7 +208,10 @@ function buildCategories(categories) {
 		link3.click(function() {
 			let cat = $(this).attr("data-cat");
 			let title = $(this).attr("data-title");
-			open_program("forumimagehistory","","query="+cat+"&title="+title,"/gui/chatimage/view",true);
+			let params = "query="+cat+"&title="+title;
+			let correlation = getCorrelation();
+			if(correlation) params = params+"&correlation="+correlation;
+			open_program("forumimagehistory","",params,"/gui/chatimage/view",true);
 			return false;
 		});
 		link4.click(function() {

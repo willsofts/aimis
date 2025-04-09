@@ -73,7 +73,7 @@ export class ChatStore {
         return this.storemap.size;
     }
     private static startCleansing() : ChatCleansing {
-        console.log("["+new Date().toISOString()+"] INFO  ChatRepository: start cleansing ...");
+        //console.log("["+new Date().toISOString()+"] INFO  ChatRepository: start cleansing ...");
         let cleansing = ChatCleansing.getInstance();
         cleansing.start();
         return cleansing;
@@ -103,7 +103,7 @@ export class ChatRepository {
         this.timemillis = new Date().getTime();
     }
     public get(category: string) : ChatSession | undefined {
-        console.log("ChatRepository: get repo:",category,", keys:",Array.from(this.chatmap.keys()));
+        //console.log("ChatRepository: get repo:",category,", keys:",Array.from(this.chatmap.keys()));
         return this.chatmap.get(category);
     }
     public set(category: string, chat: ChatSession) {
