@@ -2,6 +2,8 @@
 + support example questions in classify quest setting
 + swap ollama prompt info & document info order
 + chat/chatnote send correlation id from message sent as a parameter to view history
++ using correlation from auth token in quest.js,chatnote.js,chatdoc.js,chatimage.js,chatimageollama.js
++ try parse json mark down when parse answer
 
 2025-04-08
 + chatter: fixed prompt for json with double quote on key attributes
