@@ -32,8 +32,14 @@ export class QuestionUtility {
             foundsql = true;
             ans = ans.substring(idx+6);
         }
+        let foundjson = false;
+        idx = ans.indexOf("```json");
+        if(idx>=0) {
+            foundjson = true;
+            ans = ans.substring(idx+7);
+        }
         idx = ans.indexOf("```");
-        if(!foundsql && idx>=0) {
+        if((!foundsql && !foundjson) && idx>=0) {
             ans = ans.substring(idx+3);
         }
         idx = ans.lastIndexOf("```");
@@ -48,12 +54,20 @@ export class QuestionUtility {
             ans = ans.substring(0,ans.length-1);
         }
         let result = this.trime(ans.trim());
-        //result = result.replaceAll("\\","");
         if(result.startsWith('"')) {
             result = result.substring(1,result.length-1);
         }
         if(result.endsWith('"')) {
             result = result.substring(0,result.length-1);
+        }
+        if(foundjson) {
+            try { 
+                let json = JSON.parse(result); 
+                if(json) {
+                    let keys = Object.keys(json);
+                    if(keys.length>0) return json[keys[0]];
+                }
+            } catch(e) { }
         }
         return result;
     }
@@ -121,14 +135,14 @@ export class QuestionUtility {
         if(hasQuote && ans.endsWith("\"")) {
             ans = ans.substring(0,ans.length-1);
         }
-        let found = false;
+        let foundjson = false;
         let idx = ans.indexOf("```json");
         if(idx>=0) {
-            found = true;
+            foundjson = true;
             ans = ans.substring(idx+7);
         }
         idx = ans.indexOf("```");
-        if(!found && idx>=0) {
+        if(!foundjson && idx>=0) {
             ans = ans.substring(idx+3);
         }
         idx = ans.lastIndexOf("```");
