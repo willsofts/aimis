@@ -373,9 +373,10 @@ function changeRecognitionLanguage(newLang) {
 function confirmResetCategory(cat,title) {
 	if(!confirm("Do you want to reset "+title+" ?")) return false;
 	let authtoken = getAccessorToken();
+	let correlation = getCorrelation();
 	jQuery.ajax({
 		url: API_URL+"/api/chat/reset",
-		data: {category: cat},
+		data: {category: cat, correlation: correlation},
 		headers : { "authtoken": authtoken },
 		type: "POST",
 		dataType: "html",

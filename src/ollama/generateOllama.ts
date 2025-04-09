@@ -13,7 +13,9 @@ export class LlamaSession extends ChatSession {
     }
     public add(contents: Content[]) {
         if(!contents) return;
-        this.history = this.history.concat(contents);
+        for(let ct of contents) {
+            this.history.push(ct);
+        }
     }
 }
 

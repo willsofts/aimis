@@ -444,14 +444,14 @@ export class ChatHandler extends QuestionHandler {
     }    
 
     public override async processReset(category: string, correlation: string) : Promise<InquiryInfo> {
-        this.logger.debug(this.constructor.name+".processReset: category:",category);
+        this.logger.debug(this.constructor.name+".processReset: category:",category,", correlation:",correlation);
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
         if(!chat) {
             return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
-        this.logger.debug(this.constructor.name+".processReset: remove category:",category);
+        this.logger.debug(this.constructor.name+".processReset: remove category:",category,", correlation:",correlation);
         return Promise.resolve({ questionid: "", correlation: correlation, category: category, error: false, statuscode: "", question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 

@@ -305,7 +305,7 @@ export class ChatPDFHandler extends VisionHandler {
     }    
 
     public async processReset(category: string,correlation: string) : Promise<InquiryInfo> {
-        this.logger.debug(this.constructor.name+".processReset: category:",category);
+        this.logger.debug(this.constructor.name+".processReset: category:",category,", correlation:",correlation);
         if(!category || category.trim().length == 0) category = "PDFFILE";
         const chatmap = ChatRepository.getInstance(correlation);
         let chat = chatmap.get(category);
@@ -313,7 +313,7 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve({ questionid: "", correlation: correlation, category: category, classify: "", error: false, statuscode: "", question: category, query: "reset", answer: "Not found", dataset: [] });
         }
         chatmap.remove(category);
-        this.logger.debug(this.constructor.name+".processReset: remove category:",category);
+        this.logger.debug(this.constructor.name+".processReset: remove category:",category,", correlation:",correlation);
         return Promise.resolve({ questionid: "", correlation: correlation, category: category, classify: "", error: false, statuscode: "", question: category, query: "reset", answer: "Reset OK", dataset: [] });
     }
 
