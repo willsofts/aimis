@@ -1,4 +1,5 @@
 var forum_id = "";
+var correlation_id;
 $(function() {
 	buildModelers("#modellayer","quest");
 	$('#questform').submit(function() {
@@ -90,9 +91,11 @@ function sendQuery(quest) {
 			$('#query').focus();
 		},
 		success: function(data,status,transport) {
+			console.log("data:",data);
 			$("#waitlayer").hide();
 			let json = $.parseJSON(data);
 			if(json) {
+				correlation_id = json.correlation;
 				displayQueryAnswer(json.query, json.answer, json.error);
 				displayDataSet(json.dataset);
 			}
@@ -198,7 +201,9 @@ function buildCategories(categories) {
 		link3.click(function() {
 			let cat = $(this).attr("data-cat");
 			let title = $(this).attr("data-title");
-			open_program("chathistory","","query="+cat+"&title="+title,"/gui/chat/view",true);
+			let params = "query="+cat+"&title="+title;
+			if(correlation_id) params = params+"&correlation="+correlation_id;
+			open_program("chathistory","",params,"/gui/chat/view",true);
 			return false;
 		});
 		link4.click(function() {

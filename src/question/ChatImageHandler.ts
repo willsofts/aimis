@@ -138,7 +138,7 @@ export class ChatImageHandler extends ChatPDFHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let chat = chatmap.get(category);
             if(!chat) {
                 let history = this.getChatHistory(forum?.prompt, forum?.tableinfo);
@@ -211,7 +211,7 @@ export class ChatImageHandler extends ChatPDFHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let hasParam = img_info;
             if(!hasParam) img_info = await this.getImageFileInfo(quest, db);
             if (quest.imagetmp){
@@ -309,7 +309,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         try {
             forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestion: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuestion: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", category:",category+", input:",input);
             let contents = this.getImagePrompt(forum?.prompt, forum?.tableinfo);
             let hasParam = img_info;
             if(!hasParam) img_info = await this.getInlineImage(quest,db);

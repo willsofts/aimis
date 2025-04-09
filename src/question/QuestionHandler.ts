@@ -110,7 +110,7 @@ export class QuestionHandler extends GenerativeHandler {
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -178,7 +178,7 @@ export class QuestionHandler extends GenerativeHandler {
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -245,7 +245,7 @@ export class QuestionHandler extends GenerativeHandler {
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -321,7 +321,7 @@ export class QuestionHandler extends GenerativeHandler {
             const aimodel = this.getAIModel(context);
             let input = quest.question;
             let table_info = this.getDatabaseTableInfo(category);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let version = "";
             //create question prompt with table info
             let prmutil = new PromptUtility();

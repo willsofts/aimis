@@ -66,7 +66,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context,true);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
@@ -145,7 +145,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context,true);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             if(!chat) {

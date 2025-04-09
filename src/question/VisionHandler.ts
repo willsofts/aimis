@@ -59,7 +59,7 @@ export class VisionHandler extends GenerativeHandler {
             const aimodel = this.getAIModel(context);
             let input = quest.question;
             let image_info = this.getImageInfo(quest.mime,quest.image);
-            this.logger.debug(this.constructor.name+".processQuestion: input:",input);
+            this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", input:",input);
             let result = await aimodel.generateContent([input, image_info]);
             let response = result.response;
             let text = response.text();

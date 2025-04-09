@@ -95,7 +95,7 @@ export class ChatHandler extends QuestionHandler {
             forum = await this.getForumConfig(db,category,context);
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;
             let chat = chatmap.get(category);
             if(chat && chat instanceof LlamaSession) chat = undefined;
@@ -250,7 +250,7 @@ export class ChatHandler extends QuestionHandler {
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -335,7 +335,7 @@ export class ChatHandler extends QuestionHandler {
             forum = await this.getForumConfig(db,category,context);
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;            
             let chat = chatmap.get(category);
             if(!chat) {
@@ -419,6 +419,7 @@ export class ChatHandler extends QuestionHandler {
     }
 
     public override async getHistory(category: string, correlation: string, map?:  Map<string,ChatSession>) : Promise<any[]>{
+        this.logger.debug(this.constructor.name+".getHistory: category",category,", correlation",correlation);
         let chat = map?map.get(category):ChatRepository.getInstance(correlation).get(category); 
         if(chat) {
             return chat.getHistory();

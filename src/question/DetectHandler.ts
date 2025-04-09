@@ -27,7 +27,7 @@ export class DetectHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", quest:",quest);
         let db = this.getPrivateConnector(model);
         try {
             let image_info = await this.getFileImageInfo(quest.image,db);
@@ -70,7 +70,7 @@ export class DetectHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        this.logger.debug(this.constructor.name+".processQuestion: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", quest:",quest);
         let db = this.getPrivateConnector(model);
         try {
             info.answer = "";

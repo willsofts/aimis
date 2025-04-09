@@ -104,7 +104,7 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve(info);
         }
         let category = quest.category || "PDFFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         try {
@@ -203,7 +203,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        this.logger.debug(this.constructor.name+".processQuestion: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", quest:",quest);
         let db = this.getPrivateConnector(model);
         try {
             info.answer = "";
@@ -281,6 +281,7 @@ export class ChatPDFHandler extends VisionHandler {
     }
 
     public async getHistory(category: string, correlation: string, map?:  Map<String,ChatSession>) : Promise<any[]>{
+        this.logger.debug(this.constructor.name+".getHistory: category",category,", correlation",correlation);
         let chat = map?map.get(category):ChatRepository.getInstance(correlation).get(category); 
         if(chat) {
             return chat.getHistory();

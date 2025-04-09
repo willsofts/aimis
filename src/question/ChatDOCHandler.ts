@@ -68,7 +68,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             let image_info = await this.getFileImageInfo(quest.image,db);
