@@ -72,11 +72,9 @@ const FetchService : ServiceSchema = {
             response.body = Object.fromEntries(body);
             return response;
         },
-        ollamacheck(ctx: any){
-
+        ollamacheck(ctx: any){            
             let pname = "API_OLLAMA_HOST";
-            let ollama_url = Configure.getConfig(pname);
-            
+            let ollama_url = Configure.getConfig(pname);            
             return fetch(ollama_url, {
                 method: 'GET'
             })
@@ -90,6 +88,12 @@ const FetchService : ServiceSchema = {
         session(ctx: any) {
             let sid = ctx.meta?.session?.id ?? uuid();            
             return {id: sid};
+        },
+        version(ctx: any) {
+            ctx.meta.$responseRaw = true; 
+            ctx.meta.$responseType = "application/json";    
+            const packageconfig = require("../../package.json");
+            return { version: packageconfig.version };
         }
     },
 };
