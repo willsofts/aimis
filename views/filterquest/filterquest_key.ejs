@@ -7,6 +7,12 @@
 <label for="filterid" id="filterid_label" class="control-label"><%=label.get('filterid_label','ID')%></label>
 <div class="input-group"><input type="text" id="filterid" name="filterid" class="form-control input-md irequired alert-input" class="form-control input-md irequired alert-input" maxlength="50" value="<%=data.dataset?.filterid%>" <%=display%>/><span></span><div class="input-group-required"><label class="required">*</label></div></div><div id="filterid_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('filterid_alert','You can not leave this empty')%></div>
 							</div>
+							<div class="col-height col-md-3">
+								<div class="checkbox checkbox form-check" id="shareflagbox">									
+									<input type="checkbox" id="shareflag" name="shareflag" class="form-control input-md form-check-input" class="form-control input-md" value="1" <%=page.checked('1',data.dataset?.shareflag)%> />
+									<label for="shareflag" id="shareflag_label" class="control-label form-check-label"><%=label.get('shareflag_label','Sharing')%></label>
+								</div>
+							</div>
 						</div>
 					</div>
 			</div>

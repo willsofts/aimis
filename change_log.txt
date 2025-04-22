@@ -1,3 +1,9 @@
+2025-04-22
++ support moleculer transporter (redis,nats,kafka,amqp)
++ filterquest support shareflag
+ALTER TABLE `tfilterquest`
+	ADD COLUMN `shareflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Sharing' AFTER `webhook`;
+
 2025-04-09
 + support example questions in classify quest setting
 + swap ollama prompt info & document info order

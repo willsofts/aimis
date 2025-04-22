@@ -32,6 +32,7 @@ export class FilterQuestHandler extends TknOperateHandler {
             skillprompt: { type: "STRING", updated: true },
             hookflag: { type: "STRING", updated: true, defaultValue: "0" },
             webhook: { type: "STRING", updated: true },
+            shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
@@ -123,7 +124,7 @@ export class FilterQuestHandler extends TknOperateHandler {
             knsql.append(model.name);
             let filter = " where ";
             if(this.userToken?.userid) {
-                knsql.append(filter).append(" ( createuser = ?userid or createuser is null ) ");
+                knsql.append(filter).append(" ( createuser = ?userid or createuser is null or shareflag = '1' ) ");
                 knsql.set("userid",this.userToken?.userid);
                 filter = " and ";    
             }
