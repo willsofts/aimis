@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS `tfilterquest` (
   `skillprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `hookflag` varchar(1) DEFAULT '0' COMMENT '1=Hook',
   `webhook` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `shareflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Sharing' COLLATE utf8mb3_general_ci,
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,
@@ -265,6 +266,28 @@ CREATE TABLE IF NOT EXISTS `tforumquest` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep example question';
 
 -- Data exporting was unselected.
+
+CREATE TABLE IF NOT EXISTS `tsummarydocument` (
+  `summaryid` varchar(50) NOT NULL,
+  `summarytitle` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `summaryagent` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `summarymodel` varchar(50) DEFAULT NULL,
+  `summaryfile` varchar(200) DEFAULT NULL,
+  `summaryflag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '0' COMMENT '1=Processed',
+  `summaryprompt` text,
+  `summarydocument` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `shareflag` varchar(1) DEFAULT '0' COMMENT '1=Sharing',
+  `inactive` varchar(1) DEFAULT '0' COMMENT '1=Inactive',
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) DEFAULT NULL,
+  `editdate` date DEFAULT NULL,
+  `edittime` time DEFAULT NULL,
+  `editmillis` bigint DEFAULT NULL,
+  `edituser` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`summaryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep summary document';
 
 -- Dumping structure for table aidb.tsummarydocument
 CREATE TABLE IF NOT EXISTS `tsummarydocument` (

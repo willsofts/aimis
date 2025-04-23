@@ -434,30 +434,33 @@ CREATE TABLE IF NOT EXISTS `tprog` (
   `shortname` varchar(50) DEFAULT NULL,
   `shortnameth` varchar(50) DEFAULT NULL,
   `progpath` varchar(150) DEFAULT NULL,
-  `newflag` VARCHAR(1) NULL DEFAULT NULL,
+  `newflag` varchar(1) DEFAULT NULL,
   `editdate` date DEFAULT NULL,
   `edittime` time DEFAULT NULL,
   `edituser` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`programid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep program name';
 
--- Dumping data for table aiauth.tprog: ~15 rows (approximately)
-INSERT INTO `tprog` (`product`, `programid`, `progname`, `prognameth`, `progtype`, `appstype`, `description`, `parameters`, `progsystem`, `iconfile`, `iconstyle`, `shortname`, `shortnameth`, `progpath`, `editdate`, `edittime`, `edituser`) VALUES
-	('AI', 'ask', 'Ask Me', 'Ask Me', 'F', 'W', 'Ask Me', NULL, 'F', NULL, NULL, 'Ask', 'Ask', '/show/html/ask', NULL, NULL, NULL),
-	('AI', 'chatclassify', 'Chat Classify', 'Chat Classify', 'F', 'W', 'Chat Classify', NULL, 'F', NULL, NULL, 'Chat Clasify', 'Chat Classify', '/show/html/chatclassify', NULL, NULL, NULL),
-	('AI', 'chatdoc', 'Chat Doc', 'Chat Doc', 'F', 'W', 'Chat Doc', NULL, 'F', '', NULL, 'Chat Doc', 'Chat Doc', '/show/html/chatdoc', NULL, NULL, NULL),
-	('AI', 'chatimage', 'Chat Image', 'Chat Image', 'F', 'W', 'Chat Image', NULL, 'F', '', NULL, 'Chat Image', 'Chat Image', '/show/html/chatimage', NULL, NULL, NULL),
-	('AI', 'chatimageollama', 'Chat Image Vision', 'Chat Image Vision', 'F', 'W', 'Chat Image Vision', NULL, 'F', '', NULL, 'Image Vision', 'Image Vision', '/show/html/chatimageollama', NULL, NULL, NULL),
-	('AI', 'chatnote', 'Chat Note', 'Chat Note', 'F', 'W', 'Chat Note', NULL, 'F', '', NULL, 'Chat Note', 'Chat Note', '/show/html/chatnote', NULL, NULL, NULL),
-	('AI', 'chatpdf', 'Chat PDF', 'Chat PDF', 'F', 'W', 'Chat PDF', '', 'F', '', NULL, 'Chat PDF', 'Chat PDF', '/show/html/chatpdf', NULL, NULL, NULL),
-	('AI', 'filterdoc', 'Classify Doc', 'Classify Doc', 'F', 'W', 'Classify Doc', NULL, 'F', '', NULL, 'Classify Doc', 'Classify Doc', NULL, NULL, NULL, NULL),
-	('AI', 'filterquest', 'Classify Setting', 'Classify Setting', 'F', 'W', 'Classify Setting', NULL, 'F', NULL, NULL, 'Classify Setting', 'Classify Setting', NULL, NULL, NULL, NULL),
-	('AI', 'ocr', 'OCR Me', 'OCR Me', 'F', 'W', 'OCR Me', NULL, 'F', NULL, NULL, 'OCR', 'OCR', '/show/html/ocr', NULL, NULL, NULL),
-	('AI', 'quest', 'Question & Answer', 'Question & Answer', 'F', 'W', 'Question & Answer', NULL, 'F', NULL, 'fa fa-th', 'Q&A', 'Q&A', '/show/html/quest', NULL, NULL, NULL),
-	('PROMPT', 'sftu004', 'Access Token', 'Access Token', 'F', 'W', 'Access Token', NULL, 'F', 'sftu004.png', NULL, 'Token', 'Token', NULL, NULL, NULL, NULL),
-	('AI', 'sumdoc', 'Summary Doc Setting', 'Summary Doc Setting', 'F', 'W', 'Summary Doc Setting', NULL, 'F', NULL, NULL, 'Summary Doc', 'Summary Doc', '', NULL, NULL, NULL),
-	('AI', 'tokenusage', 'Token Usage', 'Token Usage', 'F', 'W', 'Token Usage', NULL, 'F', NULL, NULL, 'Usage', 'Usage', NULL, NULL, NULL, NULL),
-	('AI', 'vision', 'Vision Me', 'Vision Me', 'F', 'W', 'Vision Me', NULL, 'F', NULL, NULL, 'Vision', 'Vision', '/show/html/vision', NULL, NULL, NULL);
+-- Dumping data for table aiauth.tprog: ~18 rows (approximately)
+INSERT INTO `tprog` (`product`, `programid`, `progname`, `prognameth`, `progtype`, `appstype`, `description`, `parameters`, `progsystem`, `iconfile`, `iconstyle`, `shortname`, `shortnameth`, `progpath`, `newflag`, `editdate`, `edittime`, `edituser`) VALUES
+	('AI', 'ask', 'Ask Me', 'Ask Me', 'F', 'W', 'Ask Me', NULL, 'F', NULL, NULL, 'Ask', 'Ask', '/show/html/ask', NULL, NULL, NULL, NULL),
+	('AI', 'chatclassify', 'Chat Classify', 'Chat Classify', 'F', 'W', 'Chat Classify', NULL, 'F', NULL, NULL, 'Chat Clasify', 'Chat Classify', '/show/html/chatclassify', NULL, NULL, NULL, NULL),
+	('AI', 'chatdoc', 'Chat Doc', 'Chat Doc', 'F', 'W', 'Chat Doc', NULL, 'F', '', NULL, 'Chat Doc', 'Chat Doc', '/show/html/chatdoc', NULL, NULL, NULL, NULL),
+	('AI', 'chatimage', 'Chat Image', 'Chat Image', 'F', 'W', 'Chat Image', NULL, 'F', '', NULL, 'Chat Image', 'Chat Image', '/show/html/chatimage', NULL, NULL, NULL, NULL),
+	('AI', 'chatimageollama', 'Chat Image Vision', 'Chat Image Vision', 'F', 'W', 'Chat Image Vision', NULL, 'F', '', NULL, 'Image Vision', 'Image Vision', '/show/html/chatimageollama', NULL, NULL, NULL, NULL),
+	('AI', 'chatnote', 'Chat Note', 'Chat Note', 'F', 'W', 'Chat Note', NULL, 'F', '', NULL, 'Chat Note', 'Chat Note', '/show/html/chatnote', NULL, NULL, NULL, NULL),
+	('AI', 'chatpdf', 'Chat PDF', 'Chat PDF', 'F', 'W', 'Chat PDF', '', 'F', '', NULL, 'Chat PDF', 'Chat PDF', '/show/html/chatpdf', NULL, NULL, NULL, NULL),
+	('AI', 'filterdoc', 'Classify Doc', 'Classify Doc', 'F', 'W', 'Classify Doc', NULL, 'F', '', NULL, 'Classify Doc', 'Classify Doc', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'filterquest', 'Classify Setting', 'Classify Setting', 'F', 'W', 'Classify Setting', NULL, 'F', NULL, NULL, 'Classify Setting', 'Classify Setting', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'forum', 'Forum', 'Forum', 'F', 'W', 'Forum', NULL, 'F', NULL, NULL, 'Forum', 'Forum', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'forumdoc', 'Forum Doc', 'Forum Doc', 'F', 'W', 'Forum Doc', NULL, 'F', NULL, NULL, 'Forum Doc', 'Forum Doc', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'forumnote', 'Forum Note', 'Forum Note', 'F', 'W', 'Forum Note', NULL, 'F', NULL, NULL, 'Forum Note', 'Forum Note', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'ocr', 'OCR Me', 'OCR Me', 'F', 'W', 'OCR Me', NULL, 'F', NULL, NULL, 'OCR', 'OCR', '/show/html/ocr', NULL, NULL, NULL, NULL),
+	('AI', 'quest', 'Question & Answer', 'Question & Answer', 'F', 'W', 'Question & Answer', NULL, 'F', NULL, 'fa fa-th', 'Q&A', 'Q&A', '/show/html/quest', NULL, NULL, NULL, NULL),
+	('PROMPT', 'sftu004', 'Access Token', 'Access Token', 'F', 'W', 'Access Token', NULL, 'F', 'sftu004.png', NULL, 'Token', 'Token', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'sumdoc', 'Summary Doc Setting', 'Summary Doc Setting', 'F', 'W', 'Summary Doc Setting', NULL, 'F', NULL, NULL, 'Summary Doc', 'Summary Doc', '', NULL, NULL, NULL, NULL),
+	('AI', 'tokenusage', 'Token Usage', 'Token Usage', 'F', 'W', 'Token Usage', NULL, 'F', NULL, NULL, 'Usage', 'Usage', NULL, NULL, NULL, NULL, NULL),
+	('AI', 'vision', 'Vision Me', 'Vision Me', 'F', 'W', 'Vision Me', NULL, 'F', NULL, NULL, 'Vision', 'Vision', '/show/html/vision', NULL, NULL, NULL, NULL);
 
 -- Dumping structure for table aiauth.tproggrp
 CREATE TABLE IF NOT EXISTS `tproggrp` (
@@ -468,8 +471,11 @@ CREATE TABLE IF NOT EXISTS `tproggrp` (
   PRIMARY KEY (`groupname`,`programid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep program by group';
 
--- Dumping data for table aiauth.tproggrp: ~15 rows (approximately)
+-- Dumping data for table aiauth.tproggrp: ~18 rows (approximately)
 INSERT INTO `tproggrp` (`groupname`, `programid`, `parameters`, `seqno`) VALUES
+	('MANAGER', 'forum', NULL, 1),
+	('MANAGER', 'forumdoc', NULL, 3),
+	('MANAGER', 'forumnote', NULL, 2),
 	('MENU', 'ask', NULL, 2),
 	('MENU', 'chatclassify', NULL, 12),
 	('MENU', 'chatdoc', NULL, 6),
@@ -733,10 +739,7 @@ CREATE TABLE IF NOT EXISTS `tusergrp` (
 
 -- Dumping data for table aiauth.tusergrp: ~6 rows (approximately)
 INSERT INTO `tusergrp` (`userid`, `groupname`, `rolename`) VALUES
-	('325b1f73-6198-433a-a484-b67f6082d9a5', 'OPERATOR', NULL),
-	('349c7852-4b13-476f-9d2a-03693358f205', 'OPERATOR', NULL),
-	('ca113e9d-20b8-40e9-a7ae-3736c90ecd63', 'OPERATOR', NULL),
-	('e56a3df1-11b2-44f4-820c-450eb2a24d77', 'OPERATOR', NULL),
+	('tso', 'MANAGER', NULL),
 	('tso', 'MENU', NULL),
 	('tso', 'SETTING', NULL);
 

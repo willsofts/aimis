@@ -180,6 +180,7 @@ CREATE TABLE IF NOT EXISTS `tfilterquest` (
   `skillprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `hookflag` varchar(1) DEFAULT '0' COMMENT '1=Hook',
   `webhook` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `shareflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Sharing' COLLATE utf8mb3_general_ci,
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,
@@ -291,14 +292,38 @@ INSERT INTO `tforumquest` (`forumid`, `questid`, `question`, `seqno`) VALUES
 	('AIDB1', 'e3069f5c-e9b8-11ee-867f-04e8b9b1b867', 'What is the cheapest product name', 1),
 	('AIDB1', 'e54911ba-e9b8-11ee-867f-04e8b9b1b867', 'What is the most expensive product name', 2),
 	('AIDB1', 'e76f2b3e-e9b8-11ee-867f-04e8b9b1b867', 'List product with name and price then order by price descending', 3),
-	('AIDB1', 'e94a5686-e9b8-11ee-867f-04e8b9b1b867', 'Find out best seller 5 product\'s name of unit in March,2024', 4),
-	('AIDB1', 'ea9a2e74-e9b8-11ee-867f-04e8b9b1b867', 'Find out top 5 customer\'s name of order amount in March,2024', 5),
+	('AIDB1', 'e94a5686-e9b8-11ee-867f-04e8b9b1b867', 'Find out best seller 5 product name of unit in March,2024', 4),
+	('AIDB1', 'ea9a2e74-e9b8-11ee-867f-04e8b9b1b867', 'Find out top 5 customer name of order amount in March,2024', 5),
 	('AIDB2', 'ec1bc590-e9b8-11ee-867f-04e8b9b1b867', 'What is the cheapest course in training schedule', 1),
 	('AIDB2', 'edaed779-e9b8-11ee-867f-04e8b9b1b867', 'What is the most expensive course in training schedule', 2),
 	('24a19ca4-7b0a-4eda-a469-c2232ebbc705', 'ee08e79b-e528-4db2-9053-2254d03346c6', 'What is the cheapest course in training schedule', 1),
 	('AIDB2', 'ef194d34-e9b8-11ee-867f-04e8b9b1b867', 'List all course name and cost from training schedule', 3),
-	('AIDB2', 'f0938e83-e9b8-11ee-867f-04e8b9b1b867', 'Find out registered trainee\'s name in March,2024', 4),
+	('AIDB2', 'f0938e83-e9b8-11ee-867f-04e8b9b1b867', 'Find out registered trainee name in March,2024', 4),
 	('AIDB2', 'f3dcb55a-e9b8-11ee-867f-04e8b9b1b867', 'Find out top most training days from training schedule', 5);
+
+
+CREATE TABLE IF NOT EXISTS `tsummarydocument` (
+  `summaryid` varchar(50) NOT NULL,
+  `summarytitle` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `summaryagent` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `summarymodel` varchar(50) DEFAULT NULL,
+  `summaryfile` varchar(200) DEFAULT NULL,
+  `summaryflag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '0' COMMENT '1=Processed',
+  `summaryprompt` text,
+  `summarydocument` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `shareflag` varchar(1) DEFAULT '0' COMMENT '1=Sharing',
+  `inactive` varchar(1) DEFAULT '0' COMMENT '1=Inactive',
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) DEFAULT NULL,
+  `editdate` date DEFAULT NULL,
+  `edittime` time DEFAULT NULL,
+  `editmillis` bigint DEFAULT NULL,
+  `edituser` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`summaryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep summary document';
+
 
 CREATE TABLE IF NOT EXISTS `ttextconfig` (
   `docid` varchar(50) NOT NULL,
