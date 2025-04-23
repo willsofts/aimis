@@ -106,10 +106,12 @@
 	box-shadow: 0 0 3px 3px lightgray;
 	border-radius: 3px;
 	cursor: pointer;
-	transition: width 2s;
+	/*transition: width 2s;*/
+	transition: transform 2s ease;
 }
 .div-login-shape:hover {
-	width: 320px;
+	/*width: 320px;*/
+	transform: rotateY(-35deg);
 }
 #login_logo_label { 
 	font-size:55px; 
