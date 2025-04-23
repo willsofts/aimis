@@ -7,14 +7,14 @@ services:
       - 9092:9092
       - 9093:9093
 
-  aimisdb:
+  dbs:
     image: mysql:8.0.26
-    container_name: aimisdb
+    container_name: dbs
     environment:
       - MYSQL_ROOT_PASSWORD=root
     restart: always
     ports:
-      - 13306:3306
+      - 3306:3306
     volumes:
       - ./db/cf/my.cnf:/etc/mysql/conf.d/mysql.cnf
       - ./db/mysql:/var/lib/mysql
@@ -27,17 +27,17 @@ services:
       - EXPRESS_HTTPS=true
       - EXPRESS_KEY=./cert/key.pem
       - EXPRESS_CERT=./cert/cert.pem
-      - GOOGLE_APPLICATION_CREDENTIALS=/usr/node/app/key/service_account_key.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/key/service_account_key.json
       - ANTHROPIC_API_KEY=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
       - OLLAMA_HOST=http://172.31.199.54:11434
       - OLLAMA_PORT=11434
     restart: always
     volumes:
-      - ./config/default-docker.json:/usr/src/app/config/default.json
+      - ./config/default-docker-host.json:/usr/src/app/config/default.json
       - ./config/moleculer.config.kafka.js:/usr/src/app/moleculer.config.js
     ports:
-      - 8077:8080
-      - 7443:8443
+      - 8078:8080
+      - 8077:8443
     depends_on:
-      - aimisdb
+      - dbs
       - apachekafka
