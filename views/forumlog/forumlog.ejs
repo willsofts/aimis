@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Forum Tracking</title>
+		<%- include('../asset/meta') %>		
+		<%- include('../asset/styles') %>		
+		<%- include('../asset/scripts') %>	
+		<link rel="stylesheet" type="text/css" href="<%=meta.base_url%>/forumlog/forumlog.css" />
+		<script type="text/javascript" src="<%=meta.base_url%>/forumlog/forumlog.js"></script>
+	</head>
+	<body class="portalbody portalbody-off">
+		<%- include('../partials/page_waiting') %>
+		<div id="sftq001" class="pt-page pt-page-current pt-page-controller">
+			<%- page.createHeader({pid: 'forumlog', title: label.get('caption','Forum Tracking')}) %>
+			<div id="searchpanel" class="panel-body">
+				<form id="fssearchform" name="fssearchform" method="post">	
+					<input type="hidden" name="ajax" value="true"/>
+					<input type="hidden" name="rowsPerPage" value="<%=page.setting?.rowsPerPage%>"/>
+					<input type="hidden" name="limit" value="<%=page.setting?.limit%>"/>
+					<input type="hidden" name="page" value="1"/>
+					<input type="hidden" name="orderBy" value=""/>
+					<input type="hidden" name="orderDir" value=""/>
+					<div class="row filter-layer">
+							<div class="col-md-2 col-height search-group">
+								<label for="userid_label" id="userid_label" class="control-label"><%=label.get('userid_label','User ID')%></label>
+								<input class="form-control input-md" id="userids" name="userid" placeholder="" autocomplete="off">
+							</div>
+							<!--
+							<div class="col-md-2 col-height search-group">
+								<label for="categoryid_label" id="categoryid_label" class="control-label"><%=label.get('categoryid_label','Category')%></label>
+								<input class="form-control input-md" id="categoryids" name="categoryid" placeholder="" autocomplete="off">
+							</div>
+							-->
+							<div class="col-md-2 col-height search-group">
+								<label for="correlationid_label" id="correlationid_label" class="control-label"><%=label.get('correlationid_label','Correlation')%></label>
+								<input class="form-control input-md" id="correlationids" name="correlationid" placeholder="" autocomplete="off">
+							</div>							
+							<div class="col-md col-height search-group">
+								<label id="datefrom_label" class="control-label">From Date</label>
+								<%-page.html('date',{id: "datefroms", name: "datefrom", class: "form-control input-md", current: true})%>
+							</div>
+							<div class="col-md col-height search-group">
+								<label id="dateto_label" class="control-label">To Date</label>
+								<%-page.html('date',{id: "datetos", name: "dateto", class: "form-control input-md", current: true})%>
+							</div>
+							<div class="col-md search-group">
+								<br/>
+								<button type="button" id="searchbutton" class="btn btn-dark btn-sm" ><i class="fa fa-search fa-btn-icon" aria-hidden="true"></i><%=label.get('searchbutton','Search')%></button>
+								<button type="button" id="resetbutton" class="btn btn-dark btn-sm"><i class="fa fa-refresh fa-btn-icon" aria-hidden="true"></i><%=label.get('resetbutton','Clear')%></button>
+							</div>
+					</div>
+				</form>
+				<div id="listpanel" class="table-responsive fa-list-panel">
+					<%- include('./forumlog_data') %>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

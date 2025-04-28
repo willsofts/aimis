@@ -1,6 +1,6 @@
 {
   "name": "aimis",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "This project introduction to use AI API Interface",
   "main": "index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     "@willsofts/will-sql": "^1.0.35",
     "@willsofts/will-util": "^1.0.26",
     "amqplib": "^0.10.7",
+    "axios": "^1.8.4",
     "config": "^3.3.11",
     "express": "^4.21.0",
     "express-session": "^1.18.0",

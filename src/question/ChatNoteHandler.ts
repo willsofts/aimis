@@ -69,16 +69,17 @@ export class ChatNoteHandler extends ChatDOCHandler {
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
-            if(chat && chat instanceof LlamaSession) chat = undefined;
+            if(chat && chat instanceof LlamaSession) chat = undefined;            
+            /*            
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
                 info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
             }
-            
+            */            
             if(!chat) {
-                let history = this.getChatHistory(forum.prompt, table_info);
+                let history = this.getChatHistory(forum?.prompt || "", table_info);
                 chat = aimodel.startChat({
                     history: history,
                     generationConfig: {
@@ -86,15 +87,23 @@ export class ChatNoteHandler extends ChatDOCHandler {
                     },
                 });
                 chatmap.set(category,chat);
+                try { await this.logging(context,quest,history,true); } catch(ex) { this.logger.error(ex); }
             }
-            
-            let msg = "Question: "+quest.question;
+            let rag = await this.getRagContentInfo(quest,forum);
+            let msg = new Array<string>();
+            if(rag && rag.contents) {
+                msg.push("RAG Info: \n"+rag.contents+"\n");
+            }
+            msg.push("Question: "+quest.question);
+            this.logger.debug(this.constructor.name+".processQuest: quest:",msg);
+            this.logging(context,quest,msg);
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
             this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
             this.saveUsage(context,quest,result.response.usageMetadata);
+            this.logging(context,quest,[text]);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -153,24 +162,31 @@ export class ChatNoteHandler extends ChatDOCHandler {
             if(!chat) {
                 chat = new LlamaSession();
                 chatmap.set(category,chat);
-            }            
+            } 
+            /*           
             if(!forum?.prompt || forum.prompt.trim().length == 0) {
                 info.error = true;
                 info.statuscode = "NO-DOCUMENT";
                 info.answer = "No document info found.";
                 return Promise.resolve(info);
+            }  
+            */          
+            let history = this.getChatHistoryOllama(forum?.prompt || "", table_info);
+            let msg = "";
+            let rag = await this.getRagContentInfo(quest,forum);
+            if(rag && rag.contents) {
+                msg += "RAG Info: \n"+rag.contents+"\n";
             }
-            
-            let history = this.getChatHistoryOllama(forum.prompt, table_info);
-            let msg = "Question: "+quest.question;
-            
+            msg += "Question: "+quest.question;
+            let llama_chat = chat as LlamaSession;
+            this.logging(context,quest,llama_chat.history.length==0 ? [history,msg] : [msg]);
             // ollama normal
-            let response = await ollamaChat(history, msg, quest.model!, chat as LlamaSession);
+            let response = await ollamaChat(history, msg, quest.model!, llama_chat);
             // ollama use file model
-            //let response = await ollamaChat(JSON.stringify(history), msg, forum.caption!);
-            
+            //let response = await ollamaChat(JSON.stringify(history), msg, forum.caption!);            
             let text = response.message.content;
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logging(context,quest,[text]);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);

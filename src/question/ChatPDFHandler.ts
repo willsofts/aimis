@@ -1,6 +1,6 @@
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnContextInfo, KnValidateInfo, KnDataTable } from "@willsofts/will-core";
-import { QuestInfo, InquiryInfo } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, FileImageInfo } from "../models/QuestionAlias";
 import { VisionHandler } from "./VisionHandler";
 import { API_KEY, API_MODEL, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { PromptUtility } from "./PromptUtility";
@@ -8,6 +8,7 @@ import { QuestionUtility } from "./QuestionUtility";
 import { ChatSession, GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { ChatRepository } from "./ChatRepository";
 import { PromptOLlamaUtility } from "./PromptOLlamaUtility";
+import { PDFReader } from "../detect/PDFReader";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -65,8 +66,21 @@ export class ChatPDFHandler extends VisionHandler {
         return {valid: true};
     }
 
-    public readDucumentFile(filePath: string) : Promise<any> {
-        return QuestionUtility.readDucumentFile(filePath);
+    public async readDucumentFile(info: FileImageInfo | string) : Promise<any> {
+        if(typeof info === 'string') {
+            return QuestionUtility.readDucumentFile(info);    
+        }
+        let result = await QuestionUtility.readDucumentFile(info.file);
+        if(!result.found && info.stream) {
+            let buffer = Buffer.from(info.stream,"base64");
+            if(info.mime.indexOf("pdf")>=0) {
+                let detector = new PDFReader();
+                return await detector.extractText(buffer);
+            } else {
+                return { found: true, text: buffer.toString("utf-8") };
+            }
+        }
+        return result;
     }
 
     public getAIModel(context?: KnContextInfo) : GenerativeModel {
@@ -119,7 +133,7 @@ export class ChatPDFHandler extends VisionHandler {
             }
             if(image_info && image_info.file.length > 0) {
                 info.answer = "";
-                let data = await this.readDucumentFile(image_info.file);
+                let data = await this.readDucumentFile(image_info);
                 this.logger.debug(this.constructor.name+".processQuestion: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;

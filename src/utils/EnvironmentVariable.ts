@@ -7,6 +7,7 @@ export const API_KEY: string = config.env("API_KEY","");
 export const API_KEY_CLAUDE: string  = config.env("API_KEY_CLAUDE","");
 export const API_MODEL: string = config.env("API_MODEL","gemini-2.0-flash");
 export const API_MODEL_CLAUDE: string = config.env("API_MODEL_CLAUDE","claude-3-5-sonnet-20240620");
+export const API_MODEL_LLAMA: string = config.env("API_MODEL_LLAMA","gemma2");
 export const API_VISION_MODEL: string = config.env("API_VISION_MODEL","gemini-2.0-flash");
 export const API_ANSWER: boolean = config.env("API_ANSWER","true") === "true";
 export const API_ANSWER_RECORD_NOT_FOUND: boolean = config.env("API_ANSWER_RECORD_NOT_FOUND","false") === "true";
@@ -28,3 +29,8 @@ export const SESSION_INTERVAL : number = parseInt(config.env("SESSION_INTERVAL",
 export const SESSION_TIMEOUT : number = parseInt(config.env("SESSION_TIMEOUT","64800000")) || 18*60*60*1000; //18hr
 export const MAX_EXPIRE_DATE: string = config.env("MAX_EXPIRE_DATE","31/12/9000"); 
 export const MENU_TREE: boolean = config.env("MENU_TREE","true") === "true";
+
+export const RAG_API_KEY: string = config.env("RAG_API_KEY","Z3uR+8JRx1MeZEDSpOqgPw==");
+export const RAG_API_URL: string = config.env("RAG_API_URL","http://172.31.199.217:8000");
+export const RAG_API_URL_UPLOAD: string = config.env("RAG_API_URL_UPLOAD","/api/rag/vector/store/file");
+export const RAG_API_URL_SEARCH: string = config.env("RAG_API_URL_SEARCH","/api/rag/search/semantic");

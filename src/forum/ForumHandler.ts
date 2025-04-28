@@ -46,6 +46,11 @@ export class ForumHandler extends TknOperateHandler {
             editflag: { type: "STRING", selected: true, created: true, updated: false, defaultValue: "1" },
             shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             summaryid: { type: "STRING", selected: true, created: true, updated: true },
+            ragflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
+            ragactive: { type: "STRING", selected: true },
+            raglimit: { type: "INTEGER", selected: true },
+            ragchunksize: { type: "INTEGER", selected: true },
+            ragchunkoverlap: { type: "INTEGER", selected: true },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
@@ -469,7 +474,7 @@ export class ForumHandler extends TknOperateHandler {
      * @param model 
      * @returns KnDataTable
      */
-    public override async getDataAdd(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
+    public override async getDataAdd(context: KnContextInfo, model: KnModel = this.model) : Promise<KnDataTable> {
         let dt = await this.doCategories(context, model);
         dt.action = KnOperation.ADD;
         dt.renderer = this.progid+"/"+this.progid+"_dialog";
@@ -713,18 +718,24 @@ export class ForumHandler extends TknOperateHandler {
                 version: row.forumdbversion,
                 webhook: row.webhook,
                 hookflag: row.hookflag,
+                summaryid: row.summaryid,
+                ragflag: row.ragflag,
+                ragactive: row.ragactive,
+                raglimit: row.raglimit,
+                ragchunksize: row.ragchunksize,
+                ragchunkoverlap: row.ragchunkoverlap,
             };  
         }
         return result;
     }
 
-    public override async getDataEntry(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
+    public override async getDataEntry(context: KnContextInfo, model: KnModel = this.model) : Promise<KnDataTable> {
         let dt = await this.getDataAdd(context, model);
         dt.renderer = this.progid+"/"+this.progid+"_edit";
         return dt;
     }    
 
-    public override async getDataView(context: KnContextInfo, model: KnModel) : Promise<KnDataTable> {
+    public override async getDataView(context: KnContextInfo, model: KnModel = this.model) : Promise<KnDataTable> {
         let dt = await this.getDataRetrieval(context, model);
         dt.renderer = this.progid+"/"+this.progid+"_edit";
         return dt;

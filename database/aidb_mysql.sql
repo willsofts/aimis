@@ -264,6 +264,26 @@ CREATE TABLE IF NOT EXISTS `tforumagent` (
   PRIMARY KEY (`forumid`,`agentid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep forum setting by agent';
 
+CREATE TABLE IF NOT EXISTS `tforumlog` (
+  `logid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `categoryid` varchar(50) DEFAULT NULL,
+  `correlationid` varchar(50) DEFAULT NULL,
+  `questionid` varchar(50) DEFAULT NULL,
+  `classifyid` varchar(50) DEFAULT NULL,
+  `textcontents` text,
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) DEFAULT NULL,
+  `authtoken` varchar(350) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `remarkcontents` text,
+  PRIMARY KEY (`logid`) USING BTREE,
+  KEY `correlationid` (`correlationid`),
+  KEY `authtoken` (`authtoken`),
+  KEY `createuser` (`createuser`),
+  KEY `categoryid` (`categoryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep history log';
+
 
 CREATE TABLE IF NOT EXISTS `tforumquest` (
   `forumid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'tforum.forumid',

@@ -10,9 +10,9 @@
 <div class="input-group">
 	<input type="hidden" id="fileid" name="fileid"/>
 	<input type="hidden" id="forumurl" name="forumurl" value="<%=data.dataset?.forumurl%>" />
-	<input type="text" id="forumfile" class="form-control input-md irequired" value="<%=data.dataset?.forumapi%>" readonly />
+	<input type="text" id="forumfile" class="form-control input-md irequired alert-input" value="<%=data.dataset?.forumapi%>" readonly />
 	<input type="button" id="fileuploadbutton" class="btn btn-primary btn-md" value="Upload" />
-	<div class="input-group-required"><label class="required"></label></div>
+	<div class="input-group-required"><label class="required">*</label></div>
 </div>
 <div id="forumfile_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('forumfile_alert','You can not leave this empty')%></div>
 					</div>
@@ -40,8 +40,8 @@
 				<div class="row row-height">
 					<div class="col-height col-md-12">						
 						<div class="form-check">						
-							<input type="checkbox" id="ragflag" name="ragflag" class="form-control input-md form-check-input" value="1" <%=page.checked("1",data.dataset?.ragflag)%> />
-<label for="ragflag" id="ragflag_label" class="control-label form-check-label"><%=label.get('ragflag_label','Retrieval Augmented Generation')%></label>
+							<input type="checkbox" id="cleansing" name="cleansing" class="form-control input-md form-check-input" value="1" <%=page.checked("1",data.dataset?.forumhost)%> />
+<label for="cleansing" id="cleansing_label" class="control-label form-check-label"><%=label.get('cleansing_label','Cleansing Data')%></label>
 						</div>
 					</div>
 				</div>
@@ -52,21 +52,19 @@
 	<div class="col-md-12 col-height">
 			<div class="table-layer-class">
 				<div class="row row-height">
-					<div class="col-height col-md-3">
-<label for="raglimit" id="raglimit_label" class="control-label"><%=label.get('raglimit_label','Limit')%></label>
-<input type="number" id="raglimit" name="raglimit" class="form-control input-md" min="0" value="<%=data.dataset?.raglimit%>" />
-					</div>
-					<div class="col-height col-md-3">
-<label for="ragchunksize" id="ragchunksize_label" class="control-label"><%=label.get('ragchunksize_label','Chunk Size')%></label>
-<input type="number" id="ragchunksize" name="ragchunksize" class="form-control input-md" min="0" value="<%=data.dataset?.ragchunksize%>" />
-					</div>
-					<div class="col-height col-md-3">
-<label for="ragchunkoverlap" id="ragchunkoverlap_label" class="control-label"><%=label.get('ragchunkoverlap_label','Chunk Overlap')%></label>
-<input type="number" id="ragchunkoverlap" name="ragchunkoverlap" class="form-control input-md" min="0" value="<%=data.dataset?.ragchunkoverlap%>" />
+					<div class="col-height col-md-4">
+<label for="model" id="model_label" class="control-label"><%=label.get('model_label','Cleansing Data Model')%></label>
+<div class="input-group">
+	<select id="model" name="model" class="form-control input-md">
+		<option value="gemini-1.5-flash" <%=page.selected("gemini-1.5-flash",data.dataset?.forumdbversion)%>>Gemini 1.5 Flash</option>
+		<option value="gemini-pro" <%=page.selected("gemini-pro",data.dataset?.forumdbversion)%>>Gemini Pro</option>
+		<option value="gemini-1.5-pro" <%=page.selected("gemini-1.5-pro",data.dataset?.forumdbversion)%>>Gemini 1.5 Pro</option>
+	</select>
+<div class="input-group-required"><label class="required">&nbsp;</label></div></div><div id="model_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('model_alert','You can not leave this empty')%></div>
 					</div>
 				</div>
 			</div>
-		</div>
+	</div>
 </div>
 <div class="row row-height">
 	<div class="col-md-12 col-height">

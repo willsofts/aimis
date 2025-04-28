@@ -127,9 +127,11 @@ export class TokenUsageHandler extends TknOperateHandler {
         return this.createRecordSet(rs);
     }
 
-    protected override async performCreating(context: any, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
+    protected override async performCreating(ctx: KnContextInfo, model: KnModel, db: KnDBConnector) : Promise<KnResultSet> {
         let now = Utilities.now();
-        let authtoken = this.getTokenKey(context);
+        let authtoken = this.getTokenKey(ctx);
+        let params = { ...ctx.params };
+        let context : KnContextInfo = { params: params, meta: ctx.meta, options: ctx.options };
         context.params.authtoken = authtoken;
         context.params.createmillis = Utilities.currentTimeMillis(now);
         context.params.createdate = now;
@@ -151,11 +153,13 @@ export class TokenUsageHandler extends TknOperateHandler {
         return rcs;
     }
 
-    public async save(context: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
+    public async save(ctx: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
         if(!counter) return;
         let tokens = 0;
         if(counter?.totalTokens) tokens = counter.totalTokens;
         if(counter?.totalTokenCount) tokens = counter.totalTokenCount;
+        let params = { ...ctx.params };
+        let context : KnContextInfo = { params: params, meta: ctx.meta, options: ctx.options };
         context.params.tokencount = tokens;
         context.params.questionid = quest.questionid;
         context.params.correlation = quest.correlation;

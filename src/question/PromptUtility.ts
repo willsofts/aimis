@@ -157,6 +157,7 @@ export class PromptUtility {
     }
 
     public createChatDocumentPrompt(document_info: string, prompt_info: string|null|undefined = "") : string {
+        if(!document_info || document_info==null) document_info = "";
         if(!prompt_info || prompt_info==null) prompt_info = "";
         let current_date = this.getCurrentDate();
         return `Given an input question then return the answer.

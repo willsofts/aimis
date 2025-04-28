@@ -1,3 +1,27 @@
+2025-04-28
++ chat classify (chatter) support LLAMA
++ forumlog: forum tracking (new table tforumlog)
+
+INSERT INTO `tprog` (`product`, `programid`, `progname`, `prognameth`, `progtype`, `description`, `progsystem`, `shortname`, `shortnameth`) VALUES ('AI', 'forumlog', 'Forum Tracking', 'Forum Tracking', 'F', 'Forum Tracking', 'F', 'Forum Tracking', 'Forum Tracking');
+INSERT INTO `tproggrp` (`groupname`, `programid`, `seqno`) VALUES ('MANAGER', 'forumlog', 4);
+
+2025-04-25
++ chat classify sharing category (filter quest) not found
+	+ fix FilterQuestHandler.performListing	add condition shareflag='1'
++ chatnote support RAG content info
++ forumnote setting 
+	+ support RAG setting (custom rag, limit, chunk size, chunk overlap)
+	+ remove cleansing
+	+ ignore required upload file
+
+ALTER TABLE `tforum`
+	ADD COLUMN `ragflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=RAG' AFTER `summaryid`,
+	ADD COLUMN `ragactive` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Active' AFTER `ragflag`,
+	ADD COLUMN `raglimit` INT NULL DEFAULT NULL AFTER `ragactive`,
+	ADD COLUMN `ragchunksize` INT NULL DEFAULT NULL AFTER `raglimit`,
+	ADD COLUMN `ragchunkoverlap` INT NULL DEFAULT NULL AFTER `ragchunksize`,
+	ADD COLUMN `ragnote` TEXT NULL DEFAULT NULL AFTER `ragchunkoverlap`;
+
 2025-04-22
 + support moleculer transporter (redis,nats,kafka,amqp)
 + filterquest support shareflag

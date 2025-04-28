@@ -1,4 +1,5 @@
 import { KnDBConfig, KnRecordSet } from "@willsofts/will-sql";
+import { KnDataSet } from "@willsofts/will-core";
 
 export interface QuestInfo {
     questionid: string;
@@ -29,7 +30,21 @@ export interface InquiryInfo {
     dataset: any;
 }
 
-export interface ForumConfig extends KnDBConfig {
+export interface RagInfo {
+    ragflag?: string;
+    ragactive?: string;
+    raglimit?: number; 
+    ragchunksize?: number;
+    ragchunkoverlap?: number;
+    ragnote?: string;
+}
+
+export interface RagContentInfo {
+    limit: number;
+    contents: string;
+}
+
+export interface ForumConfig extends KnDBConfig, RagInfo {
     caption: string; //forumtitle
     title: string; //dialecttitle
     type: string; //forumtype
@@ -39,7 +54,8 @@ export interface ForumConfig extends KnDBConfig {
     prompt?: string; //forumprompt
     version?: string; //forumdbversion
     webhook?: string; 
-    hookflag?: string; 
+    hookflag?: string;
+    summaryid?: string;
 }
 
 export interface ImageInfo {
@@ -81,4 +97,10 @@ export interface SummaryDocumentInfo {
 export interface SummaryStreamInfo {
     mime: string;
     stream: string;
+}
+
+export interface QuestConfigureInfo {
+    info: InquiryInfo,
+    configure: KnDataSet | undefined;
+    prompts: string;
 }

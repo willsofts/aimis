@@ -3,7 +3,7 @@ import { HTTP } from "@willsofts/will-api";
 import { KnContextInfo, KnDataTable, VerifyError } from "@willsofts/will-core";
 import { KnDBError, KnRecordSet } from "@willsofts/will-sql";
 import { ChatSession } from "@google/generative-ai";
-import { API_ANSWER, API_ANSWER_RECORD_NOT_FOUND, API_MODEL_CLAUDE, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { API_ANSWER, API_ANSWER_RECORD_NOT_FOUND, API_MODEL_CLAUDE, PRIVATE_SECTION, API_MODEL_LLAMA } from "../utils/EnvironmentVariable";
 import { PromptUtility } from "./PromptUtility";
 import { QuestionHandler } from "./QuestionHandler";
 import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
@@ -109,6 +109,7 @@ export class ChatHandler extends QuestionHandler {
                     },
                 });
                 chatmap.set(category,chat);
+                try { await this.logging(context,quest,history,true); } catch(ex) { this.logger.error(ex); }
             }
             let msg = ["Question: "+input];
             if(quest.property) {
@@ -118,12 +119,14 @@ export class ChatHandler extends QuestionHandler {
                 }
             }
             this.logger.debug(this.constructor.name+".processQuest: question:",msg);
+            this.logging(context,quest,msg);
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
             this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
             this.saveUsage(context,quest,result.response.usageMetadata);
+            this.logging(context,quest,[text]);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
@@ -151,6 +154,7 @@ export class ChatHandler extends QuestionHandler {
                     let response = result.response;
                     let text = response.text();
                     this.logger.debug(this.constructor.name+".processQuest: catch response:",text);
+                    this.logging(context,quest,[text]);
                     let sql = this.parseAnswer(text,true);
                     this.logger.debug(this.constructor.name+".processQuest: catch sql:",sql);
                     if(!sql || sql.trim().length==0) {
@@ -198,10 +202,12 @@ export class ChatHandler extends QuestionHandler {
                 let prmutil = new PromptUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 this.saveTokenUsage(context,quest,prompt,aimodel);
+                this.logging(context,quest,[prompt]);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
                 this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logging(context,quest,[text]);
                 info.answer = this.parseAnswer(text);
             }
         } catch(ex: any) {
@@ -261,8 +267,10 @@ export class ChatHandler extends QuestionHandler {
             if(quest.property && quest.property.trim().length>0) {
                 msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
             }
+            this.logging(context,quest,[system_prompt,msg]);
             let result = await claudeProcess(system_prompt, msg, model);
             this.logger.debug(this.constructor.name+".processQuest: response:",result);
+            this.logging(context,quest,[result]);
             //try to extract SQL from the response
             let sql = this.parseAnswer(result,false);
             this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
@@ -285,8 +293,10 @@ export class ChatHandler extends QuestionHandler {
                 this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 system_prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
+                this.logging(context,quest,[system_prompt,input]);
                 let result = await claudeProcess(system_prompt, input, model);
                 this.logger.debug(this.constructor.name+".processQuest: response:",result);
+                this.logging(context,quest,[result]);
                 info.answer = this.parseAnswer(result);
             }
         } catch(ex: any) {
@@ -354,10 +364,12 @@ export class ChatHandler extends QuestionHandler {
             if(quest.property && quest.property.trim().length>0) {
                 msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
             }
-            let response = await ollamaChat(history, msg, quest.model!, chat as LlamaSession);
+            this.logging(context,quest,[history,msg]);
+            let response = await ollamaChat(history, msg, quest.model || API_MODEL_LLAMA, chat as LlamaSession);
             this.logger.debug(this.constructor.name+".processQuest: response:",response);
             let text = response?.message?.content;
             this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logging(context,quest,[text]);
             //(chat as LlamaSession).add(contents);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
@@ -392,9 +404,11 @@ export class ChatHandler extends QuestionHandler {
                 //create reply prompt from sql and result set
                 let prmutil = new PromptOLlamaUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
-                let result = await ollamaGenerate(prompt, quest.model!);
+                this.logging(context,quest,[prompt]);
+                let result = await ollamaGenerate(prompt, quest.model || API_MODEL_LLAMA);
                 let response = result.response; 
                 this.logger.debug(this.constructor.name+".processQuest: response:", response);
+                this.logging(context,quest,[response]);
                 info.answer = this.parseAnswer(response);
             }
         } catch(ex: any) {

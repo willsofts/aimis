@@ -107,17 +107,21 @@ export class QuestionUtility {
         return "";
     }
 
-    public static readDucumentFile(filePath: string) : Promise<any> {
+    public static async readDucumentFile(filePath: string) : Promise<any> {
         let filename = filePath.toLowerCase();
-        if(filename.endsWith(".txt") || filename.endsWith(".text") || filename.endsWith(".csv")) {
-            const data = fs.readFileSync(filePath, 'utf8');
-            return Promise.resolve({ text: data });
+        if(fs.existsSync(filePath)) {
+            if(filename.endsWith(".txt") || filename.endsWith(".text") || filename.endsWith(".csv")) {
+                const data = fs.readFileSync(filePath, 'utf8');
+                return Promise.resolve({found: true, text: data });
+            }
+            if(filename.endsWith(".pdf")) {
+                let detector = new PDFReader();
+                let result = await detector.detectText(filePath);
+                result.found = true;
+                return result; 
+            }
         }
-        if(filename.endsWith(".pdf")) {
-            let detector = new PDFReader();
-            return detector.detectText(filePath);
-        }
-        return Promise.resolve({ text: "" });
+        return Promise.resolve({found: false, text: "" });
     }
 
     public static trime(text: string) : string {

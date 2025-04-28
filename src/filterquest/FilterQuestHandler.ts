@@ -456,7 +456,7 @@ export class FilterQuestHandler extends TknOperateHandler {
         let knsql = new KnSQL();
         knsql.append("select filterid,filtername,createmillis ");
         knsql.append("from tfilterquest ");
-        knsql.append("where ( createuser = ?userid or createuser is null ) ");
+        knsql.append("where ( createuser = ?userid or createuser is null or shareflag = '1' ) ");
         knsql.append("order by createmillis ");
         knsql.set("userid",this.userToken?.userid);
         this.logger.debug(this.constructor.name+".performListing",knsql);

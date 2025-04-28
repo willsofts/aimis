@@ -6,12 +6,14 @@ import { TknOperateHandler } from '@willsofts/will-serv';
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
 import { API_KEY, API_VISION_MODEL, ALWAYS_REMOVE_ATTACH } from "../utils/EnvironmentVariable";
 import { QuestionUtility } from "./QuestionUtility";
-import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo, ForumConfig } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo, ForumConfig, RagInfo, RagContentInfo } from "../models/QuestionAlias";
 import { TknAttachHandler } from "@willsofts/will-core";
 import { KnRecordSet, KnDBConnector } from "@willsofts/will-sql";
 import { KnDBLibrary } from "../utils/KnDBLibrary";
 import { ForumHandler } from "../forum/ForumHandler";
 import { TokenUsageHandler } from "../tokenusage/TokenUsageHandler";
+import { ForumLogHandler } from "../forumlog/ForumLogHandler";
+import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_SEARCH } from "../utils/EnvironmentVariable";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -274,6 +276,57 @@ export class GenerativeHandler extends TknOperateHandler {
             this.saveUsage(context, quest, countResult);
         } catch(ex) {
             this.logger.error(ex);
+        }
+    }
+
+    protected async getRagContentInfo(quest: QuestInfo,rag?: RagInfo) : Promise<RagContentInfo | undefined> {
+        if("1" == rag?.ragflag && "1" == rag?.ragactive) {
+            let limit = rag.raglimit || 10;
+            try {
+                //RAG does not accept id contain - then change it to _
+                let id = quest.category.replaceAll('-','_');
+                let info = { 
+                    libraryId: id,
+                    searchText: quest.question,
+                    limit: limit            
+                };
+                let body = JSON.stringify(info);
+                let params = {};
+                let settings = {};
+                let url = RAG_API_URL + RAG_API_URL_SEARCH;
+                this.logger.debug(this.constructor.name+".getRagInfo: post url=",url,"body",body);
+                let response = await fetch(url, Object.assign(Object.assign({}, params), { method: "POST", headers: {
+                    'x-api-key': RAG_API_KEY,
+                    "Content-Type": "application/json", ...settings
+                }, body }));
+                if (response.ok) {
+                    try {
+                        const json = await response.json();
+                        let chunks = json.body?.contentChunks;
+                        if(chunks) {
+                            let contents = "";
+                            chunks.forEach((item:any,index:number) => {
+                                this.logger.debug(this.constructor.name+".getRagInfo: index=",index,item.content);
+                                contents += item.content;
+                            });
+                            return { limit: limit, contents: contents };
+                        }    
+                    } catch (ex) { this.logger.error(this.constructor.name+".getRagInfo: ",ex); }        
+                }              
+            } catch (ex: any) {
+                this.logger.error(this.constructor.name+".getRagInfo: error:",ex);
+            }                         
+        }
+        return undefined;
+    }
+
+    public async logging(context: KnContextInfo, quest: QuestInfo, contents: Array<any>, awaiting: boolean = false) : Promise<void> {
+        let handler = new ForumLogHandler();
+        handler.obtain(this.broker,this.logger);
+        if(awaiting) {
+            await handler.logging(context,quest,contents);
+        } else {
+            handler.logging(context,quest,contents).catch(ex => this.logger.error(ex));
         }
     }
 

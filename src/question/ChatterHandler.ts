@@ -1,10 +1,12 @@
 import { HTTP } from "@willsofts/will-api";
 import { KnModel } from "@willsofts/will-db";
 import { KnContextInfo, KnDataSet, VerifyError } from "@willsofts/will-core";
-import { PRIVATE_SECTION, API_ANSWER_CHATTER } from "../utils/EnvironmentVariable";
-import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
+import { PRIVATE_SECTION, API_ANSWER_CHATTER, API_MODEL, API_MODEL_LLAMA } from "../utils/EnvironmentVariable";
+import { QuestInfo, InquiryInfo, ForumConfig, QuestConfigureInfo } from "../models/QuestionAlias";
 import { GenerativeHandler } from "./GenerativeHandler";
 import { FilterQuestHandler, PREFIX_PROMPT, JSON_PROMPT } from "../filterquest/FilterQuestHandler";
+import { PromptOLlamaUtility } from "./PromptOLlamaUtility";
+import { ollamaGenerate } from "../ollama/generateOllama";
 
 export class ChatterHandler extends GenerativeHandler {
     public section = PRIVATE_SECTION;
@@ -33,7 +35,7 @@ export class ChatterHandler extends GenerativeHandler {
             let handler = new FilterQuestHandler();
             handler.obtain(this.broker,this.logger);
             let configure = await handler.getFilterQuestConfig(db,category,context);
-            this.logger.debug(this.constructor.name+".getQuestionConfigure",configure);
+            this.logger.debug(this.constructor.name+".processResetting",configure);
             let forumlists = configure?.forumlists;
             if(forumlists && forumlists.length > 0) {
                 let authtoken = this.getTokenKey(context);
@@ -67,24 +69,55 @@ export class ChatterHandler extends GenerativeHandler {
 
     public async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         if(quest.agent=="GEMINI") {
-            return await this.processQuestGemini(context, quest, model);
+            return await this.processQuestGemini(context, quest, undefined, model);
+        } else if(quest.agent=="GEMMA" || quest.agent=="LLAMA") {
+            return await this.processQuestOllama(context, quest, undefined, model);
         }
-        return await this.processQuestGemini(context, quest, model);        
+        let cfg = await this.getQuestionConfigure(context, quest, model);
+        this.logger.debug(this.constructor.name+".processQuest: cfg",cfg);
+        if(cfg.info.error) {
+            return Promise.resolve(cfg.info);
+        }
+        if(cfg.configure) {
+            quest.agent = cfg.configure.agentid;
+            if(quest.agent=="GEMINI") {
+                return await this.processQuestGemini(context, quest, cfg, model);
+            } else if(quest.agent=="GEMMA" || quest.agent=="LLAMA") {
+                return await this.processQuestOllama(context, quest, cfg, model);
+            }
+        }        
+        return await this.processQuestGemini(context, quest, cfg, model);        
     }
 
-    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        let [info, configure, prompts] = await this.getQuestionConfigure(context, quest, model);
-        if(info.error) {
-            return Promise.resolve(info);
+    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, cfg: QuestConfigureInfo | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
+        if(!cfg) {
+            cfg = await this.getQuestionConfigure(context, quest, model);
+            if(cfg.info.error) {
+                return Promise.resolve(cfg.info);
+            } 
+        }       
+        if(String(quest.async)=="true") {
+            this.processQuestGeminiAsync(context, quest, cfg).catch((ex) => console.error(ex));
+            return Promise.resolve(cfg.info);
+        }
+        return await this.processQuestGeminiAsync(context, quest, cfg);    
+    }
+
+    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, cfg: QuestConfigureInfo | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
+        if(!cfg) {
+            cfg = await this.getQuestionConfigure(context, quest, model);
+            if(cfg.info.error) {
+                return Promise.resolve(cfg.info);
+            }
         }        
         if(String(quest.async)=="true") {
-            this.processQuestGeminiAsync(context, quest, configure || {}, prompts).catch((ex) => console.error(ex));
-            return Promise.resolve(info);
+            this.processQuestOllamaAsync(context, quest, cfg).catch((ex) => console.error(ex));
+            return Promise.resolve(cfg.info);
         }
-        return await this.processQuestGeminiAsync(context, quest, configure || {}, prompts);    
+        return await this.processQuestOllamaAsync(context, quest, cfg);
     }
 
-    public async getQuestionConfigure(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<[InquiryInfo, KnDataSet | undefined, string]> {
+    public async getQuestionConfigure(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<QuestConfigureInfo> {
         let prompts = "";
         let configure : KnDataSet | undefined = undefined;        
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
@@ -92,13 +125,13 @@ export class ChatterHandler extends GenerativeHandler {
             info.error = true;
             info.statuscode = "NO-QUEST";
             info.answer = "No question found.";
-            return [info, configure, prompts];
+            return { info: info, configure: configure, prompts: prompts };
         }
         if(!quest.category || quest.category.trim().length == 0) {
             info.error = true;
             info.statuscode = "NO-CATEGORY";
             info.answer = "No category found.";
-            return [info, configure, prompts];
+            return { info: info, configure: configure, prompts: prompts };
         }        
         let db = this.getPrivateConnector(model);
         try {
@@ -111,14 +144,14 @@ export class ChatterHandler extends GenerativeHandler {
                 info.error = true;
                 info.statuscode = "NO-CONFIG";
                 info.answer = "No configuration found.";
-                return [info, configure, prompts];
+                return { info: info, configure: configure, prompts: prompts };
             }
             prompts = await this.createClassifyPrompt(configure);
             if(!prompts) {
                 info.error = true;
                 info.statuscode = "NO-CLASS";
                 info.answer = "No classify prompt found.";
-                return [info, configure, prompts];
+                return { info: info, configure: configure, prompts: prompts };
             }
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -128,22 +161,27 @@ export class ChatterHandler extends GenerativeHandler {
         } finally {
             if(db) db.close();
         }
-        return [info, configure, prompts];
+        return { info: info, configure: configure, prompts: prompts };
     }
 
-    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, configure: KnDataSet, prompts: string) : Promise<InquiryInfo> {
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, cfg: QuestConfigureInfo) : Promise<InquiryInfo> {
         let callingflag = false;
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let configure = cfg.configure || {};
+        let prompts = cfg.prompts;
         let forumcfg = await this.createForumConfig(configure);
         try {
+            quest.model = quest.model || API_MODEL;
             let promptcontents = [{text: quest.question},{ text: prompts }];
-            this.logger.debug(this.constructor.name+".processQuest: prompt contents:",promptcontents);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: prompt contents:",promptcontents);
+            this.logging(context,quest,[quest.question,prompts]);
             const aimodel = this.getAIModel(context);
             let result = await aimodel.generateContent(promptcontents);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);            
             this.saveTokenUsage(context,quest,promptcontents,aimodel);
+            this.logging(context,quest,[text]);
             let jsonstr = this.parseJSONAnswer(text);
             let json = undefined;
             try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error(ex); }
@@ -151,14 +189,16 @@ export class ChatterHandler extends GenerativeHandler {
                 info.error = true;
                 info.answer = jsonstr;
             } else {
-                this.logger.debug(this.constructor.name+".processQuest: json answer",json); 
+                this.logger.debug(this.constructor.name+".processQuestGeminiAsync: json answer",json); 
                 if(!json.category_name || json.category_name.trim().length==0) {
                     if(API_ANSWER_CHATTER) {
+                        this.logging(context,quest,[quest.question]);
                         result = await aimodel.generateContent(quest.question);
                         response = result.response;
                         text = response.text();
-                        this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
                         this.saveTokenUsage(context,quest,quest.question,aimodel);
+                        this.logging(context,quest,[text]);
                         info.answer = this.parseAnswer(text);
                     } else {
                         info.error = true;
@@ -166,12 +206,14 @@ export class ChatterHandler extends GenerativeHandler {
                     }
                 } else {
                     let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                    this.logger.debug(this.constructor.name+".processQuest: forum",forum);
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum",forum);
                     if(forum) {
-                        let params = {...quest, query: quest.question, question: "", authtoken: this.getTokenKey(context), hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
-                        params.agent = configure.agent;
+                        let params : any = {...quest, query: quest.question, question: "", hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
+                        params.agent = configure?.agentid || quest.agent || "GEMINI";
                         params.category = json.category_name;
                         params.classify = info.category;
+                        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: params",params);
+                        params.authtoken = this.getTokenKey(context);
                         if(forum.forumgroup=="DB") {
                             callingflag = true;
                             info = await this.call("chat.quest",params);
@@ -196,7 +238,82 @@ export class ChatterHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: return:",JSON.stringify(info));
+        if(!callingflag) this.notifyMessage(info,forumcfg).catch(ex => this.logger.error(this.constructor.name,ex));
+        return info;
+    }
+
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, cfg: QuestConfigureInfo) : Promise<InquiryInfo> {
+        let callingflag = false;
+        let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
+        let configure = cfg.configure || {};
+        let prompts = cfg.prompts;
+        let forumcfg = await this.createForumConfig(configure);
+        try {
+            quest.model = quest.model || API_MODEL_LLAMA;
+            let prmutil = new PromptOLlamaUtility();
+            let prompt = prmutil.createChatDocumentPrompt(quest.question, prompts);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: prompt:",prompt);
+            this.logging(context,quest,[prompt]);
+            let result = await ollamaGenerate(prompt, quest.model);
+            let text = result.response; 
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", text);
+            this.logging(context,quest,[text]);
+            let jsonstr = this.parseJSONAnswer(text);
+            let json = undefined;
+            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error(ex); }
+            if(!json) {
+                info.error = true;
+                info.answer = jsonstr;
+            } else {
+                this.logger.debug(this.constructor.name+".processQuestOllamaAsync: json answer",json); 
+                if(!json.category_name || json.category_name.trim().length==0) {
+                    if(API_ANSWER_CHATTER) {
+                        this.logging(context,quest,[quest.question]);
+                        result = await ollamaGenerate(quest.question, quest.model);
+                        text = result.response;
+                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
+                        this.logging(context,quest,[text]);
+                        info.answer = this.parseAnswer(text);
+                    } else {
+                        info.error = true;
+                        info.answer = json.category_feedback || "Cannot classify question into category";
+                    }
+                } else {
+                    let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
+                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum",forum);
+                    if(forum) {
+                        let params : any = {...quest, query: quest.question, question: "", hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
+                        params.agent = configure?.agentid || quest.agent || "LLAMA";
+                        params.category = json.category_name;
+                        params.classify = info.category;
+                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: params",params);
+                        params.authtoken = this.getTokenKey(context);
+                        if(forum.forumgroup=="DB") {
+                            callingflag = true;
+                            info = await this.call("chat.quest",params);
+                        } else if(forum.forumgroup=="NOTE") {
+                            callingflag = true;
+                            info = await this.call("chatnote.quest",params);    
+                        } else {
+                            info.error = true;
+                            info.statuscode = "NO-SUPPORT";
+                            info.answer = "Not suppport service type";
+                        }
+                    } else {
+                        info.error = true;
+                        info.statuscode = "NO-KNOWN";
+                        info.answer = "Not known setting";
+                    }
+                }
+            }
+        } catch(ex: any) {
+            this.logger.error(this.constructor.name,ex);
+            info.error = true;
+            info.statuscode = "ERROR";
+            info.answer = this.getDBError(ex).message;
+        }
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: return:",JSON.stringify(info));
         if(!callingflag) this.notifyMessage(info,forumcfg).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }

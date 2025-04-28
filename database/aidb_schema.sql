@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `tfilterquest` (
   `skillprompt` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `hookflag` varchar(1) DEFAULT '0' COMMENT '1=Hook',
   `webhook` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `shareflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Sharing' COLLATE utf8mb3_general_ci,
+  `shareflag` varchar(1) DEFAULT '0' COMMENT '1=Sharing',
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,
@@ -219,6 +219,12 @@ CREATE TABLE IF NOT EXISTS `tforum` (
   `hookflag` varchar(1) DEFAULT '0' COMMENT '1=Hook',
   `webhook` varchar(250) DEFAULT NULL,
   `summaryid` varchar(50) DEFAULT NULL COMMENT 'tsummarydocument.summaryid',
+  `ragflag` varchar(1) DEFAULT '0' COMMENT '1=RAG',
+  `ragactive` varchar(1) DEFAULT '0' COMMENT '1=Active',
+  `raglimit` int DEFAULT NULL,
+  `ragchunksize` int DEFAULT NULL,
+  `ragchunkoverlap` int DEFAULT NULL,
+  `ragnote` text,
   `createdate` date DEFAULT NULL,
   `createtime` time DEFAULT NULL,
   `createmillis` bigint DEFAULT NULL,
@@ -255,6 +261,29 @@ CREATE TABLE IF NOT EXISTS `tforumagent` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table aidb.tforumlog
+CREATE TABLE IF NOT EXISTS `tforumlog` (
+  `logid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `categoryid` varchar(50) DEFAULT NULL,
+  `correlationid` varchar(50) DEFAULT NULL,
+  `questionid` varchar(50) DEFAULT NULL,
+  `classifyid` varchar(50) DEFAULT NULL,
+  `textcontents` text,
+  `createdate` date DEFAULT NULL,
+  `createtime` time DEFAULT NULL,
+  `createmillis` bigint DEFAULT NULL,
+  `createuser` varchar(50) DEFAULT NULL,
+  `authtoken` varchar(350) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `remarkcontents` text,
+  PRIMARY KEY (`logid`) USING BTREE,
+  KEY `correlationid` (`correlationid`),
+  KEY `authtoken` (`authtoken`),
+  KEY `createuser` (`createuser`),
+  KEY `categoryid` (`categoryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep history log';
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table aidb.tforumquest
 CREATE TABLE IF NOT EXISTS `tforumquest` (
   `forumid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'tforum.forumid',
@@ -267,32 +296,12 @@ CREATE TABLE IF NOT EXISTS `tforumquest` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table aidb.tsummarydocument
 CREATE TABLE IF NOT EXISTS `tsummarydocument` (
   `summaryid` varchar(50) NOT NULL,
   `summarytitle` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `summaryagent` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `summarymodel` varchar(50) DEFAULT NULL,
-  `summaryfile` varchar(200) DEFAULT NULL,
-  `summaryflag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '0' COMMENT '1=Processed',
-  `summaryprompt` text,
-  `summarydocument` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  `shareflag` varchar(1) DEFAULT '0' COMMENT '1=Sharing',
-  `inactive` varchar(1) DEFAULT '0' COMMENT '1=Inactive',
-  `createdate` date DEFAULT NULL,
-  `createtime` time DEFAULT NULL,
-  `createmillis` bigint DEFAULT NULL,
-  `createuser` varchar(50) DEFAULT NULL,
-  `editdate` date DEFAULT NULL,
-  `edittime` time DEFAULT NULL,
-  `editmillis` bigint DEFAULT NULL,
-  `edituser` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`summaryid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep summary document';
-
--- Dumping structure for table aidb.tsummarydocument
-CREATE TABLE IF NOT EXISTS `tsummarydocument` (
-  `summaryid` varchar(50) NOT NULL,
-  `summarytitle` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `summaryfile` varchar(200) DEFAULT NULL,
   `summaryflag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '0' COMMENT '1=Processed',
   `summaryprompt` text,
@@ -350,7 +359,7 @@ CREATE TABLE IF NOT EXISTS `ttokenusage` (
   `classifyid` varchar(50) DEFAULT NULL,
   `tokencount` bigint DEFAULT NULL,
   `questionid` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `correlation` varchar(50) DEFAULT NULL,
+  `correlation` varchar(350) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   KEY `authtoken` (`authtoken`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='table keep token usage';
 

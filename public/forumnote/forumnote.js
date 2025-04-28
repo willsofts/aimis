@@ -475,10 +475,11 @@ function addNewQuestion() {
 }
 function validateUploadFile() {
 	if($.trim($("#summaryid").val())!="") return true;
+	/*
 	if($.trim($("#fileid").val())=="" && $.trim($("#forumurl").val())=="") {
 		alertmsg("Please upload a file first");
 		return false;
-	}
+	}*/
 	return true;
 }
 function showUploadDialog() {

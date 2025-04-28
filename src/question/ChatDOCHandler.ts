@@ -5,7 +5,6 @@ import { KnContextInfo, VerifyError } from "@willsofts/will-core";
 import { ChatPDFHandler } from "./ChatPDFHandler";
 import { QuestInfo, InquiryInfo, ForumConfig } from "../models/QuestionAlias";
 import { ChatRepository } from "./ChatRepository";
-import { QuestionUtility } from "./QuestionUtility";
 import { ForumDocHandler } from "../forumdoc/ForumDocHandler";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 
@@ -16,10 +15,6 @@ export class ChatDOCHandler extends ChatPDFHandler {
         name: "tchatdoc", 
         alias: { privateAlias: this.section }, 
     };
-
-    public readDucumentFile(filePath: string) : Promise<any> {
-        return QuestionUtility.readDucumentFile(filePath);
-    }
 
     public async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
         let handler = new ForumDocHandler();
@@ -80,7 +75,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
             }
             if(image_info && image_info.file.length > 0) {
                 info.answer = "";
-                let data = await this.readDucumentFile(image_info.file);
+                let data = await this.readDucumentFile(image_info);
                 this.logger.debug(this.constructor.name+".processQuestion: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;
