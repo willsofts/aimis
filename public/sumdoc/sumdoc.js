@@ -532,10 +532,12 @@ function setupFileDataTable() {
 	});
 }
 function submitDownloadFile(src,attachid) {
+	$("#dnauthtoken").val(getAccessorToken());
 	$("#dnattachid").val(attachid);
 	$("#sumdocdownloadform").attr("action",BASE_URL+"/export/sumdoc/attach").trigger("submit");
 }
 function submitDownloadSummaryFile(summaryid) {
+	$("#dnauthtoken").val(getAccessorToken());
 	$("#dnsummaryid").val(summaryid);
 	$("#sumdocdownloadform").attr("action",BASE_URL+"/export/sumdoc").trigger("submit");
 }
