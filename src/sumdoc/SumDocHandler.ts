@@ -5,21 +5,23 @@ import { KnDBConnector, KnSQLInterface, KnRecordSet, KnResultSet, KnSQL } from "
 import { HTTP } from "@willsofts/will-api";
 import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility, KnDataSet } from '@willsofts/will-core';
 import { Utilities } from "@willsofts/will-util";
-import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
+import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { TknAttachHandler } from "@willsofts/will-core";
-import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
-import { SummaryDocumentInfo, InlineImage } from "../models/QuestionAlias";
+import { PRIVATE_SECTION, ALWAYS_RAG } from "../utils/EnvironmentVariable";
+import { SummaryDocumentInfo, InlineImage, RagInfo } from "../models/QuestionAlias";
 import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
 import { PromptUtility } from "../question/PromptUtility";
 import { ollamaGenerate } from "../ollama/generateOllama";
 import { PDFReader } from "../detect/PDFReader";
-
+import { ForumOperate } from "../forum/ForumOperate";
+import FormData from 'form-data';
+import fs from 'fs';
 import agent_models from "../../config/model.json";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-export class SumDocHandler extends TknOperateHandler {
+export class SumDocHandler extends ForumOperate {
 
     public section = PRIVATE_SECTION;
     public group = "SUM";
@@ -37,6 +39,11 @@ export class SumDocHandler extends TknOperateHandler {
             summaryflag: { type: "STRING", selected: true, created: true, defaultValue: "0" },
             shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             inactive: { type: "STRING", selected: true, created: false, updated: false, defaultValue: "0" },
+            ragflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
+            ragactive: { type: "STRING", selected: true },
+            raglimit: { type: "INTEGER", selected: true },
+            ragchunksize: { type: "INTEGER", selected: true },
+            ragchunkoverlap: { type: "INTEGER", selected: true },
             createmillis: { type: "BIGINT", selected: true, created: true, updated: false, defaultValue: Utilities.currentTimeMillis() },
             createdate: { type: "DATE", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
             createtime: { type: "TIME", selected: true, created: true, updated: false, defaultValue: Utilities.now() },
@@ -441,7 +448,7 @@ export class SumDocHandler extends TknOperateHandler {
             if(rs.rows.length>0) {
                 for(let row of rs.rows) {
                     if(row.attachstream) {
-                        suminfo.summarystreams.push({mime: row.mimetype, stream: row.attachstream});
+                        suminfo.summarystreams.push({source: row.sourcefile, path: row.attachpath, mime: row.mimetype, stream: row.attachstream});
                     }
                 }
             }
@@ -450,11 +457,66 @@ export class SumDocHandler extends TknOperateHandler {
                 if(suminfo.summarydocument) {
                     await this.updateSummaryDocument(suminfo,db,context);
                 }
-                result.rows.push({summaryid: summaryid, summarytitle: suminfo.summarytitle, summaryflag: suminfo.summaryflag })
+                let info = { summaryid: summaryid, summarytitle: suminfo.summarytitle, summaryflag: suminfo.summaryflag };
+                if(ALWAYS_RAG) {
+                    let rag : RagInfo = {
+                        ragflag: suminfo.ragflag || "1", ragactive: "0", 
+                        raglimit: suminfo.raglimit || 10,
+                        ragchunksize: suminfo.ragchunksize || 250,
+                        ragchunkoverlap: suminfo.ragchunkoverlap || 10
+                    };
+                    this.logger.debug(this.constructor.name+".performSummarying: rag",rag);
+                    await this.updateRAG(context,db,suminfo,rag);
+                    Object.assign(info, rag);
+                }
+                result.rows.push(info);
             }
         }
         result.records = result.rows.length;
         return result;
+    }
+
+    protected async updateRAG(context: KnContextInfo, db: KnDBConnector, suminfo: SummaryDocumentInfo, rag: RagInfo) : Promise<any> {
+        //RAG does not accept id contain - then change it to _
+        let id = suminfo.summaryid.replaceAll('-','_');
+        const form = new FormData();
+        form.append("library_id",id);
+        let found = false;
+        if(suminfo.summarystreams) {
+            for(let stream of suminfo.summarystreams) {
+                let filePath = stream.path;
+                if(fs.existsSync(filePath)) {
+                    const filestream = fs.createReadStream(filePath);
+                    form.append('files', filestream);
+                    found = true;
+                } else {
+                    if(stream.stream) {
+                        const buffer = Buffer.from(stream.stream, 'base64');
+                        form.append('files', buffer, {filename: stream.source, contentType: stream.mime });
+                        found = true;
+                    }
+                }        
+            }
+        }
+        this.logger.debug(this.constructor.name+".updateRAG: found",found," rag",rag);
+        if(found && rag) {
+            //let rag = await this.getRagInfo(context,db,forumid);
+            form.append("chunk_size",Utilities.parseInteger(rag.ragchunksize) || "250");
+            form.append("chunk_overlap",Utilities.parseInteger(rag.ragchunkoverlap) || "10");
+            await this.updateRagDocument(form,rag);
+            await this.performUpdateRag(context,db,suminfo.summaryid,rag);
+        }
+    }
+
+    protected async performUpdateRag(context: KnContextInfo, db: KnDBConnector, summaryid: string, rag: RagInfo) : Promise<KnRecordSet> {
+        let sql = new KnSQL();
+        sql.append("update tsummarydocument set ragactive = ?ragactive, ragnote = ?ragnote ");
+        sql.append("where summaryid = ?summaryid ");
+        sql.set("summaryid",summaryid);
+        sql.set("ragactive",rag.ragactive);
+        sql.set("ragnote",rag.ragnote);
+        let rs = await sql.executeUpdate(db,context);
+        return this.createRecordSet(rs);
     }
 
     protected async doAttachRemoving(context: KnContextInfo, model: KnModel, action: string = KnOperation.REMOVE) : Promise<KnRecordSet> {
@@ -469,7 +531,7 @@ export class SumDocHandler extends TknOperateHandler {
 
     protected async getAttachStream(summaryid: string, db: KnDBConnector, context?: KnContextInfo): Promise<KnRecordSet> {
         let knsql = new KnSQL();
-        knsql.append("select attachid,mimetype,attachstream ");
+        knsql.append("select attachid,sourcefile,mimetype,attachpath,attachstream ");
         knsql.append("from tattachfile ");
         knsql.append("where attachno = ?attachno ");
         knsql.set("attachno",summaryid);
@@ -479,7 +541,7 @@ export class SumDocHandler extends TknOperateHandler {
     }
 
     public async getSummaryDocumentRecord(summaryid: string, db: KnDBConnector, context?: KnContextInfo): Promise<KnRecordSet> {
-        return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryagent,summarymodel,summaryprompt,summarydocument");
+        return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryagent,summarymodel,summaryprompt,summarydocument,ragflag,ragactive,raglimit,ragchunksize,ragchunkoverlap");
     }    
 
     public async getSummaryDocument(summaryid: string, context?: KnContextInfo, model: KnModel = this.model) : Promise<KnRecordSet> {
@@ -499,7 +561,10 @@ export class SumDocHandler extends TknOperateHandler {
         let rs = db ? await this.getSummaryDocumentRecord(summaryid,db,context) : await this.getSummaryDocument(summaryid,context);
         if(rs.rows && rs.rows.length > 0) {
             let row = rs.rows[0];
-            return { summaryid: summaryid, summarytitle: row.summarytitle, summaryagent: row.summaryagent, summarymodel: row.summarymodel, summaryprompt: row.summaryprompt, summarydocument: row.summarydocument };
+            return { 
+                summaryid: summaryid, summarytitle: row.summarytitle, summaryagent: row.summaryagent, summarymodel: row.summarymodel, summaryprompt: row.summaryprompt, summarydocument: row.summarydocument,
+                ragflag: row.ragflag, ragactive: row.ragactive, raglimit: row.raglimit, ragchunksize: row.ragchunksize, ragchunkoverlap: row.ragchunkoverlap 
+            };
         }
         return undefined;
     }
@@ -566,6 +631,10 @@ export class SumDocHandler extends TknOperateHandler {
         dt.dataset["summaryid"] = uuid();
         dt.dataset["summaryflag"] = "0";
         dt.dataset["summaryprompt"] = "Summarize into plain text answer only from given info";
+        dt.dataset["ragflag"] = "1";
+        dt.dataset["raglimit"] = 10;
+        dt.dataset["ragchunksize"] = 250;
+        dt.dataset["ragchunkoverlap"] = 10;
         return dt;
     }
 

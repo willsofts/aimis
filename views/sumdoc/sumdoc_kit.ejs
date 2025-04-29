@@ -10,7 +10,40 @@
 			</div>
 	</div>
 </div>
-
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-12">						
+						<div class="form-check">						
+							<input type="checkbox" id="ragflag" name="ragflag" class="form-control input-md form-check-input" value="1" <%=page.checked("1",data.dataset?.ragflag)%> />
+<label for="ragflag" id="ragflag_label" class="control-label form-check-label"><%=label.get('ragflag_label','Retrieval Augmented Generation')%></label>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-3">
+<label for="raglimit" id="raglimit_label" class="control-label"><%=label.get('raglimit_label','Limit')%></label>
+<input type="number" id="raglimit" name="raglimit" class="form-control input-md" min="0" value="<%=data.dataset?.raglimit%>" />
+					</div>
+					<div class="col-height col-md-3">
+<label for="ragchunksize" id="ragchunksize_label" class="control-label"><%=label.get('ragchunksize_label','Chunk Size')%></label>
+<input type="number" id="ragchunksize" name="ragchunksize" class="form-control input-md" min="0" value="<%=data.dataset?.ragchunksize%>" />
+					</div>
+					<div class="col-height col-md-3">
+<label for="ragchunkoverlap" id="ragchunkoverlap_label" class="control-label"><%=label.get('ragchunkoverlap_label','Chunk Overlap')%></label>
+<input type="number" id="ragchunkoverlap" name="ragchunkoverlap" class="form-control input-md" min="0" value="<%=data.dataset?.ragchunkoverlap%>" />
+					</div>
+				</div>
+			</div>
+		</div>
+</div>
 <div class="row row-height">
 	<div class="col-md-12 col-height">
 			<div class="table-layer-class">

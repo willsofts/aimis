@@ -129,7 +129,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
@@ -137,8 +137,8 @@ export class ChatImageHandler extends ChatPDFHandler {
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let chat = chatmap.get(category);
             if(!chat) {
                 let history = this.getChatHistory(forum?.prompt, forum?.tableinfo);
@@ -157,8 +157,8 @@ export class ChatImageHandler extends ChatPDFHandler {
             let result = await chat.sendMessage(img_info ? [msg, img_info] : msg);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
-            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: usage:",result.response.usageMetadata);
             this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = this.parseAnswer(text);    
             if(!hasParam) this.deleteAttach(quest.image);
@@ -171,7 +171,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -203,15 +203,15 @@ export class ChatImageHandler extends ChatPDFHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);        
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: quest:",quest);        
         let db = this.getPrivateConnector(model);
         let input = quest.question;
         let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let hasParam = img_info;
             if(!hasParam) img_info = await this.getImageFileInfo(quest, db);
             if (quest.imagetmp){
@@ -227,7 +227,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let promptLlama = this.getChatHistoryOllama(forum?.prompt, forum?.tableinfo, input);
                         let resultLlama = await ollamaImageChat(promptLlama, img_info.file, quest.model!); 
                         let responseLlama = resultLlama.message.content;
-                        this.logger.debug(this.constructor.name+".processAsk: response:", responseLlama);
+                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseLlama);
                         info.answer = this.parseAnswer(responseLlama);
                         // Do not delete image file
                         break;
@@ -237,7 +237,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let promptGemma = this.getChatHistoryTesseract(forum?.prompt, forum?.tableinfo, ocrtext, input);
                         let resultGemma = await ollamaGenerate(promptGemma, quest.model!);
                         let responseGemma = resultGemma.response;
-                        this.logger.debug(this.constructor.name+".processQuest: response:", responseGemma);
+                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseGemma);
                         info.answer = this.parseAnswer(responseGemma);    
                         // Do not delete image file
                         break;
@@ -246,7 +246,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let promptLava = prmutil.createAskPrompt(input);
                         let resultLava = await ollamaImageAsk(promptLava, quest.model!, img_info.stream!);
                         let responseLava = resultLava.response;
-                        this.logger.debug(this.constructor.name+".processAsk: response:", responseLava);
+                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseLava);
                         info.answer = this.parseAnswer(responseLava);
                         // Do not delete image file
                         break;
@@ -263,7 +263,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -301,15 +301,15 @@ export class ChatImageHandler extends ChatPDFHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
-        this.logger.debug(this.constructor.name+".processQuestion: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestionAsync: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
         let forum : ForumConfig | undefined = undefined;
         try {
             forum = await this.getForumConfig(db,category,context);
-            this.logger.debug(this.constructor.name+".processQuestion: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestionAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestionAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let contents = this.getImagePrompt(forum?.prompt, forum?.tableinfo);
             let hasParam = img_info;
             if(!hasParam) img_info = await this.getInlineImage(quest,db);
@@ -324,7 +324,7 @@ export class ChatImageHandler extends ChatPDFHandler {
             let result = await aimodel.generateContent(contents);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuestion: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestionAsync: response:",text);
             this.saveTokenUsage(context,quest,contents,aimodel);
             info.answer = this.parseAnswer(text);    
             if(!hasParam) this.deleteAttach(quest.image);
@@ -336,7 +336,7 @@ export class ChatImageHandler extends ChatPDFHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuestion: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestionAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }

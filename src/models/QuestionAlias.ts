@@ -44,7 +44,12 @@ export interface RagContentInfo {
     contents: string;
 }
 
-export interface ForumConfig extends KnDBConfig, RagInfo {
+export interface SummaryInfo {
+    summaryid?: string;
+    summaryrag?: RagInfo;
+}
+
+export interface ForumConfig extends KnDBConfig, SummaryInfo, RagInfo {
     caption: string; //forumtitle
     title: string; //dialecttitle
     type: string; //forumtype
@@ -55,7 +60,6 @@ export interface ForumConfig extends KnDBConfig, RagInfo {
     version?: string; //forumdbversion
     webhook?: string; 
     hookflag?: string;
-    summaryid?: string;
 }
 
 export interface ImageInfo {
@@ -83,7 +87,7 @@ export interface KnInquirySet extends KnRecordSet {
     questionid: string;
 }
 
-export interface SummaryDocumentInfo {
+export interface SummaryDocumentInfo extends RagInfo {
     summaryid: string;
     summarytitle: string;
     summaryagent: string;
@@ -95,6 +99,8 @@ export interface SummaryDocumentInfo {
 }
 
 export interface SummaryStreamInfo {
+    source: string;
+    path: string;
     mime: string;
     stream: string;
 }

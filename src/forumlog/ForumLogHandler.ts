@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { KnModel, KnActionQuery, KnOperation } from "@willsofts/will-db";
+import { KnModel, KnActionQuery, KnOperation, KnPageSetting } from "@willsofts/will-db";
 import { KnResultSet, KnSQLInterface, KnRecordSet, KnSQL } from "@willsofts/will-sql";
 import { Utilities } from "@willsofts/will-util";
 import { TknOperateHandler } from '@willsofts/will-serv';
@@ -52,7 +52,7 @@ export class ForumLogHandler extends TknOperateHandler {
         sql.set("authtoken",token);
     }
 
-    protected override buildFiltersQuery(context: KnContextInfo, model: KnModel, knsql: KnSQLInterface, actions: KnActionQuery): KnSQLInterface {
+    protected override buildFiltersQuery(context: KnContextInfo, model: KnModel, knsql: KnSQLInterface, actions: KnActionQuery, pageSetting?: KnPageSetting): KnSQLInterface {
         if(this.isCollectMode(actions.action)) {
             let params = context.params;
             let counting = "count"==actions.subaction;
@@ -105,6 +105,11 @@ export class ForumLogHandler extends TknOperateHandler {
                     knsql.append(filter).append(model.name).append(".createdate <= ?todate ");
                     knsql.set("todate",dateto);
                     filter = " and ";
+                }
+            }
+            if(!counting && pageSetting) {
+                if(!pageSetting.orderBy || pageSetting.orderBy.trim().length ==0) {
+                    pageSetting.orderBy = "createmillis";
                 }
             }
             return knsql;    

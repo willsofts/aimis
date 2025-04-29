@@ -1,3 +1,15 @@
+2025-04-29
++ sumdoc: support rag
++ chatnote: support rag from sumdoc
+
+ALTER TABLE `tsummarydocument`
+	ADD COLUMN `ragflag` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=RAG' AFTER `inactive`,
+	ADD COLUMN `ragactive` VARCHAR(1) NULL DEFAULT '0' COMMENT '1=Active' AFTER `ragflag`,
+	ADD COLUMN `raglimit` INT NULL DEFAULT NULL AFTER `ragactive`,
+	ADD COLUMN `ragchunksize` INT NULL DEFAULT NULL AFTER `raglimit`,
+	ADD COLUMN `ragchunkoverlap` INT NULL DEFAULT NULL AFTER `ragchunksize`,
+	ADD COLUMN `ragnote` TEXT NULL DEFAULT NULL AFTER `ragchunkoverlap`;
+
 2025-04-28
 + chat classify (chatter) support LLAMA
 + forumlog: forum tracking (new table tforumlog)

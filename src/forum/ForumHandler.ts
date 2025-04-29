@@ -4,14 +4,13 @@ import { KnDBConnector, KnSQLInterface, KnRecordSet, KnResultSet, KnSQL } from "
 import { HTTP } from "@willsofts/will-api";
 import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility, KnDataMapEntitySetting, KnDataSet, KnDataEntity } from '@willsofts/will-core';
 import { Utilities } from "@willsofts/will-util";
-import { TknOperateHandler, OPERATE_HANDLERS } from '@willsofts/will-serv';
-import { ForumConfig } from "../models/QuestionAlias";
+import { OPERATE_HANDLERS } from '@willsofts/will-serv';
+import { ForumConfig, SummaryDocumentInfo } from "../models/QuestionAlias";
 import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
+import { ForumOperate } from "./ForumOperate";
 
-const crypto = require('crypto');
-
-export class ForumHandler extends TknOperateHandler {
+export class ForumHandler extends ForumOperate {
     public section = PRIVATE_SECTION;
     public group = "DB";
     public progid = "forum";
@@ -687,10 +686,11 @@ export class ForumHandler extends TknOperateHandler {
                     this.logger.error(this.constructor.name,ex);
                 }
             }
+            let suminfo : SummaryDocumentInfo | undefined = undefined;
             if(row.summaryid && row.summaryid.trim().length>0) {
                 let handler = new SumDocHandler();
                 handler.obtain(this.broker,this.logger);
-                let suminfo = await handler.getSummaryDocumentInfo(row.summaryid,db,context);
+                suminfo = await handler.getSummaryDocumentInfo(row.summaryid,db,context);
                 if(suminfo && suminfo.summarydocument && suminfo.summarydocument.length>0) {
                     row.forumprompt = suminfo.summarydocument;
                 }
@@ -718,12 +718,13 @@ export class ForumHandler extends TknOperateHandler {
                 version: row.forumdbversion,
                 webhook: row.webhook,
                 hookflag: row.hookflag,
-                summaryid: row.summaryid,
                 ragflag: row.ragflag,
                 ragactive: row.ragactive,
                 raglimit: row.raglimit,
                 ragchunksize: row.ragchunksize,
                 ragchunkoverlap: row.ragchunkoverlap,
+                summaryid: row.summaryid,
+                summaryrag: suminfo,
             };  
         }
         return result;
@@ -740,12 +741,5 @@ export class ForumHandler extends TknOperateHandler {
         dt.renderer = this.progid+"/"+this.progid+"_edit";
         return dt;
     }    
-
-    public toHashString(texts: string) : string {
-        if(texts && texts.trim().length>0) {
-            return crypto.createHash('md5').update(texts).digest('hex');
-        }
-        return texts;
-    }
 
 }

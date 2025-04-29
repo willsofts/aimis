@@ -54,7 +54,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestAsync: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
@@ -62,8 +62,8 @@ export class ChatDOCHandler extends ChatPDFHandler {
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             let image_info = await this.getFileImageInfo(quest.image,db);
@@ -76,7 +76,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
             if(image_info && image_info.file.length > 0) {
                 info.answer = "";
                 let data = await this.readDucumentFile(image_info);
-                this.logger.debug(this.constructor.name+".processQuestion: data:",data);
+                this.logger.debug(this.constructor.name+".processQuestAsync: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;
                     info.statuscode = "NO-TEXT";
@@ -99,8 +99,8 @@ export class ChatDOCHandler extends ChatPDFHandler {
                 let result = await chat.sendMessage(msg);
                 let response = result.response;
                 let text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
-                this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                this.logger.debug(this.constructor.name+".processQuestAsync: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestAsync: usage:",result.response.usageMetadata);
                 this.saveUsage(context,quest,result.response.usageMetadata);
                 info.answer = this.parseAnswer(text);
             } else {
@@ -109,8 +109,8 @@ export class ChatDOCHandler extends ChatPDFHandler {
                     let result = await chat.sendMessage(msg);
                     let response = result.response;
                     let text = response.text();
-                    this.logger.debug(this.constructor.name+".processQuest: response:",text);
-                    this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                    this.logger.debug(this.constructor.name+".processQuestAsync: response:",text);
+                    this.logger.debug(this.constructor.name+".processQuestAsync: usage:",result.response.usageMetadata);
                     this.saveUsage(context,quest,result.response.usageMetadata);        
                     info.answer = this.parseAnswer(text);    
                 } else {
@@ -128,7 +128,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }

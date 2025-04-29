@@ -6,7 +6,7 @@ import { TknOperateHandler } from '@willsofts/will-serv';
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
 import { API_KEY, API_VISION_MODEL, ALWAYS_REMOVE_ATTACH } from "../utils/EnvironmentVariable";
 import { QuestionUtility } from "./QuestionUtility";
-import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo, ForumConfig, RagInfo, RagContentInfo } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo, ForumConfig, RagInfo, RagContentInfo, SummaryInfo } from "../models/QuestionAlias";
 import { TknAttachHandler } from "@willsofts/will-core";
 import { KnRecordSet, KnDBConnector } from "@willsofts/will-sql";
 import { KnDBLibrary } from "../utils/KnDBLibrary";
@@ -279,12 +279,17 @@ export class GenerativeHandler extends TknOperateHandler {
         }
     }
 
-    protected async getRagContentInfo(quest: QuestInfo,rag?: RagInfo) : Promise<RagContentInfo | undefined> {
-        if("1" == rag?.ragflag && "1" == rag?.ragactive) {
-            let limit = rag.raglimit || 10;
+    protected async getRagContentInfo(quest: QuestInfo, rag?: RagInfo, sum?: SummaryInfo) : Promise<RagContentInfo | undefined> {
+        let ragflag = sum?.summaryrag ? sum.summaryrag.ragflag : rag?.ragflag;
+        let ragactive = sum?.summaryrag ? sum.summaryrag.ragactive : rag?.ragactive;
+        if("1" == ragflag && "1" == ragactive) {
+            let raglimit = sum?.summaryrag ? sum.summaryrag?.raglimit : rag?.raglimit;
+            let limit = raglimit || 10;
             try {
                 //RAG does not accept id contain - then change it to _
-                let id = quest.category.replaceAll('-','_');
+                let category = sum?.summaryid;
+                if(!category || category.trim().length==0) category = quest.category;
+                let id = category.replaceAll('-','_');
                 let info = { 
                     libraryId: id,
                     searchText: quest.question,

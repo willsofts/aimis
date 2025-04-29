@@ -57,7 +57,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "NOTEFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
@@ -65,8 +65,8 @@ export class ChatNoteHandler extends ChatDOCHandler {
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context,true);
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             if(chat && chat instanceof LlamaSession) chat = undefined;            
@@ -89,19 +89,19 @@ export class ChatNoteHandler extends ChatDOCHandler {
                 chatmap.set(category,chat);
                 try { await this.logging(context,quest,history,true); } catch(ex) { this.logger.error(ex); }
             }
-            let rag = await this.getRagContentInfo(quest,forum);
+            let rag = await this.getRagContentInfo(quest,forum,forum);
             let msg = new Array<string>();
             if(rag && rag.contents) {
                 msg.push("RAG Info: \n"+rag.contents+"\n");
             }
             msg.push("Question: "+quest.question);
-            this.logger.debug(this.constructor.name+".processQuest: quest:",msg);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: quest:",msg);
             this.logging(context,quest,msg);
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
-            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: usage:",result.response.usageMetadata);
             this.saveUsage(context,quest,result.response.usageMetadata);
             this.logging(context,quest,[text]);
             info.answer = this.parseAnswer(text);
@@ -113,7 +113,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -147,15 +147,15 @@ export class ChatNoteHandler extends ChatDOCHandler {
         }
         let category = quest.category;
         if(!category || category.trim().length==0) category = "NOTEFILE";
-        this.logger.debug(this.constructor.name+".processQuest: quest:",quest);        
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: quest:",quest);        
         let db = this.getPrivateConnector(model);
         let input = quest.question;
         let forum : ForumConfig | undefined = undefined;
         try {            
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context,true);
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
             let chat = chatmap.get(category);
             if(chat && !(chat instanceof LlamaSession)) chat = undefined;
@@ -173,11 +173,12 @@ export class ChatNoteHandler extends ChatDOCHandler {
             */          
             let history = this.getChatHistoryOllama(forum?.prompt || "", table_info);
             let msg = "";
-            let rag = await this.getRagContentInfo(quest,forum);
+            let rag = await this.getRagContentInfo(quest,forum,forum);
             if(rag && rag.contents) {
                 msg += "RAG Info: \n"+rag.contents+"\n";
             }
             msg += "Question: "+quest.question;
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: quest:",msg);
             let llama_chat = chat as LlamaSession;
             this.logging(context,quest,llama_chat.history.length==0 ? [history,msg] : [msg]);
             // ollama normal
@@ -185,7 +186,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
             // ollama use file model
             //let response = await ollamaChat(JSON.stringify(history), msg, forum.caption!);            
             let text = response.message.content;
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
             this.logging(context,quest,[text]);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
@@ -196,7 +197,7 @@ export class ChatNoteHandler extends ChatDOCHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }

@@ -8,13 +8,11 @@ import { TknAttachHandler, KnPageUtility } from "@willsofts/will-core";
 import { FileImageInfo, RagInfo } from "../models/QuestionAlias";
 import { QuestionUtility } from "../question/QuestionUtility";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
-import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
+import { API_KEY, API_MODEL, ALWAYS_RAG } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { PromptUtility } from "../question/PromptUtility";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
-import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_UPLOAD } from "../utils/EnvironmentVariable";
 import FormData from 'form-data';
-import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 
@@ -153,14 +151,16 @@ export class ForumNoteHandler extends ForumHandler {
                 sql.set("forumid",forumid);
                 rs = await sql.executeUpdate(db);
             }
-            let rag : RagInfo = {
-                ragflag: context.params.ragflag || "1", ragactive: "0", 
-                raglimit: Utilities.parseInteger(context.params.raglimit) || 10,
-                ragchunksize: Utilities.parseInteger(context.params.ragchunksize) || 250,
-                ragchunkoverlap: Utilities.parseInteger(context.params.ragchunkoverlap) || 10
-            };
-            this.logger.debug(this.constructor.name+".updateDocumentInfo: rag",rag);
-            await this.updateRAG(context,db,forumid,file_info,rag);
+            if(ALWAYS_RAG) {
+                let rag : RagInfo = {
+                    ragflag: context.params.ragflag || "1", ragactive: "0", 
+                    raglimit: Utilities.parseInteger(context.params.raglimit) || 10,
+                    ragchunksize: Utilities.parseInteger(context.params.ragchunksize) || 250,
+                    ragchunkoverlap: Utilities.parseInteger(context.params.ragchunkoverlap) || 10
+                };
+                this.logger.debug(this.constructor.name+".updateDocumentInfo: rag",rag);
+                await this.updateRAG(context,db,forumid,file_info,rag);
+            }
         }
         return Promise.resolve(rs);
     }
@@ -207,28 +207,6 @@ export class ForumNoteHandler extends ForumHandler {
             await this.updateRagDocument(form,rag);
             await this.performUpdateRag(context,db,forumid,rag);
         }
-    }
-
-    protected async updateRagDocument(form: FormData, rag: RagInfo) : Promise<RagInfo> {
-        rag.ragactive = "0";
-        try {
-            let url = RAG_API_URL + RAG_API_URL_UPLOAD;
-            const response = await axios.post(url, form, {
-                headers: {
-                    'x-api-key': RAG_API_KEY,
-                    ...form.getHeaders(),
-                },
-            });    
-            this.logger.debug(this.constructor.name+'.updateRagDocument: success:', response.data);
-            rag.ragnote = JSON.stringify(response.data);
-            if(response.data?.head?.status?.code=="200") {
-                rag.ragactive = "1";
-            }
-        } catch(ex: any) {
-            rag.ragnote = ex.message;
-            this.logger.error(this.constructor.name+".updateRagDocument: error:",ex);
-        }
-        return rag;
     }
 
     protected async performUpdateRag(context: KnContextInfo, db: KnDBConnector, forumid: string, rag: RagInfo) : Promise<KnRecordSet> {

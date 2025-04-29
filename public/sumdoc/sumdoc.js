@@ -231,7 +231,7 @@ function update(aform) {
 					//#(235300) programmer code begin;
 					//#(235300) programmer code end;
 					successbox(function() { 
-						$("#fsmodaldialog_layer").modal("hide");
+						//$("#fsmodaldialog_layer").modal("hide");
 					});
 					//#(235500) programmer code begin;
 					refreshFilters();

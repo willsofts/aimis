@@ -30,6 +30,7 @@ export const SESSION_TIMEOUT : number = parseInt(config.env("SESSION_TIMEOUT","6
 export const MAX_EXPIRE_DATE: string = config.env("MAX_EXPIRE_DATE","31/12/9000"); 
 export const MENU_TREE: boolean = config.env("MENU_TREE","true") === "true";
 
+export const ALWAYS_RAG: boolean = config.env("ALWAYS_RAG","true") === "true";
 export const RAG_API_KEY: string = config.env("RAG_API_KEY","Z3uR+8JRx1MeZEDSpOqgPw==");
 export const RAG_API_URL: string = config.env("RAG_API_URL","http://172.31.199.217:8000");
 export const RAG_API_URL_UPLOAD: string = config.env("RAG_API_URL_UPLOAD","/api/rag/vector/store/file");

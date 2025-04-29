@@ -118,7 +118,7 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve(info);
         }
         let category = quest.category || "PDFFILE";
-        this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestAsync: correlation:",info.correlation,", quest:",quest);
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         try {
@@ -134,7 +134,7 @@ export class ChatPDFHandler extends VisionHandler {
             if(image_info && image_info.file.length > 0) {
                 info.answer = "";
                 let data = await this.readDucumentFile(image_info);
-                this.logger.debug(this.constructor.name+".processQuestion: data:",data);
+                this.logger.debug(this.constructor.name+".processQuestAsync: data:",data);
                 if(data.text.trim().length == 0) {
                     info.error = true;
                     info.statuscode = "NO-TEXT";
@@ -157,8 +157,8 @@ export class ChatPDFHandler extends VisionHandler {
                 let result = await chat.sendMessage(msg);
                 let response = result.response;
                 let text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
-                this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                this.logger.debug(this.constructor.name+".processQuestAsync: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestAsync: usage:",result.response.usageMetadata);
                 this.saveUsage(context,quest,result.response.usageMetadata);    
                 info.answer = this.parseAnswer(text);
             } else {
@@ -167,8 +167,8 @@ export class ChatPDFHandler extends VisionHandler {
                     let result = await chat.sendMessage(msg);
                     let response = result.response;
                     let text = response.text();
-                    this.logger.debug(this.constructor.name+".processQuest: response:",text);
-                    this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+                    this.logger.debug(this.constructor.name+".processQuestAsync: response:",text);
+                    this.logger.debug(this.constructor.name+".processQuestAsync: usage:",result.response.usageMetadata);
                     this.saveUsage(context,quest,result.response.usageMetadata);        
                     info.answer = this.parseAnswer(text);    
                 } else {
@@ -186,7 +186,7 @@ export class ChatPDFHandler extends VisionHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestAsync: return:",JSON.stringify(info));
         return info;
     }
 
@@ -217,12 +217,12 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
-        this.logger.debug(this.constructor.name+".processQuestion: correlation:",info.correlation,", quest:",quest);
+        this.logger.debug(this.constructor.name+".processQuestionAsync: correlation:",info.correlation,", quest:",quest);
         let db = this.getPrivateConnector(model);
         try {
             info.answer = "";
             let data = await this.readDucumentFile(quest.image); //quest.image is file path
-            this.logger.debug(this.constructor.name+".processQuestion: data:",data);
+            this.logger.debug(this.constructor.name+".processQuestionAsync: data:",data);
             info = await this.processAsk(quest,context,data.text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -232,7 +232,7 @@ export class ChatPDFHandler extends VisionHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuestion: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestionAsync: return:",JSON.stringify(info));
         return info;
     }
 
@@ -281,7 +281,7 @@ export class ChatPDFHandler extends VisionHandler {
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processAsk: response:",text);
+            this.logger.debug(this.constructor.name+".processAskAsync: response:",text);
             this.saveTokenUsage(context,quest,prompt,aimodel);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
@@ -290,7 +290,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processAskAsync: return:",JSON.stringify(info));
         return info;
     }
 

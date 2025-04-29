@@ -94,8 +94,8 @@ export class ChatHandler extends QuestionHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;
             let chat = chatmap.get(category);
             if(chat && chat instanceof LlamaSession) chat = undefined;
@@ -118,18 +118,18 @@ export class ChatHandler extends QuestionHandler {
                     msg.push(moreinfo+" \n\n");
                 }
             }
-            this.logger.debug(this.constructor.name+".processQuest: question:",msg);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: question:",msg);
             this.logging(context,quest,msg);
             let result = await chat.sendMessage(msg);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
-            this.logger.debug(this.constructor.name+".processQuest: usage:",result.response.usageMetadata);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: usage:",result.response.usageMetadata);
             this.saveUsage(context,quest,result.response.usageMetadata);
             this.logging(context,quest,[text]);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -139,7 +139,7 @@ export class ChatHandler extends QuestionHandler {
             let rs : KnRecordSet = { records: 0, rows: [], columns: [] };
             try {
                 rs = await this.doEnquiry(sql, category, quest, forum);
-                this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+                this.logger.debug(this.constructor.name+".processQuestGeminiAsync: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";
                     this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -153,10 +153,10 @@ export class ChatHandler extends QuestionHandler {
                     let result = await chat.sendMessage(msg);
                     let response = result.response;
                     let text = response.text();
-                    this.logger.debug(this.constructor.name+".processQuest: catch response:",text);
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: catch response:",text);
                     this.logging(context,quest,[text]);
                     let sql = this.parseAnswer(text,true);
-                    this.logger.debug(this.constructor.name+".processQuest: catch sql:",sql);
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: catch sql:",sql);
                     if(!sql || sql.trim().length==0) {
                         info.error = true;
                         info.answer = this.getDBError(ex).message;
@@ -170,7 +170,7 @@ export class ChatHandler extends QuestionHandler {
                     info.query = sql;
                     try {
                         rs = await this.doEnquiry(sql, category, quest, forum);
-                        this.logger.debug(this.constructor.name+".processQuest: catch rs:",rs);
+                        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: catch rs:",rs);
                         if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                             info.answer = "Record not found.";
                             this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -197,7 +197,7 @@ export class ChatHandler extends QuestionHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestGeminiAsync: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 let prmutil = new PromptUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
@@ -206,7 +206,7 @@ export class ChatHandler extends QuestionHandler {
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
                 this.logging(context,quest,[text]);
                 info.answer = this.parseAnswer(text);
             }
@@ -218,7 +218,7 @@ export class ChatHandler extends QuestionHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -255,8 +255,8 @@ export class ChatHandler extends QuestionHandler {
             forum = await this.getForumConfig(db,category,context);
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestClaudeAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestClaudeAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -269,11 +269,11 @@ export class ChatHandler extends QuestionHandler {
             }
             this.logging(context,quest,[system_prompt,msg]);
             let result = await claudeProcess(system_prompt, msg, model);
-            this.logger.debug(this.constructor.name+".processQuest: response:",result);
+            this.logger.debug(this.constructor.name+".processQuestClaudeAsync: response:",result);
             this.logging(context,quest,[result]);
             //try to extract SQL from the response
             let sql = this.parseAnswer(result,false);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestClaudeAsync: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -281,7 +281,7 @@ export class ChatHandler extends QuestionHandler {
             info.query = sql;
             //then run the SQL query
             let rs = await this.doEnquiry(sql, category, quest, forum);
-            this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+            this.logger.debug(this.constructor.name+".processQuestClaudeAsync: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -290,12 +290,12 @@ export class ChatHandler extends QuestionHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestClaudeAsync: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 system_prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 this.logging(context,quest,[system_prompt,input]);
                 let result = await claudeProcess(system_prompt, input, model);
-                this.logger.debug(this.constructor.name+".processQuest: response:",result);
+                this.logger.debug(this.constructor.name+".processQuestClaudeAsync: response:",result);
                 this.logging(context,quest,[result]);
                 info.answer = this.parseAnswer(result);
             }
@@ -307,7 +307,7 @@ export class ChatHandler extends QuestionHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestClaudeAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -344,8 +344,8 @@ export class ChatHandler extends QuestionHandler {
             const chatmap = ChatRepository.getInstance(info.correlation);
             forum = await this.getForumConfig(db,category,context);
             if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;            
             let chat = chatmap.get(category);
             if(chat && !(chat instanceof LlamaSession)) chat = undefined;
@@ -366,14 +366,14 @@ export class ChatHandler extends QuestionHandler {
             }
             this.logging(context,quest,[history,msg]);
             let response = await ollamaChat(history, msg, quest.model || API_MODEL_LLAMA, chat as LlamaSession);
-            this.logger.debug(this.constructor.name+".processQuest: response:",response);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",response);
             let text = response?.message?.content;
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
             this.logging(context,quest,[text]);
             //(chat as LlamaSession).add(contents);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -383,7 +383,7 @@ export class ChatHandler extends QuestionHandler {
             let rs : KnRecordSet = { records: 0, rows: [], columns: [] };
             try {
                 rs = await this.doEnquiry(sql, category, quest, forum);
-                this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+                this.logger.debug(this.constructor.name+".processQuestOllamaAsync: rs:",rs);
                 if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                     info.answer = "Record not found.";
                     this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -400,14 +400,14 @@ export class ChatHandler extends QuestionHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {                
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestOllamaAsync: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 let prmutil = new PromptOLlamaUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 this.logging(context,quest,[prompt]);
                 let result = await ollamaGenerate(prompt, quest.model || API_MODEL_LLAMA);
                 let response = result.response; 
-                this.logger.debug(this.constructor.name+".processQuest: response:", response);
+                this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", response);
                 this.logging(context,quest,[response]);
                 info.answer = this.parseAnswer(response);
             }
@@ -419,7 +419,7 @@ export class ChatHandler extends QuestionHandler {
 		} finally {
 			if(db) db.close();
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
