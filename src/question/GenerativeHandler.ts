@@ -183,13 +183,24 @@ export class GenerativeHandler extends TknOperateHandler {
         return QuestionUtility.getDatabaseSchemaFile(category);
     }
 
-    public async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo) : Promise<ForumConfig | undefined> {
+    public async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
         let handler = new ForumHandler();
         let result = await handler.getForumConfig(db,category,context);
-        if(!result) {
+        if(!result && throwNotFoundError) {
             return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
         }
         return result;
+    }
+
+    public async getForumConfiguration(context: KnContextInfo, quest: QuestInfo, model: KnModel, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
+        let category = quest.category;
+        if(!category || category.trim().length==0) category = "AIDB";
+        let db = this.getPrivateConnector(model);
+        try {
+            return await this.getForumConfig(db,category,context,throwNotFoundError);
+		} finally {
+			if(db) db.close();
+        }
     }
 
     public async processAPI(sql: string, category: string, quest: QuestInfo, forum: ForumConfig) : Promise<KnRecordSet> {

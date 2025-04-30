@@ -204,6 +204,8 @@ CREATE TABLE IF NOT EXISTS `tforum` (
   `forumtitle` varchar(50) NOT NULL,
   `forumgroup` enum('DB','DOC','NOTE') CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'DB' COMMENT 'DB=Database,DOC=Document',
   `forumtype` enum('DB','API') NOT NULL DEFAULT 'DB' COMMENT 'DB=Direct Access Database, API=API Service',
+	`forumagent` VARCHAR(50) NULL DEFAULT NULL COLLATE utf8mb3_general_ci,
+	`forummodel` VARCHAR(50) NULL DEFAULT NULL COLLATE utf8mb3_general_ci,
   `forumdialect` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT 'tdialect.dialectid',
   `forumapi` varchar(200) DEFAULT NULL,
   `forumurl` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,

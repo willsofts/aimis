@@ -40,7 +40,7 @@ export class GoogleDetectHandler extends VisionHandler {
                 info.answer = "";
                 let detector = new PDFDetector();
                 let text = await detector.detectText(image_info.file);
-                info = await this.processAsk(quest,context,text);
+                info = await this.processAsk(context,quest,text);
             } else {
                 info.error = true;
                 info.statuscode = "NO-FILE";
@@ -59,7 +59,7 @@ export class GoogleDetectHandler extends VisionHandler {
         return info;
     }
 
-    public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestion(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -73,7 +73,7 @@ export class GoogleDetectHandler extends VisionHandler {
             info.answer = "";
             let detector = new PDFDetector();
             let text = await detector.detectText(quest.image);
-            info = await this.processAsk(quest,context,text);
+            info = await this.processAsk(context,quest,text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
@@ -93,7 +93,7 @@ export class GoogleDetectHandler extends VisionHandler {
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
     }
 
-    public override async processAsk(quest: QuestInfo, context?: KnContextInfo, document?: string | null | undefined) : Promise<InquiryInfo> {
+    public override async processAsk(context: KnContextInfo, quest: QuestInfo, document?: string | null | undefined) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;

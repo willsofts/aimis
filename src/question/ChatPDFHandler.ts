@@ -1,6 +1,6 @@
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnContextInfo, KnValidateInfo, KnDataTable } from "@willsofts/will-core";
-import { QuestInfo, InquiryInfo, FileImageInfo } from "../models/QuestionAlias";
+import { QuestInfo, InquiryInfo, FileImageInfo, ForumConfig } from "../models/QuestionAlias";
 import { VisionHandler } from "./VisionHandler";
 import { API_KEY, API_MODEL, PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { PromptUtility } from "./PromptUtility";
@@ -101,13 +101,13 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
+            this.processQuestAsync(context, quest, undefined, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestAsync(context, quest, model);
+        return await this.processQuestAsync(context, quest, undefined, model);
     }
 
-    public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
@@ -190,7 +190,7 @@ export class ChatPDFHandler extends VisionHandler {
         return info;
     }
 
-    public async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestion(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
@@ -201,13 +201,13 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestionAsync(quest, context, model).catch((ex) => console.error(ex));
+            this.processQuestionAsync(context, quest, undefined, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestionAsync(quest, context, model);    
+        return await this.processQuestionAsync(context, quest, undefined, model);    
     }
 
-    public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestionAsync(context: KnContextInfo, quest: QuestInfo, forum? : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         quest.mime = quest.mime || "PDF";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
@@ -223,7 +223,7 @@ export class ChatPDFHandler extends VisionHandler {
             info.answer = "";
             let data = await this.readDucumentFile(quest.image); //quest.image is file path
             this.logger.debug(this.constructor.name+".processQuestionAsync: data:",data);
-            info = await this.processAsk(quest,context,data.text);
+            info = await this.processAsk(context,quest,data.text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
@@ -236,7 +236,7 @@ export class ChatPDFHandler extends VisionHandler {
         return info;
     }
 
-    public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+    public override async processAsk(context: KnContextInfo, quest: QuestInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         quest.mime = quest.mime || "PDF";
         if(!quest.question || quest.question.trim().length == 0) {
@@ -252,13 +252,13 @@ export class ChatPDFHandler extends VisionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processAskAsync(quest, context, document).catch((ex) => console.error(ex));
+            this.processAskAsync(context, quest, document).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processAskAsync(quest, context, document);    
+        return await this.processAskAsync(context, quest, document);    
     }
 
-    public async processAskAsync(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+    public async processAskAsync(context: KnContextInfo, quest: QuestInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         quest.mime = quest.mime || "PDF";
         if(!quest.question || quest.question.trim().length == 0) {

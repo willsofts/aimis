@@ -24,6 +24,8 @@ export class ForumHandler extends ForumOperate {
             forumtitle: { type: "STRING" },
             forumgroup: { type: "STRING", created: true, updated: false },
             forumtype: { type: "STRING" },
+            forumagent: { type: "STRING", created: true, updated: true },
+            forummodel: { type: "STRING", created: true, updated: true },
             forumdialect: { type: "STRING" },
             forumapi: { type: "STRING" },
             forumurl: { type: "STRING" },
@@ -89,6 +91,7 @@ export class ForumHandler extends ForumOperate {
 
     /* try to assign individual parameters under this context */
     protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {
+        let model_item = await this.getModelItem(context.params.forummodel);
         let now = Utilities.now();
         sql.set("editdate",now,"DATE");
         sql.set("edittime",now,"TIME");
@@ -99,6 +102,8 @@ export class ForumHandler extends ForumOperate {
         sql.set("classifyprompt",context.params.classifyprompt);
         sql.set("webhook",context.params.webhook);
         sql.set("summaryid",context.params.summaryid);
+        sql.set("forumagent",model_item?.agent);
+        sql.set("forummodel",context.params.forummodel);
     }
 
     /* try to validate fields for insert, update, delete, retrieve */
@@ -210,6 +215,8 @@ export class ForumHandler extends ForumOperate {
         }
         entity["tdialect"] = tdialect;
         entity["dialects"] = dialects;
+        let models = await this.getAgentModels();
+        entity["tmodels"] = models;
         return datacategory;
         //return this.createDataTable("categories", {}, entity);
     }
@@ -389,7 +396,8 @@ export class ForumHandler extends ForumOperate {
             let rs = await this.performRetrieving(db, context.params.forumid, context);
             if(rs.rows.length>0) {
                 let row = await this.retrieveDataSet(context,db,rs);
-                return this.createDataTable(KnOperation.RETRIEVE, row);
+                let dt = await this.performCategories(context, model, db);
+                return this.createDataTable(KnOperation.RETRIEVE, row, dt.entity);
             }
             return this.recordNotFound();
         } catch(ex: any) {
@@ -401,6 +409,7 @@ export class ForumHandler extends ForumOperate {
     }
 
     protected async performRetrieving(db: KnDBConnector, forumid: string, context?: KnContextInfo): Promise<KnRecordSet> {
+        if(!forumid || forumid.trim().length==0) return this.createRecordSet();
         let knsql = new KnSQL();
         knsql.append("select tforum.*,tdialect.dialectalias,tdialect.dialecttitle,dialectoptions ");
         knsql.append("from tforum,tdialect ");
@@ -412,6 +421,7 @@ export class ForumHandler extends ForumOperate {
     }
 
     protected async performRetrieveForumAgent(db: KnDBConnector, forumid: string, context?: KnContextInfo): Promise<KnRecordSet> {
+        if(!forumid || forumid.trim().length==0) return this.createRecordSet();
         let knsql = new KnSQL();
         knsql.append("SELECT agentid,forumtable,forumprompt,forumremark ");
         knsql.append("FROM tforumagent ");
@@ -718,6 +728,8 @@ export class ForumHandler extends ForumOperate {
                 version: row.forumdbversion,
                 webhook: row.webhook,
                 hookflag: row.hookflag,
+                agent: row.forumagent,
+                model: row.forummodel,
                 ragflag: row.ragflag,
                 ragactive: row.ragactive,
                 raglimit: row.raglimit,

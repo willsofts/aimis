@@ -65,7 +65,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 } });
     }
 
-    public async getForumConfig(db: KnDBConnector, category: string,context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
+    public override async getForumConfig(db: KnDBConnector, category: string,context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
         let handler = new ForumDocHandler();
         let result = await handler.getForumConfig(db,category,context);
         if(!result && throwNotFoundError) {
@@ -89,20 +89,21 @@ export class ChatImageHandler extends ChatPDFHandler {
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
         console.log(this.constructor.name+":[PROCESS QUEST]",quest);
+        let forum = await this.getForumConfiguration(context,quest,model);
         switch (quest.agent?.toLocaleUpperCase()) {            
             case "LLAVA" : 
             case "GEMMA" :
             case "LLAMA" : {
-                return await this.processQuestOllama(context, quest, model);
+                return await this.processQuestOllama(context, quest, forum, model);
             }
             case "GEMINI" :
             default : { //otherwise GEMINI
-                return await this.processQuestGemini(context, quest, model);
+                return await this.processQuestGemini(context, quest, forum, model);
             }
         }
     }
 
-    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -112,13 +113,13 @@ export class ChatImageHandler extends ChatPDFHandler {
             return Promise.resolve(info);
         }
         if(quest.async=="true") {
-            this.processQuestGeminiAsync(context, quest, model, img_info).catch((ex) => console.error(ex));
+            this.processQuestGeminiAsync(context, quest, forum, model, img_info).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestGeminiAsync(context, quest, model, img_info);
+        return await this.processQuestGeminiAsync(context, quest, forum, model, img_info);
     }
 
-    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -130,13 +131,12 @@ export class ChatImageHandler extends ChatPDFHandler {
         let category = quest.category;
         if(!category || category.trim().length==0) category = "DOCFILE";
         this.logger.debug(this.constructor.name+".processQuestGeminiAsync: quest:",quest);
+        let input = quest.question;
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
-        let input = quest.question;
-        let forum : ForumConfig | undefined = undefined;
+        //let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let chat = chatmap.get(category);
@@ -176,7 +176,7 @@ export class ChatImageHandler extends ChatPDFHandler {
         return info;
     }
 
-    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
+    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -186,13 +186,13 @@ export class ChatImageHandler extends ChatPDFHandler {
             return Promise.resolve(info);
         }
         if(quest.async=="true") {
-            this.processQuestOllamaAsync(context, quest, model, img_info).catch((ex) => console.error(ex));
+            this.processQuestOllamaAsync(context, quest, forum, model, img_info).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestOllamaAsync(context, quest, model, img_info);
+        return await this.processQuestOllamaAsync(context, quest, forum, model, img_info);
     }
 
-    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model, img_info?: FileImageInfo | null) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -206,10 +206,8 @@ export class ChatImageHandler extends ChatPDFHandler {
         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: quest:",quest);        
         let db = this.getPrivateConnector(model);
         let input = quest.question;
-        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let hasParam = img_info;
@@ -268,13 +266,13 @@ export class ChatImageHandler extends ChatPDFHandler {
         return info;
     }
 
-    public async processAsk(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
+    public override async processAsk(context: KnContextInfo, quest: QuestInfo) : Promise<InquiryInfo> {
         //this api accept image parameter as image stream directly
         let img_info = this.getImageInfo(quest.mime,quest.image);
-        return await this.processQuestion(quest,context,this.model,img_info);
+        return await this.processQuestion(context,quest,this.model,img_info);
     }
 
-    public override async processQuestion(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+    public override async processQuestion(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -283,14 +281,15 @@ export class ChatImageHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        let forum = await this.getForumConfiguration(context,quest,model);
         if(quest.async=="true") {
-            this.processQuestionAsync(quest, context, model, img_info).catch((ex) => console.error(ex));
+            this.processQuestionAsync(context,quest,forum,model,img_info).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestionAsync(quest, context, model, img_info);
+        return await this.processQuestionAsync(context, quest, forum,  model, img_info);
     }
 
-    public async processQuestionAsync(quest: QuestInfo, context: KnContextInfo, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
+    public async processQuestionAsync(context: KnContextInfo, quest: QuestInfo, forum? : ForumConfig, model: KnModel = this.model, img_info?: InlineImage) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -305,9 +304,9 @@ export class ChatImageHandler extends ChatPDFHandler {
         const aimodel = this.getAIModel(context);
         let db = this.getPrivateConnector(model);
         let input = quest.question;
-        let forum : ForumConfig | undefined = undefined;
+        //let forum : ForumConfig | undefined = undefined;
         try {
-            forum = await this.getForumConfig(db,category,context);
+            //forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestionAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestionAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let contents = this.getImagePrompt(forum?.prompt, forum?.tableinfo);

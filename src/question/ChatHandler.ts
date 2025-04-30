@@ -47,22 +47,25 @@ export class ChatHandler extends QuestionHandler {
 
     public override async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         this.logger.debug(this.constructor.name+":[PROCESS QUEST]",quest);
-        switch (quest.agent?.toLocaleUpperCase()) {            
+        let forum = await this.getForumConfiguration(context,quest,model);
+        if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
+        let agent = quest.agent || forum?.agent;
+        switch (agent?.toLocaleUpperCase()) {            
             case "CLAUDE": {
-                return await this.processQuestClaude(context, quest, model);
+                return await this.processQuestClaude(context, quest, forum, model);
             }
             case "GEMMA" :
             case "LLAMA" : {
-                return await this.processQuestOllama(context, quest, model);
+                return await this.processQuestOllama(context, quest, forum, model);
             }
             case "GEMINI" :
             default : { //otherwise GEMINI
-                return await this.processQuestGemini(context, quest, model);
+                return await this.processQuestGemini(context, quest, forum, model);
             }
         }
     }
 
-    public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public override async processQuestGemini(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -71,12 +74,12 @@ export class ChatHandler extends QuestionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestGeminiAsync(context, quest).catch((ex) => console.error(ex));
+            this.processQuestGeminiAsync(context, quest, forum).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestGeminiAsync(context, quest);
+        return await this.processQuestGeminiAsync(context, quest, forum);
     }
-    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestGeminiAsync(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -88,12 +91,12 @@ export class ChatHandler extends QuestionHandler {
         if(!category || category.trim().length==0) category = "AIDB";
         const aimodel = this.getAIModel(context);
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
+        //let db = this.getPrivateConnector(model);
+        //let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
+            //forum = await this.getForumConfig(db,category,context);
+            //if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;
@@ -216,14 +219,14 @@ export class ChatHandler extends QuestionHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
 		} finally {
-			if(db) db.close();
+			//if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuestGeminiAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
-    public override async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public override async processQuestClaude(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -232,13 +235,13 @@ export class ChatHandler extends QuestionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestClaudeAsync(context, quest).catch((ex) => console.error(ex));
+            this.processQuestClaudeAsync(context, quest, forum, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestClaudeAsync(context, quest);
+        return await this.processQuestClaudeAsync(context, quest, forum, model);
     }
 
-    public async processQuestClaudeAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestClaudeAsync(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -249,11 +252,7 @@ export class ChatHandler extends QuestionHandler {
         let category = quest.category;
         if(!category || category.trim().length==0) category = "AIDB";
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
         try {
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuestClaudeAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestClaudeAsync: correlation:",info.correlation,", category:",category+", input:",input);
@@ -304,15 +303,13 @@ export class ChatHandler extends QuestionHandler {
             info.error = true;
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
-		} finally {
-			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuestClaudeAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
-    public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public override async processQuestOllama(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -321,13 +318,13 @@ export class ChatHandler extends QuestionHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestOllamaAsync(context, quest).catch((ex) => console.error(ex));
+            this.processQuestOllamaAsync(context, quest, forum, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestOllamaAsync(context, quest);
+        return await this.processQuestOllamaAsync(context, quest, forum, model);
     }
 
-    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestOllamaAsync(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -338,12 +335,8 @@ export class ChatHandler extends QuestionHandler {
         let category = quest.category;
         if(!category || category.trim().length==0) category = "AIDB";        
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum.tableinfo;            
@@ -416,8 +409,6 @@ export class ChatHandler extends QuestionHandler {
             info.error = true;
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
-		} finally {
-			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));

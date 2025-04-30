@@ -1,9 +1,10 @@
-import { KnSetting } from "@willsofts/will-db";
 import { TknOperateHandler } from '@willsofts/will-serv';
+import { KnDataSet } from "@willsofts/will-core";
 import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_UPLOAD } from "../utils/EnvironmentVariable";
-import { RagInfo } from "../models/QuestionAlias";
+import { RagInfo, AgentModelInfo } from "../models/QuestionAlias";
 import FormData from 'form-data';
 import axios from 'axios';
+import agent_models from "../../config/model.json";
 
 const crypto = require('crypto');
 
@@ -36,6 +37,16 @@ export class ForumOperate extends TknOperateHandler {
             this.logger.error(this.constructor.name+".updateRagDocument: error:",ex);
         }
         return rag;
+    }
+
+    protected async getAgentModels() : Promise<KnDataSet> {
+        let result : KnDataSet = {};
+        agent_models.forEach((item:any) => { result[item.model] = item.name; });
+        return result;
+    }
+
+    protected async getModelItem(model: string) : Promise<AgentModelInfo | undefined> {
+        return agent_models.find((item:any) => item.model == model);
     }
 
 }

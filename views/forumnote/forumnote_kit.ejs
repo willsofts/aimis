@@ -30,6 +30,14 @@
 							<%-page.html('select',{map: data.entity?.sumdocs, value: data.dataset?.summaryid, id: "summaryid", name: "summaryid", class: "form-control input-md", empty: true })%>
 						</div>
 					</div>
+
+					<div class="col-height col-md-4">
+	<label for="forummodel" id="forummodel_label" class="control-label"><%=label.get('forummodel_label','Model')%></label>
+	<div class="input-group">
+	<%-page.html('select',{map: data.entity?.tmodels, value: data.dataset?.forummodel, id: "forummodel", name: "forummodel", class: "form-control input-md"})%>
+	</div>
+					</div>
+
 				</div>
 			</div>
 	</div>

@@ -1,4 +1,13 @@
+2025-04-30
+version: 1.0.37
++ forum support default agent & model setting (forum, forumnote, forumdoc)
+
+ALTER TABLE `tforum`
+	ADD COLUMN `forumagent` VARCHAR(50) NULL DEFAULT NULL AFTER `forumtype`,
+	ADD COLUMN `forummodel` VARCHAR(50) NULL DEFAULT NULL AFTER `forumagent`;
+
 2025-04-29
+version: 1.0.36
 + sumdoc: support rag
 + chatnote: support rag from sumdoc
 

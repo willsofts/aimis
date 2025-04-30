@@ -60,6 +60,8 @@ export interface ForumConfig extends KnDBConfig, SummaryInfo, RagInfo {
     version?: string; //forumdbversion
     webhook?: string; 
     hookflag?: string;
+    agent?: string; //forumagent
+    model?: string; //forummodel
 }
 
 export interface ImageInfo {
@@ -109,4 +111,10 @@ export interface QuestConfigureInfo {
     info: InquiryInfo,
     configure: KnDataSet | undefined;
     prompts: string;
+}
+
+export interface AgentModelInfo {
+    agent: string;
+    model: string;
+    name: string;
 }

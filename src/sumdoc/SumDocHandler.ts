@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { KnModel, KnOperation } from "@willsofts/will-db";
 import { KnDBConnector, KnSQLInterface, KnRecordSet, KnResultSet, KnSQL } from "@willsofts/will-sql";
 import { HTTP } from "@willsofts/will-api";
-import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility, KnDataSet } from '@willsofts/will-core';
+import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility } from '@willsofts/will-core';
 import { Utilities } from "@willsofts/will-util";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { TknAttachHandler } from "@willsofts/will-core";
@@ -17,7 +17,6 @@ import { PDFReader } from "../detect/PDFReader";
 import { ForumOperate } from "../forum/ForumOperate";
 import FormData from 'form-data';
 import fs from 'fs';
-import agent_models from "../../config/model.json";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -87,7 +86,7 @@ export class SumDocHandler extends ForumOperate {
     }
 
     protected override async assignParameters(context: KnContextInfo, sql: KnSQLInterface, action?: string, mode?: string) {        
-        let model_item = agent_models.find((item:any) => item.model == context.params.summarymodel);
+        let model_item = await this.getModelItem(context.params.summarymodel);
         let now = Utilities.now();
         sql.set("createdate",now,"DATE");
         sql.set("createtime",now,"TIME");
@@ -181,12 +180,6 @@ export class SumDocHandler extends ForumOperate {
     protected async performGetting(db: KnDBConnector, summaryid: string, context?: KnContextInfo): Promise<KnRecordSet> {
         return this.performRetrieving(db,summaryid,context,"summaryid,summarytitle,summaryfile,summaryflag,summarydocument");
     }    
-
-    protected async getAgentModels() : Promise<KnDataSet> {
-        let result : KnDataSet = {};
-        agent_models.forEach((item:any) => { result[item.model] = item.name; });
-        return result;
-    }
 
     protected override async doRetrieving(context: KnContextInfo, model: KnModel = this.model, action: string = KnOperation.RETRIEVE): Promise<KnDataTable> {
         let db = this.getPrivateConnector(model);

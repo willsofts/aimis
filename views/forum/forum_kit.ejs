@@ -14,6 +14,12 @@
 <%-page.html('select',{map: data.entity?.tdialect, value: data.dataset?.forumdialect, id: "forumdialect", name: "forumdialect", class: "form-control input-md"})%>
 <div class="input-group-required"><label class="required">*</label></div></div><div id="forumdialect_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('forumdialect_alert','You can not leave this empty')%></div>
 					</div>
+					<div class="col-height col-md-4">
+<label for="forummodel" id="forummodel_label" class="control-label"><%=label.get('forummodel_label','Model')%></label>
+<div class="input-group">
+<%-page.html('select',{map: data.entity?.tmodels, value: data.dataset?.forummodel, id: "forummodel", name: "forummodel", class: "form-control input-md"})%>
+<div class="input-group-required"><label class="required">&nbsp;</label></div></div><div id="forummodel_alert" role="alert" class="has-feedback has-error fa-hidden"><%=label.get('forummodel_alert','You can not leave this empty')%></div>
+					</div>
 				</div>
 			</div>
 	</div>

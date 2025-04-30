@@ -23,14 +23,14 @@ export class VisionHandler extends GenerativeHandler {
     public override async doAsk(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
         let correlationid = context.params.correlation || this.createCorrelation(context);
         let questionid = context.params.questionid || "";
-        return await this.processAsk({async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid, classify: context.params.classify, property: context.params.property}, context);
+        return await this.processAsk(context,{async: context.params.async, questionid: questionid, category: context.params.category, question: context.params.query, mime: context.params.mime, image: context.params.image,agent: context.params.agent, model: context.params.model || "", correlation: correlationid, classify: context.params.classify, property: context.params.property});
     }
 
     public async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
-        return await this.processQuestion(quest,context);
+        return await this.processQuestion(context,quest);
     }
 
-    public async processQuestion(quest: QuestInfo, context: KnContextInfo = this.getContext()) : Promise<InquiryInfo> {
+    public async processQuestion(context: KnContextInfo = this.getContext(), quest: QuestInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -40,13 +40,13 @@ export class VisionHandler extends GenerativeHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processQuestionAsync(quest, context).catch((ex) => console.error(ex));
+            this.processQuestionAsync(context, quest).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestionAsync(quest, context);
+        return await this.processQuestionAsync(context, quest);
     }
 
-    public async processQuestionAsync(quest: QuestInfo,context: KnContextInfo) : Promise<InquiryInfo> {
+    public async processQuestionAsync(context: KnContextInfo, quest: QuestInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -75,7 +75,7 @@ export class VisionHandler extends GenerativeHandler {
         return info;
     }
 
-    public async processAsk(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAsk(context: KnContextInfo, quest: QuestInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {
@@ -85,13 +85,13 @@ export class VisionHandler extends GenerativeHandler {
             return Promise.resolve(info);
         }
         if(String(quest.async)=="true") {
-            this.processAskAsync(quest, context).catch((ex) => console.error(ex));
+            this.processAskAsync(context,quest).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processAskAsync(quest, context);
+        return await this.processAskAsync(context,quest);
     }
 
-    public async processAskAsync(quest: QuestInfo, context: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAskAsync(context: KnContextInfo, quest: QuestInfo) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,"img",quest.image);
         if(!valid.valid) {

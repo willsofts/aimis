@@ -16,7 +16,7 @@ export class ChatDOCHandler extends ChatPDFHandler {
         alias: { privateAlias: this.section }, 
     };
 
-    public async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
+    public override async getForumConfig(db: KnDBConnector, category: string, context?: KnContextInfo, throwNotFoundError: boolean = false) : Promise<ForumConfig | undefined> {
         let handler = new ForumDocHandler();
         let result = await handler.getForumConfig(db,category,context);
         if(!result && throwNotFoundError) {
@@ -35,14 +35,16 @@ export class ChatDOCHandler extends ChatPDFHandler {
             info.answer = "No "+valid.info+" found.";
             return Promise.resolve(info);
         }
+        let forum = await this.getForumConfiguration(context,quest,model);
+        //if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
         if(String(quest.async)=="true") {
-            this.processQuestAsync(context, quest, model).catch((ex) => console.error(ex));
+            this.processQuestAsync(context, quest, forum, model).catch((ex) => console.error(ex));
             return Promise.resolve(info);
         }
-        return await this.processQuestAsync(context, quest, model);        
+        return await this.processQuestAsync(context, quest, forum, model);        
     }
 
-    public async processQuestAsync(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public override async processQuestAsync(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: "" };
         quest.mime = quest.mime || "DOC";
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
@@ -56,12 +58,10 @@ export class ChatDOCHandler extends ChatPDFHandler {
         if(!category || category.trim().length==0) category = "DOCFILE";
         this.logger.debug(this.constructor.name+".processQuestAsync: quest:",quest);
         const aimodel = this.getAIModel(context);
-        let db = this.getPrivateConnector(model);
         let input = quest.question;
-        let forum : ForumConfig | undefined = undefined;
+        let db = this.getPrivateConnector(model);
         try {
             const chatmap = ChatRepository.getInstance(info.correlation);
-            forum = await this.getForumConfig(db,category,context);
             this.logger.debug(this.constructor.name+".processQuestAsync: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuestAsync: correlation:",info.correlation,", category:",category+", input:",input);
             let table_info = forum?.tableinfo;
@@ -132,10 +132,10 @@ export class ChatDOCHandler extends ChatPDFHandler {
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
-    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
         return this.processQuest(context, quest, model);
     }
-    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, forum: ForumConfig | undefined, model: KnModel = this.model) : Promise<InquiryInfo> {
         return this.processQuest(context, quest, model);
     }
 }

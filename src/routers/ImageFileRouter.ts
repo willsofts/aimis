@@ -98,7 +98,7 @@ export class ImageFileRouter extends TknBaseRouter {
 				quest.image = stream;
 				quest.mime = file.mimetype;
 				let chatimage = new ChatImageHandler();
-				let info = await chatimage.processAsk(quest,context);
+				let info = await chatimage.processAsk(context,quest);
 				res.end(JSON.stringify(info));
 				return;
 			}

@@ -45,7 +45,7 @@ export class QuestionHandler extends GenerativeHandler {
         await this.validateInputFields(context, model, "query");
         let correlationid = context.params.correlation || this.createCorrelation(context);
         let questionid = context.params.questionid || "";
-        return this.processAsk({async: context.params.async, questionid: questionid, question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid, classify: context.params.classify, property: context.params.property},context);
+        return this.processAsk(context, {async: context.params.async, questionid: questionid, question: context.params.query, category: context.params.category || "AIDB", mime: context.params.mime, image: context.params.image, agent: context.params.agent, model: context.params.model || "", correlation: correlationid, classify: context.params.classify, property: context.params.property});
     }
 
     public async doReset(context: KnContextInfo, model: KnModel) : Promise<InquiryInfo> {
@@ -85,13 +85,19 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processQuest(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+        let forum = await this.getForumConfiguration(context,quest,model);
+        if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
         if(quest.agent=="GEMINI") {
-            return await this.processQuestGemini(context, quest, model);
+            return await this.processQuestGemini(context, quest, forum, model);
+        } else if(quest.agent=="LLAMA") {
+            return await this.processQuestOllama(context, quest, forum, model);
+        } else if(quest.agent=="CLAUDE") {
+            return await this.processQuestClaude(context, quest, forum, model);
         }
-        return await this.processQuestGemini(context, quest, model);        
+        return await this.processQuestGemini(context, quest, forum, model);        
     }
 
-    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestGemini(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -103,11 +109,7 @@ export class QuestionHandler extends GenerativeHandler {
         if(!category || category.trim().length==0) category = "AIDB";
         const aimodel = this.getAIModel(context);
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
         try {
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
@@ -152,15 +154,13 @@ export class QuestionHandler extends GenerativeHandler {
             info.error = true;
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
-		} finally {
-			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
-    public async processQuestClaude(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestClaude(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -171,11 +171,7 @@ export class QuestionHandler extends GenerativeHandler {
         let category = quest.category;
         if(!category || category.trim().length==0) category = "AIDB";
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
         try {
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
@@ -218,15 +214,13 @@ export class QuestionHandler extends GenerativeHandler {
             info.error = true;
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
-		} finally {
-			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
 
-    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestOllama(context: KnContextInfo, quest: QuestInfo, forum : ForumConfig, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
@@ -238,11 +232,7 @@ export class QuestionHandler extends GenerativeHandler {
         if(!category || category.trim().length==0) category = "AIDB";
         const aimodel = this.getAIModel(context);
         let input = quest.question;
-        let db = this.getPrivateConnector(model);
-        let forum : ForumConfig | undefined = undefined;
         try {
-            forum = await this.getForumConfig(db,category,context);
-            if(!forum) return Promise.reject(new VerifyError("Configuration not found",HTTP.NOT_FOUND,-16004));
             let table_info = forum.tableinfo;
             this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
             this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
@@ -287,8 +277,6 @@ export class QuestionHandler extends GenerativeHandler {
             info.error = true;
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
-		} finally {
-			if(db) db.close();
         }
         this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -299,9 +287,9 @@ export class QuestionHandler extends GenerativeHandler {
         return { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
     }
 
-    public async processQuestion(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestion(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         if(quest.agent=="GEMINI") {
-            return await this.processQuestionGemini(quest, context, model);
+            return await this.processQuestionGemini(quest, context, model);        
         }
         return await this.processQuestionGemini(quest, context, model);            
     }
@@ -366,24 +354,24 @@ export class QuestionHandler extends GenerativeHandler {
         return info;
     }
 
-    public async processAsk(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAsk(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {
         if(typeof quest == "string") {
-            return await this.processAskGemini(quest, context);
+            return await this.processAskGemini(context, quest);
         }
         console.log(this.constructor.name+":[PROCESS QUEST]",quest);
         switch (quest.agent?.toLocaleUpperCase()) {            
             case "GEMMA" :
             case "LLAMA" : {
-                return await this.processAskOllama(quest, context);
+                return await this.processAskOllama(context, quest);
             }
             case "GEMINI" : 
             default : { //otherwise GEMINI
-                return await this.processAskGemini(quest, context);
+                return await this.processAskGemini(context, quest);
             }
         }   
     }
 
-    public async processAskGemini(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAskGemini(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), classify: "", property: context?.params?.property};
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
@@ -412,7 +400,7 @@ export class QuestionHandler extends GenerativeHandler {
         return info;
     }
 
-    public async processAskOllama(quest: QuestInfo | string, context?: KnContextInfo) : Promise<InquiryInfo> {
+    public async processAskOllama(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {
         if(typeof quest == "string") quest = { async: "", questionid: "", question: quest, category: "AIDB", mime: "", image: "", agent: "", model:"", correlation: uuid(), classify: "", property: context?.params?.property};
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {

@@ -37,3 +37,18 @@
 			</div>
 	</div>
 </div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
+			<div class="table-layer-class">
+				<div class="row row-height">
+					<div class="col-height col-md-4">
+	<label for="forummodel" id="forummodel_label" class="control-label"><%=label.get('forummodel_label','Model')%></label>
+	<div class="input-group">
+	<%-page.html('select',{map: data.entity?.tmodels, value: data.dataset?.forummodel, id: "forummodel", name: "forummodel", class: "form-control input-md"})%>
+	</div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+	

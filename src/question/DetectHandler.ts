@@ -42,7 +42,7 @@ export class DetectHandler extends VisionHandler {
                 let detector = new PDFReader();
                 let data = await detector.detectText(image_info.file);
                 this.logger.debug(this.constructor.name+".processQuest: data:",data);
-                info = await this.processAsk(quest,context,data.text);
+                info = await this.processAsk(context,quest,data.text);
             } else {
                 info.error = true;
                 info.statuscode = "NO-FILE";
@@ -61,7 +61,7 @@ export class DetectHandler extends VisionHandler {
         return info;
     }
 
-    public async processQuestion(quest: QuestInfo, context: KnContextInfo = this.getContext(), model: KnModel = this.model) : Promise<InquiryInfo> {
+    public override async processQuestion(context: KnContextInfo = this.getContext(), quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         let info : InquiryInfo = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         let valid = this.validateParameter(quest.question,quest.mime,quest.image);
         if(!valid.valid) {
@@ -77,7 +77,7 @@ export class DetectHandler extends VisionHandler {
             let detector = new PDFReader();
             let data = await detector.detectText(quest.image); //quest.image is file path
             this.logger.debug(this.constructor.name+".processQuestion: data:",data);
-            info = await this.processAsk(quest,context,data.text);
+            info = await this.processAsk(context,quest,data.text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
             info.error = true;
@@ -97,7 +97,7 @@ export class DetectHandler extends VisionHandler {
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
     }
 
-    public override async processAsk(quest: QuestInfo, context: KnContextInfo, document?: string) : Promise<InquiryInfo> {
+    public override async processAsk(context: KnContextInfo, quest: QuestInfo, document?: string) : Promise<InquiryInfo> {
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: document };
         if(!quest.question || quest.question.trim().length == 0) {
             info.error = true;
