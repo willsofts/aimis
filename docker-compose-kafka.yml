@@ -3,6 +3,7 @@ services:
   apachekafka:
     image: apache/kafka:3.7.0
     container_name: apachekafka
+    restart: always
     ports:
       - 9092:9092
       - 9093:9093

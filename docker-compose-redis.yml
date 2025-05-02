@@ -3,6 +3,7 @@ services:
   redisstack:
     image: redis:6-alpine
     container_name: redisstack
+    restart: always
     ports:
       - 6379:6379
 
