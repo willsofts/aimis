@@ -1,4 +1,5 @@
 import { ServiceSchema } from "moleculer";
+const os = require("os");
 
 const HealthCheckService : ServiceSchema = {
     name: "health",
@@ -6,7 +7,7 @@ const HealthCheckService : ServiceSchema = {
         check(ctx: any) {
             ctx.meta.$responseRaw = true; 
             ctx.meta.$responseType = "application/json";    
-            return {status: "OK"};
+            return {status: "OK", hostname: os.hostname(), pid: process.pid};
         },
     },
 };
