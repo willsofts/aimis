@@ -497,7 +497,7 @@ export class SumDocHandler extends ForumOperate {
             //let rag = await this.getRagInfo(context,db,forumid);
             form.append("chunk_size",Utilities.parseInteger(rag.ragchunksize) || "250");
             form.append("chunk_overlap",Utilities.parseInteger(rag.ragchunkoverlap) || "10");
-            await this.updateRagDocument(form,rag);
+            await this.updateRagDocument(context,form,rag);
             await this.performUpdateRag(context,db,suminfo.summaryid,rag);
         }
     }
