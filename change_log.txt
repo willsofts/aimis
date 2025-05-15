@@ -1,3 +1,21 @@
+2025-05-15
+version: 1.0.38
++ support rag async call in order to prevent error time out of long time process
++ support webhook to accept rag async call back in order to update state
+	+ /api/rag/sync 
+
+ALTER TABLE `tforum`
+	ADD COLUMN `ragremark` TEXT NULL DEFAULT NULL AFTER `ragnote`;
+ALTER TABLE `tsummarydocument`
+	ADD COLUMN `ragremark` TEXT NULL DEFAULT NULL AFTER `ragnote`;
+		
+2025-05-09
++ add defaultflag for forum & forum note setting
++ chatter api try out default forum (defaultflag=1) when category name not found
+
+ALTER TABLE `tforum`
+	ADD COLUMN `defaultflag` VARCHAR(1) NOT NULL DEFAULT '0' COMMENT '1=Default' AFTER `shareflag`;
+
 2025-04-30
 version: 1.0.37
 + forum support default agent & model setting (forum, forumnote, forumdoc)

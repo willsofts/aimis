@@ -24,6 +24,7 @@ const forum : ForumConfig = {
     version: "",
     webhook: "",
     hookflag: "",
+    ragasync: false,
 };
 const handler = new QuestionHandler();
 handler.processAPI(input,cat,{correlation:coid,questionid:qid,question:"",mime:"",image:"",category:cat},forum).then((result) => {

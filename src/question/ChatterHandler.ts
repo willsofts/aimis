@@ -1,7 +1,7 @@
 import { HTTP } from "@willsofts/will-api";
 import { KnModel } from "@willsofts/will-db";
 import { KnContextInfo, KnDataSet, VerifyError } from "@willsofts/will-core";
-import { PRIVATE_SECTION, API_ANSWER_CHATTER, API_MODEL, API_MODEL_LLAMA } from "../utils/EnvironmentVariable";
+import { PRIVATE_SECTION, API_ANSWER_CHATTER, API_MODEL, API_MODEL_LLAMA, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 import { QuestInfo, InquiryInfo, ForumConfig, QuestConfigureInfo } from "../models/QuestionAlias";
 import { GenerativeHandler } from "./GenerativeHandler";
 import { FilterQuestHandler, PREFIX_PROMPT, JSON_PROMPT } from "../filterquest/FilterQuestHandler";
@@ -184,33 +184,44 @@ export class ChatterHandler extends GenerativeHandler {
             this.logging(context,quest,[text]);
             let jsonstr = this.parseJSONAnswer(text);
             let json = undefined;
-            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error(ex); }
+            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error("parse json error",ex,"json string",jsonstr); }
             if(!json) {
                 info.error = true;
                 info.answer = jsonstr;
             } else {
+                let forum;
+                let checkforum = false;
                 this.logger.debug(this.constructor.name+".processQuestGeminiAsync: json answer",json); 
                 if(!json.category_name || json.category_name.trim().length==0) {
-                    if(API_ANSWER_CHATTER) {
-                        this.logging(context,quest,[quest.question]);
-                        result = await aimodel.generateContent(quest.question);
-                        response = result.response;
-                        text = response.text();
-                        this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
-                        this.saveTokenUsage(context,quest,quest.question,aimodel);
-                        this.logging(context,quest,[text]);
-                        info.answer = this.parseAnswer(text);
+                    forum = configure.forumlists.find((item:any) => item.defaultflag == "1");
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: category not found using default forum",forum);
+                    if(!forum) {
+                        if(API_ANSWER_CHATTER) {
+                            this.logging(context,quest,[quest.question]);
+                            result = await aimodel.generateContent(quest.question);
+                            response = result.response;
+                            text = response.text();
+                            this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
+                            this.saveTokenUsage(context,quest,quest.question,aimodel);
+                            this.logging(context,quest,[text]);
+                            info.answer = this.parseAnswer(text);
+                        } else {
+                            info.error = true;
+                            info.answer = json.category_feedback || "Cannot classify question into category";
+                        }
                     } else {
-                        info.error = true;
-                        info.answer = json.category_feedback || "Cannot classify question into category";
+                        checkforum = true;
                     }
                 } else {
-                    let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: forum",forum);
+                    checkforum = true;
+                    forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: find forum from category",json.category_name,"forum",forum);
+                }
+                if(checkforum) {
                     if(forum) {
                         let params : any = {...quest, query: quest.question, question: "", hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
                         params.agent = configure?.agentid || quest.agent || "GEMINI";
-                        params.category = json.category_name;
+                        params.category = forum.forumid;
                         params.classify = info.category;
                         this.logger.debug(this.constructor.name+".processQuestGeminiAsync: params",params);
                         params.authtoken = this.getTokenKey(context);
@@ -261,31 +272,42 @@ export class ChatterHandler extends GenerativeHandler {
             this.logging(context,quest,[text]);
             let jsonstr = this.parseJSONAnswer(text);
             let json = undefined;
-            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error(ex); }
+            try { json = JSON.parse(jsonstr); } catch(ex) { this.logger.error("parse json error",ex,"json string",jsonstr); }
             if(!json) {
                 info.error = true;
                 info.answer = jsonstr;
             } else {
+                let forum;
+                let checkforum = false;
                 this.logger.debug(this.constructor.name+".processQuestOllamaAsync: json answer",json); 
                 if(!json.category_name || json.category_name.trim().length==0) {
-                    if(API_ANSWER_CHATTER) {
-                        this.logging(context,quest,[quest.question]);
-                        result = await ollamaGenerate(quest.question, quest.model);
-                        text = result.response;
-                        this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
-                        this.logging(context,quest,[text]);
-                        info.answer = this.parseAnswer(text);
+                    forum = configure.forumlists.find((item:any) => item.defaultflag == "1");
+                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: category not found using default forum",forum);
+                    if(!forum) {
+                        if(API_ANSWER_CHATTER) {
+                            this.logging(context,quest,[quest.question]);
+                            result = await ollamaGenerate(quest.question, quest.model);
+                            text = result.response;
+                            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
+                            this.logging(context,quest,[text]);
+                            info.answer = this.parseAnswer(text);
+                        } else {
+                            info.error = true;
+                            info.answer = json.category_feedback || "Cannot classify question into category";
+                        }
                     } else {
-                        info.error = true;
-                        info.answer = json.category_feedback || "Cannot classify question into category";
+                        checkforum = true;
                     }
                 } else {
-                    let forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: forum",forum);
+                    checkforum = true;
+                    forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
+                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: find forum from category",json.category_name,"forum",forum);
+                }
+                if(checkforum) {
                     if(forum) {
                         let params : any = {...quest, query: quest.question, question: "", hookflag: forumcfg?.hookflag, webhook: forumcfg?.webhook };
                         params.agent = configure?.agentid || quest.agent || "LLAMA";
-                        params.category = json.category_name;
+                        params.category = forum.forumid;
                         params.classify = info.category;
                         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: params",params);
                         params.authtoken = this.getTokenKey(context);
@@ -322,7 +344,7 @@ export class ChatterHandler extends GenerativeHandler {
         return { 
             hookflag: configure?.hookflag, webhook: configure?.webhook,
             schema: "", alias: "", dialect: "", url: "", user: "", password: "", 
-            caption: "", title: "", type: "", tableinfo: "",
+            caption: "", title: "", type: "", tableinfo: "", ragasync: RAG_API_ASYNC,
         };
     }
 

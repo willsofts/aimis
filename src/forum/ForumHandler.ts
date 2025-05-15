@@ -6,7 +6,7 @@ import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility,
 import { Utilities } from "@willsofts/will-util";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { ForumConfig, SummaryDocumentInfo } from "../models/QuestionAlias";
-import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { PRIVATE_SECTION, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
 import { ForumOperate } from "./ForumOperate";
 
@@ -46,6 +46,7 @@ export class ForumHandler extends ForumOperate {
             webhook: { type: "STRING", updated: true },
             editflag: { type: "STRING", selected: true, created: true, updated: false, defaultValue: "1" },
             shareflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
+            defaultflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             summaryid: { type: "STRING", selected: true, created: true, updated: true },
             ragflag: { type: "STRING", selected: true, created: true, updated: true, defaultValue: "0" },
             ragactive: { type: "STRING", selected: true },
@@ -489,6 +490,8 @@ export class ForumHandler extends ForumOperate {
         dt.renderer = this.progid+"/"+this.progid+"_dialog";
         dt.dataset["forumid"] = uuid();
         dt.dataset["hookflag"] = "0";
+        dt.dataset["shareflag"] = "0";
+        dt.dataset["defaultflag"] = "0";
         return dt;
     }
     
@@ -533,6 +536,7 @@ export class ForumHandler extends ForumOperate {
         knsql.set("createuser",this.userToken?.userid);
         knsql.set("editflag","1");
         knsql.set("shareflag",context.params.shareflag || "0");
+        knsql.set("defaultflag",context.params.defaultflag || "0");
         let rs = await knsql.executeUpdate(db,context);
         let rcs = this.createRecordSet(rs);
         if(rcs.records>0) {
@@ -730,6 +734,7 @@ export class ForumHandler extends ForumOperate {
                 hookflag: row.hookflag,
                 agent: row.forumagent,
                 model: row.forummodel,
+                ragasync: RAG_API_ASYNC,
                 ragflag: row.ragflag,
                 ragactive: row.ragactive,
                 raglimit: row.raglimit,

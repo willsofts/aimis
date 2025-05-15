@@ -136,6 +136,19 @@
 </div>
 <div class="row row-height">
 	<div class="col-md-12 col-height">
+			<div class="table-layer-class" id="webhooklayer">
+				<div class="row row-height">
+					<div class="col-height col-md-10">
+						<div class="checkbox checkbox form-check">
+							<input type="checkbox" value="1" id="defaultflag" name="defaultflag" class="form-control input-md form-check-input" <%=page.checked('1',data.dataset?.defaultflag)%> /><label for="defaultflag" id="defaultflag_label" class="control-label form-check-label"><%=label.get('defaultflag_label','Default as other for classify category')%></label>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="row row-height">
+	<div class="col-md-12 col-height">
 			<div class="table-layer-class">
 				<div class="row row-height">
 					<div class="col-height col-md-12">

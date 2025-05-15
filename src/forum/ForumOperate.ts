@@ -1,6 +1,6 @@
 import { TknOperateHandler } from '@willsofts/will-serv';
 import { KnDataSet } from "@willsofts/will-core";
-import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_UPLOAD } from "../utils/EnvironmentVariable";
+import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_UPLOAD, RAG_API_URL_UPLOAD_ASYNC, RAG_API_URL_UPLOAD_ASYNC_WEBHOOK } from "../utils/EnvironmentVariable";
 import { RagInfo, AgentModelInfo } from "../models/QuestionAlias";
 import FormData from 'form-data';
 import axios from 'axios';
@@ -18,6 +18,9 @@ export class ForumOperate extends TknOperateHandler {
     }
 
     protected async updateRagDocument(form: FormData, rag: RagInfo) : Promise<RagInfo> {
+        if(rag.ragasync) {
+            return this.updateRagDocumentAsync(form,rag);
+        }
         rag.ragactive = "0";
         try {
             let url = RAG_API_URL + RAG_API_URL_UPLOAD;
@@ -35,6 +38,28 @@ export class ForumOperate extends TknOperateHandler {
         } catch(ex: any) {
             rag.ragnote = ex.message;
             this.logger.error(this.constructor.name+".updateRagDocument: error:",ex);
+        }
+        return rag;
+    }
+
+    protected async updateRagDocumentAsync(form: FormData, rag: RagInfo) : Promise<RagInfo> {
+        rag.ragactive = "0";
+        try {
+            //this is async call in order to prevent error time out of long time process
+            //this must define webhook url in order to accept response
+            form.append("webhook_url",RAG_API_URL_UPLOAD_ASYNC_WEBHOOK);
+            let url = RAG_API_URL + RAG_API_URL_UPLOAD_ASYNC;
+            const response = await axios.post(url, form, {
+                headers: {
+                    'x-api-key': RAG_API_KEY,
+                    ...form.getHeaders(),
+                },
+            });    
+            this.logger.debug(this.constructor.name+'.updateRagDocumentAsync: success:', response.data);
+            rag.ragnote = JSON.stringify(response.data);
+        } catch(ex: any) {
+            rag.ragnote = ex.message;
+            this.logger.error(this.constructor.name+".updateRagDocumentAsync: error:",ex);
         }
         return rag;
     }

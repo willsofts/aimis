@@ -7,7 +7,7 @@ import { TknOperateHandler } from '@willsofts/will-serv';
 import { ForumConfig, KnInquirySet, QuestInfo } from "../models/QuestionAlias";
 import { ForumHandler } from "../forum/ForumHandler";
 import { QuestionUtility } from "./QuestionUtility";
-import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
+import { PRIVATE_SECTION, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 
 export class InquiryHandler extends TknOperateHandler {
     public section = PRIVATE_SECTION;
@@ -164,6 +164,7 @@ export class InquiryHandler extends TknOperateHandler {
             database: context.params.database, 
             webhook: context.params.webhook,       
             hookflag: context.params.hookflag,
+            ragasync: RAG_API_ASYNC,
         };
     }
 

@@ -8,7 +8,7 @@ import { TknAttachHandler, KnPageUtility } from "@willsofts/will-core";
 import { FileImageInfo, RagInfo } from "../models/QuestionAlias";
 import { QuestionUtility } from "../question/QuestionUtility";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
-import { API_KEY, API_MODEL, ALWAYS_RAG } from "../utils/EnvironmentVariable";
+import { API_KEY, API_MODEL, ALWAYS_RAG, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { PromptUtility } from "../question/PromptUtility";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
@@ -153,6 +153,7 @@ export class ForumNoteHandler extends ForumHandler {
             }
             if(ALWAYS_RAG) {
                 let rag : RagInfo = {
+                    ragasync: RAG_API_ASYNC,
                     ragflag: context.params.ragflag || "1", ragactive: "0", 
                     raglimit: Utilities.parseInteger(context.params.raglimit) || 10,
                     ragchunksize: Utilities.parseInteger(context.params.ragchunksize) || 250,
@@ -171,6 +172,7 @@ export class ForumNoteHandler extends ForumHandler {
         if(rs.rows.length>0) {
             let row = rs.rows[0];
             result = {
+                ragasync: RAG_API_ASYNC,
                 ragflag: row.ragflag,
                 ragactive: row.ragactive,
                 raglimit: row.raglimit,
@@ -209,9 +211,13 @@ export class ForumNoteHandler extends ForumHandler {
         }
     }
 
-    protected async performUpdateRag(context: KnContextInfo, db: KnDBConnector, forumid: string, rag: RagInfo) : Promise<KnRecordSet> {
+    public async performUpdateRag(context: KnContextInfo, db: KnDBConnector, forumid: string, rag: RagInfo) : Promise<KnRecordSet> {
         let sql = new KnSQL();
-        sql.append("update tforum set ragactive = ?ragactive, ragnote = ?ragnote ");
+        sql.append("update tforum set ");
+        if(!rag.ragasync) {
+            sql.append("ragactive = ?ragactive, ");
+        }
+        sql.append("ragnote = ?ragnote ");
         sql.append("where forumid = ?forumid ");
         sql.set("forumid",forumid);
         sql.set("ragactive",rag.ragactive);

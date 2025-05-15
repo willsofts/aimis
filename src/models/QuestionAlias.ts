@@ -31,6 +31,7 @@ export interface InquiryInfo {
 }
 
 export interface RagInfo {
+    ragasync: boolean;
     ragflag?: string;
     ragactive?: string;
     raglimit?: number; 

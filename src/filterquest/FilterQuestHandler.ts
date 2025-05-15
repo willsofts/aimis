@@ -9,7 +9,7 @@ import { PRIVATE_SECTION } from "../utils/EnvironmentVariable";
 import { ForumHandler } from "../forum/ForumHandler";
 
 export const PREFIX_PROMPT = "Try to classify the question into the following categories:";
-export const JSON_PROMPT = `After classified the question then answer in JSON data with the following format (with out mark down code and double quote on key attributes):
+export const JSON_PROMPT = `After classified the question must answer in JSON data always with the following format (do not mark down code and double quote on key attributes):
     {
         "category_name": "The category_name found from defined categories ex. 'Category1', but if not found then let null",
         "category_feedback": "In case of not found from defined categories then try to feedback by answer the question ex. your question out of scope, otherwise let it null",
@@ -281,17 +281,20 @@ export class FilterQuestHandler extends TknOperateHandler {
 
     public async performForumUpdating(db: KnDBConnector, forumid: string, context: KnContextInfo): Promise<KnRecordSet> {
         if(!forumid || forumid.trim().length == 0) return this.createRecordSet();
+        let defaultflag = "0";
         let hookflag = "0";
         if(context.params.hookflag && context.params.hookflag.trim().length>0) hookflag = context.params.hookflag;
+        if(context.params.defaultflag && context.params.defaultflag.trim().length>0) defaultflag = context.params.defaultflag;
         let now = Utilities.now();
         let knsql = new KnSQL();
-        knsql.append("update tforum set classifyprompt=?classifyprompt, hookflag=?hookflag, webhook=?webhook, ");
+        knsql.append("update tforum set classifyprompt=?classifyprompt, hookflag=?hookflag, webhook=?webhook, defaultflag=?defaultflag, ");
         knsql.append("editdate=?editdate, edittime=?edittime, ");
         knsql.append("editmillis=?editmillis, edituser=?edituser ");
         knsql.append("where forumid = ?forumid ");
         knsql.set("forumid",forumid);
         knsql.set("hookflag",hookflag);
         knsql.set("webhook",context.params.webhook);
+        knsql.set("defaultflag",defaultflag);
         knsql.set("classifyprompt",context.params.classifyprompt);
         knsql.set("editdate",now,"DATE");
         knsql.set("edittime",now,"TIME");
@@ -304,7 +307,7 @@ export class FilterQuestHandler extends TknOperateHandler {
     public async getForumInGroup(db: KnDBConnector, filterid: string, context?: KnContextInfo): Promise<KnRecordSet> {
         if(!filterid || filterid.trim().length == 0) return this.createRecordSet();
         let knsql = new KnSQL();
-        knsql.append("select tfilterquestforum.forumid,tforum.forumgroup,tforum.classifyprompt ");
+        knsql.append("select tfilterquestforum.forumid,tforum.defaultflag,tforum.forumgroup,tforum.classifyprompt ");
         knsql.append("from tfilterquestforum, tforum ");
         knsql.append("where tfilterquestforum.filterid = ?filterid ");
         knsql.append("and tfilterquestforum.forumid = tforum.forumid ");

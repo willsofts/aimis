@@ -7,7 +7,7 @@ import { VerifyError, KnValidateInfo, KnContextInfo, KnDataTable, KnPageUtility 
 import { Utilities } from "@willsofts/will-util";
 import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { TknAttachHandler } from "@willsofts/will-core";
-import { PRIVATE_SECTION, ALWAYS_RAG } from "../utils/EnvironmentVariable";
+import { PRIVATE_SECTION, ALWAYS_RAG, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 import { SummaryDocumentInfo, InlineImage, RagInfo } from "../models/QuestionAlias";
 import { API_KEY, API_MODEL } from "../utils/EnvironmentVariable";
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
@@ -453,6 +453,7 @@ export class SumDocHandler extends ForumOperate {
                 let info = { summaryid: summaryid, summarytitle: suminfo.summarytitle, summaryflag: suminfo.summaryflag };
                 if(ALWAYS_RAG) {
                     let rag : RagInfo = {
+                        ragasync: RAG_API_ASYNC,
                         ragflag: suminfo.ragflag || "1", ragactive: "0", 
                         raglimit: suminfo.raglimit || 10,
                         ragchunksize: suminfo.ragchunksize || 250,
@@ -501,9 +502,13 @@ export class SumDocHandler extends ForumOperate {
         }
     }
 
-    protected async performUpdateRag(context: KnContextInfo, db: KnDBConnector, summaryid: string, rag: RagInfo) : Promise<KnRecordSet> {
+    public async performUpdateRag(context: KnContextInfo, db: KnDBConnector, summaryid: string, rag: RagInfo) : Promise<KnRecordSet> {
         let sql = new KnSQL();
-        sql.append("update tsummarydocument set ragactive = ?ragactive, ragnote = ?ragnote ");
+        sql.append("update tsummarydocument set ");
+        if(!rag.ragasync) {
+            sql.append("ragactive = ?ragactive, ");
+        }
+        sql.append("ragnote = ?ragnote ");
         sql.append("where summaryid = ?summaryid ");
         sql.set("summaryid",summaryid);
         sql.set("ragactive",rag.ragactive);
@@ -556,7 +561,7 @@ export class SumDocHandler extends ForumOperate {
             let row = rs.rows[0];
             return { 
                 summaryid: summaryid, summarytitle: row.summarytitle, summaryagent: row.summaryagent, summarymodel: row.summarymodel, summaryprompt: row.summaryprompt, summarydocument: row.summarydocument,
-                ragflag: row.ragflag, ragactive: row.ragactive, raglimit: row.raglimit, ragchunksize: row.ragchunksize, ragchunkoverlap: row.ragchunkoverlap 
+                ragasync: RAG_API_ASYNC, ragflag: row.ragflag, ragactive: row.ragactive, raglimit: row.raglimit, ragchunksize: row.ragchunksize, ragchunkoverlap: row.ragchunkoverlap
             };
         }
         return undefined;

@@ -31,7 +31,11 @@ export const MAX_EXPIRE_DATE: string = config.env("MAX_EXPIRE_DATE","31/12/9000"
 export const MENU_TREE: boolean = config.env("MENU_TREE","true") === "true";
 
 export const ALWAYS_RAG: boolean = config.env("ALWAYS_RAG","true") === "true";
+export const RAG_API_ASYNC: boolean = config.env("RAG_API_ASYNC","true") === "true";
 export const RAG_API_KEY: string = config.env("RAG_API_KEY","Z3uR+8JRx1MeZEDSpOqgPw==");
 export const RAG_API_URL: string = config.env("RAG_API_URL","http://172.31.199.217:8000");
 export const RAG_API_URL_UPLOAD: string = config.env("RAG_API_URL_UPLOAD","/api/rag/vector/store/file");
 export const RAG_API_URL_SEARCH: string = config.env("RAG_API_URL_SEARCH","/api/rag/search/semantic");
+export const RAG_API_URL_UPLOAD_ASYNC: string = config.env("RAG_API_URL_UPLOAD_ASYNC","/api/rag/vector/store/file/async");
+export const RAG_API_URL_UPLOAD_ASYNC_WEBHOOK: string = config.env("RAG_API_URL_UPLOAD_ASYNC_WEBHOOK","https://172.31.199.217:8077/api/rag/sync");
+export const RAG_API_KEY_SYNC_VALIDATE: boolean = config.env("RAG_API_KEY_SYNC_VALIDATE","true") === "true";

@@ -20,6 +20,7 @@ let cfg : ForumConfig = {
     version: "",
     webhook: "",
     hookflag: "",
+    ragasync: false,
 };
 
 let args = process.argv.slice(2);
