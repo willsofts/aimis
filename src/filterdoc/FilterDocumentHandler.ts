@@ -585,7 +585,8 @@ export class FilterDocumentHandler extends TknOperateHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".doCategorizeDocument: response.text:",text);
-            this.saveTokenUsage(context,quest,prompt,aimodel);
+            //this.saveTokenUsage(context,quest,prompt,aimodel);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             let jsonstr = this.parseJSONAnswer(text);
             ds = JSON.parse(jsonstr);
         }

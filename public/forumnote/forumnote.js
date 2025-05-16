@@ -502,13 +502,14 @@ function uploadFile(aform) {
 	}			
 	if($.trim($("#fileid").val())!="") $("#attachid").val($("#fileid").val());
 	if($.trim($("#forumurl").val())!="") $("#attachid").val($("#forumurl").val());
+	let authtoken = getAccessorToken();
 	startWaiting();
-	let fd = new FormData(aform);
 	jQuery.ajax({
 		url: "/upload/file",
 		type: "POST",
 		dataType: "html",
 		data: fd,
+		headers : { "authtoken": authtoken },
 		enctype: "multipart/form-data",
 		processData: false, 
 		contentType: false, 

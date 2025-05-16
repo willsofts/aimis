@@ -101,7 +101,7 @@ export class ForumNoteHandler extends ForumHandler {
         return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
     }
 
-    public async readDucumentFile(filePath: string, cleansing: string,context?: any) : Promise<any> {
+    public async readDucumentFile(context: KnContextInfo, filePath: string, cleansing: string, forumid: string) : Promise<any> {
         this.logger.debug(this.constructor.name+".readDucumentFile: file:",filePath);
         let isCleansing = cleansing == "1";
         let isPDF = path.extname(filePath).toLowerCase() == ".pdf";
@@ -114,6 +114,8 @@ export class ForumNoteHandler extends ForumHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".readDucumentFile: response:",text);
+            let quest = { agent: "GEMINI", model: API_MODEL, questionid: "", correlation: context.meta.session?.correlation, question: "", mime: "", image: "", category: forumid };
+            this.saveUsage(context,quest,result.response.usageMetadata);
             data.cleartext = text;
         }
         return Promise.resolve(data);
@@ -128,7 +130,7 @@ export class ForumNoteHandler extends ForumHandler {
         let file_info = await this.getFileImageInfo(fileid || fileattachid,db);
         this.logger.debug(this.constructor.name+".updateDocumentInfo: fileinfo",file_info);
         if(file_info && file_info.file.length > 0) {
-            let data = await this.readDucumentFile(file_info.file,cleansing,context);
+            let data = await this.readDucumentFile(context,file_info.file,cleansing,forumid);
             if(data && data.text && data.text.trim().length > 0) {
                 let cleartext = data.cleartext ? data.cleartext : data.text; 
                 let sql = new KnSQL();

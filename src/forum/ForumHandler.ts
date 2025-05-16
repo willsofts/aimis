@@ -8,9 +8,9 @@ import { OPERATE_HANDLERS } from '@willsofts/will-serv';
 import { ForumConfig, SummaryDocumentInfo } from "../models/QuestionAlias";
 import { PRIVATE_SECTION, RAG_API_ASYNC } from "../utils/EnvironmentVariable";
 import { SumDocHandler } from "../sumdoc/SumDocHandler";
-import { ForumOperate } from "./ForumOperate";
+import { GenerativeOperate } from "../handlers/GenerativeOperate";
 
-export class ForumHandler extends ForumOperate {
+export class ForumHandler extends GenerativeOperate {
     public section = PRIVATE_SECTION;
     public group = "DB";
     public progid = "forum";

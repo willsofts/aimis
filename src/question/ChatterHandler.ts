@@ -180,7 +180,8 @@ export class ChatterHandler extends GenerativeHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);            
-            this.saveTokenUsage(context,quest,promptcontents,aimodel);
+            //this.saveTokenUsage(context,quest,promptcontents,aimodel);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             this.logging(context,quest,[text]);
             let jsonstr = this.parseJSONAnswer(text);
             let json = undefined;
@@ -202,7 +203,8 @@ export class ChatterHandler extends GenerativeHandler {
                             response = result.response;
                             text = response.text();
                             this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
-                            this.saveTokenUsage(context,quest,quest.question,aimodel);
+                            //this.saveTokenUsage(context,quest,quest.question,aimodel);
+                            this.saveUsage(context,quest,result.response.usageMetadata);
                             this.logging(context,quest,[text]);
                             info.answer = this.parseAnswer(text);
                         } else {

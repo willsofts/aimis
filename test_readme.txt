@@ -52,5 +52,47 @@ curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "categ
 curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all employee leave quota"
 
 4. not found category
-curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all employee family services""
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=List all employee family services"
+
+5. chat note : holiday sec.
+curl -X POST -H "AuthToken: ?" http://localhost:8080/api/chatter/quest -d "category=QUESTCLASSIFY&query=How many holidays of total?"
+
+
+test: summary documents
++ upload file 
+curl -X POST http://localhost:8080/upload/file -F filename=@D:\node\willsofts\aimis\pdf\Holiday_2568_GROUP.pdf -F type=SUM -F group=SUM -F no=8d593f62-0b9f-11f0-9a18-00155d8f9de9
+curl -X POST http://localhost:8080/upload/file -F filename=@D:\node\willsofts\aimis\pdf\Holiday_2568_SEC.pdf -F type=SUM -F group=SUM -F no=8d593f62-0b9f-11f0-9a18-00155d8f9de9
+
+{"head":{"model":"upload","method":"file","errorcode":"0","errorflag":"N","errordesc":""},"body":{"records":1,"rows":{"affectedRows":1,"attachid":"ff348d1b-0859-42d3-9cd8-f8d172530054","attachno":"8d593f62-0b9f-11f0-9a18-00155d8f9de9","attachtype":"SUM","sourcefile":"Holiday_2568_GROUP.pdf","attachfile":"ff348d1b-0859-42d3-9cd8-f8d172530054.pdf","attachsize":235507,"mimetype":"application/pdf","attachgroup":"SUM"},"columns":null}}
+{"head":{"model":"upload","method":"file","errorcode":"0","errorflag":"N","errordesc":""},"body":{"records":1,"rows":{"affectedRows":1,"attachid":"13a772f6-7272-429e-a2ae-f9ea0116f452","attachno":"8d593f62-0b9f-11f0-9a18-00155d8f9de9","attachtype":"SUM","sourcefile":"Holiday_2568_SEC.pdf","attachfile":"13a772f6-7272-429e-a2ae-f9ea0116f452.pdf","attachsize":186560,"mimetype":"application/pdf","attachgroup":"SUM"},"columns":null}}
+
+curl -X POST http://localhost:8080/api/sumdoc/retrieve?summaryid=8d593f62-0b9f-11f0-9a18-00155d8f9de9
+
+
+test: forum
+curl -X POST -H "Content-Type: application/json" http://localhost:8080/api/forum/insert -d @chat_forum_api.json
+curl -X POST -H "Content-Type: application/json" http://localhost:8080/api/forum/insert -d @chat_forum_db.json
+curl -X POST http://localhost:8080/api/forum/retrieve?forumid=MY-FORUM 
+curl -X POST http://localhost:8080/api/forum/remove?forumid=MY-FORUM
+
+test: forum note
+curl -X POST http://localhost:8080/upload/file -F type=NOTE -F filename=@D:\AI\docs\holiday_securities.txt
+curl -X POST -H "Content-Type: application/json" http://localhost:8080/api/forumnote/insert -d @chat_note.json
+curl -X POST http://localhost:8080/api/forumnote/retrieve?forumid=MY-NOTE
+curl -X POST http://localhost:8080/api/forumnote/remove?forumid=MY-NOTE
+
+test: summary document
+1. insert
+curl -X POST -H "Content-Type: application/json" http://localhost:8080/api/sumdoc/insert -d @sum_doc.json
+2. upload file
+curl -X POST http://localhost:8080/upload/file -F no=MY-SUMKEY -F type=SUM -F filename=@D:\AI\docs\holiday_securities.txt
+3. retrieve
+curl -X POST http://localhost:8080/api/sumdoc/retrieve?summaryid=MY-SUMKEY
+4. generate summary document
+curl -X POST http://localhost:8080/api/sumdoc/summary?summaryid=MY-SUMKEY
+
+test: rag async
+set RAG_API_URL_UPLOAD_ASYNC_WEBHOOK=https://webhook.site/9ae655ea-8ee3-4712-8457-efcfd1c2fef0
+set RAG_API_URL_UPLOAD_ASYNC_WEBHOOK=https://aiinterface.freewillgroup.com/api/rag/sync
+set RAG_API_URL_UPLOAD_ASYNC_WEBHOOK=https://172.31.199.217:8077/api/rag/sync
 

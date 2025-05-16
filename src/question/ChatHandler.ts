@@ -157,6 +157,7 @@ export class ChatHandler extends QuestionHandler {
                     let response = result.response;
                     let text = response.text();
                     this.logger.debug(this.constructor.name+".processQuestGeminiAsync: catch response:",text);
+                    this.saveUsage(context,quest,result.response.usageMetadata);
                     this.logging(context,quest,[text]);
                     let sql = this.parseAnswer(text,true);
                     this.logger.debug(this.constructor.name+".processQuestGeminiAsync: catch sql:",sql);
@@ -204,12 +205,13 @@ export class ChatHandler extends QuestionHandler {
                 //create reply prompt from sql and result set
                 let prmutil = new PromptUtility();
                 let prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
-                this.saveTokenUsage(context,quest,prompt,aimodel);
+                //this.saveTokenUsage(context,quest,prompt,aimodel);
                 this.logging(context,quest,[prompt]);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
                 this.logger.debug(this.constructor.name+".processQuestGeminiAsync: response:",text);
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 this.logging(context,quest,[text]);
                 info.answer = this.parseAnswer(text);
             }

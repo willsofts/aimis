@@ -72,7 +72,7 @@ export class OCRHandler extends VisionHandler {
                     let labeler = new VisionLabel();
                     let labelInfo = labeler.labelInlines(inlines, setting.captions);
                     console.log("label info:",labelInfo);
-                    await this.processCorrect(labelInfo);
+                    await this.processCorrect(context,info,labelInfo);
                     console.log("correct info:",labelInfo);
                     info.dataset = labelInfo;
                 }
@@ -118,7 +118,7 @@ export class OCRHandler extends VisionHandler {
                 let labeler = new VisionLabel();
                 let labelInfo = labeler.labelInlines(inlines, setting.captions);
                 console.log("label info:",labelInfo);
-                await this.processCorrect(labelInfo);
+                await this.processCorrect(context,info,labelInfo);
                 console.log("correct info:",labelInfo);
                 info.dataset = labelInfo;
             }
@@ -143,7 +143,7 @@ export class OCRHandler extends VisionHandler {
         return result;
     }
 
-    public async processCorrect(labelInfo: LabelInfo[]) : Promise<LabelInfo[]> {
+    public async processCorrect(context: KnContextInfo, info : InquiryInfo, labelInfo: LabelInfo[]) : Promise<LabelInfo[]> {
         const aimodel = genAI.getGenerativeModel({ model: API_MODEL,  generationConfig: { temperature: 0 }});
         let prmutil = new PromptUtility();
         for(let label of labelInfo) {
@@ -154,6 +154,8 @@ export class OCRHandler extends VisionHandler {
                 let response = result.response;
                 let text = response.text();
                 this.logger.debug(this.constructor.name+".processCorrect: response:",text);
+                let quest = { agent: "GEMINI", model: API_MODEL, questionid: info.questionid, correlation: info.correlation, question: info.question, mime: "", image: "", category: info.category, classify: info.classify };
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 label.correctValue = this.parseAnswer(text);                
             }
         }

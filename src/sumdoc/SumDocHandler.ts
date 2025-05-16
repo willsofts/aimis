@@ -14,13 +14,13 @@ import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai
 import { PromptUtility } from "../question/PromptUtility";
 import { ollamaGenerate } from "../ollama/generateOllama";
 import { PDFReader } from "../detect/PDFReader";
-import { ForumOperate } from "../forum/ForumOperate";
+import { GenerativeOperate } from "../handlers/GenerativeOperate";
 import FormData from 'form-data';
 import fs from 'fs';
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-export class SumDocHandler extends ForumOperate {
+export class SumDocHandler extends GenerativeOperate {
 
     public section = PRIVATE_SECTION;
     public group = "SUM";
@@ -369,6 +369,8 @@ export class SumDocHandler extends ForumOperate {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: response:",text);
+            let quest = { agent: "GEMINI", model: API_MODEL, questionid: "", correlation: context.meta.session?.correlation, question: "", mime: "", image: "", category: suminfo.summaryid };
+            this.saveUsage(context,quest,result.response.usageMetadata);
             suminfo.summarydocument = text;
         }
         return Promise.resolve(suminfo);

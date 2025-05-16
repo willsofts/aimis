@@ -2,7 +2,6 @@ import { v4 as uuid } from 'uuid';
 import { KnModel } from "@willsofts/will-db";
 import { HTTP } from "@willsofts/will-api";
 import { KnContextInfo, KnValidateInfo, VerifyError } from "@willsofts/will-core";
-import { TknOperateHandler } from '@willsofts/will-serv';
 import { GoogleGenerativeAI, GenerativeModel, Part } from "@google/generative-ai";
 import { API_KEY, API_VISION_MODEL, ALWAYS_REMOVE_ATTACH } from "../utils/EnvironmentVariable";
 import { QuestionUtility } from "./QuestionUtility";
@@ -10,14 +9,14 @@ import { QuestInfo, InquiryInfo, InlineImage, FileImageInfo, ForumConfig, RagInf
 import { TknAttachHandler } from "@willsofts/will-core";
 import { KnRecordSet, KnDBConnector } from "@willsofts/will-sql";
 import { KnDBLibrary } from "../utils/KnDBLibrary";
+import { GenerativeOperate } from '../handlers/GenerativeOperate';
 import { ForumHandler } from "../forum/ForumHandler";
-import { TokenUsageHandler } from "../tokenusage/TokenUsageHandler";
 import { ForumLogHandler } from "../forumlog/ForumLogHandler";
 import { RAG_API_KEY, RAG_API_URL, RAG_API_URL_SEARCH } from "../utils/EnvironmentVariable";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-export class GenerativeHandler extends TknOperateHandler {
+export class GenerativeHandler extends GenerativeOperate {
 
     public getContext() : KnContextInfo {
         return { params: {}, meta: {}, options: {}};
@@ -271,23 +270,6 @@ export class GenerativeHandler extends TknOperateHandler {
         } catch (ex: any) {
             this.logger.error(this.constructor.name+".sendMessage: error:",ex);
         }         
-    }
-
-    protected async saveUsage(context: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
-        let handler = new TokenUsageHandler();
-        handler.obtain(this.broker,this.logger);
-        handler.userToken = this.userToken;
-        handler.save(context,quest,counter).catch(ex => console.error(ex));
-    }
-
-    protected async saveTokenUsage(context: KnContextInfo, quest: QuestInfo, prompt: string | Array<string | Part>, aimodel: GenerativeModel) : Promise<void> {
-        try {
-            const countResult = await aimodel.countTokens(prompt);
-            this.logger.debug(this.constructor.name+".saveTokenUsage: count result:",countResult);
-            this.saveUsage(context, quest, countResult);
-        } catch(ex) {
-            this.logger.error(ex);
-        }
     }
 
     protected async getRagContentInfo(quest: QuestInfo, rag?: RagInfo, sum?: SummaryInfo) : Promise<RagContentInfo | undefined> {

@@ -154,6 +154,7 @@ export class TokenUsageHandler extends TknOperateHandler {
     }
 
     public async save(ctx: KnContextInfo, quest: QuestInfo, counter: any) : Promise<void> {
+        this.logger.debug(this.constructor.name+".save: counter",counter);
         if(!counter) return;
         let tokens = 0;
         if(counter?.totalTokens) tokens = counter.totalTokens;

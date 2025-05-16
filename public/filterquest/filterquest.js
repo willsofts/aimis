@@ -523,7 +523,10 @@ function openForum(forumid) {
 				$("#classifyprompt").val(row.classifyprompt);
 				$("#forumhookflag").prop("checked",row.hookflag=="1");
 				$("#forumwebhook").val(row.webhook);
+				$("#forumdefaultflag").prop("checked",row.defaultflag=="1");
 				$("#fsmodaldialog_layer_forum").modal("show");
+				$("#fsmodaldialog_layer_forum").find(".modal-dialog").draggable();
+				clearAlerts($("#fsmodaldialog_layer_forum"));
 			}
 		}
 	});

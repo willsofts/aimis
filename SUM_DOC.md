@@ -24,6 +24,10 @@ Ask/Question with document note can customize using summary document API setting
 | summarytitle | this is title of record |
 | summaryprompt | this is summary prompt |
 | summarymodel | this is agent model |
+| ragflag | this is using RAG or not `'1'` = use RAG, default `'0'` |
+| raglimit | this is number of records of RAG limit when out put from service, default 10 |
+| ragchunksize | this is RAG chunk size, default 250 |
+| ragchunkoverlap | this is RAG chunk overlap, default 10 |
 
 ex. \
 request:

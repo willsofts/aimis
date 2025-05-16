@@ -64,6 +64,7 @@ export class VisionHandler extends GenerativeHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processQuestion: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = QuestionUtility.trime(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -115,6 +116,7 @@ export class VisionHandler extends GenerativeHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processAsk: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = QuestionUtility.trime(text);
             this.deleteAttach(quest.image);
         } catch(ex: any) {

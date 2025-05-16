@@ -487,6 +487,7 @@ function uploadFile(aform) {
 		return false;
 	}			
 	$("#attachno").val($("#summaryid").val());
+	let authtoken = getAccessorToken();
 	startWaiting();
 	let fd = new FormData(aform);
 	jQuery.ajax({
@@ -494,6 +495,7 @@ function uploadFile(aform) {
 		type: "POST",
 		dataType: "html",
 		data: fd,
+		headers : { "authtoken": authtoken },
 		enctype: "multipart/form-data",
 		processData: false, 
 		contentType: false, 

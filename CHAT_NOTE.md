@@ -83,6 +83,10 @@ response:
 | hookflag | this is hook flag `1` to enable hook |
 | webhook | this is url of web hook |
 | question | this is array of example questions |
+| ragflag | this is using RAG or not `'1'` = use RAG, default `'0'` |
+| raglimit | this is number of records of RAG limit when out put from service, default 10 |
+| ragchunksize | this is RAG chunk size, default 250 |
+| ragchunkoverlap | this is RAG chunk overlap, default 10 |
 
 ex. \
 request:

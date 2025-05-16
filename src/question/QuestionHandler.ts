@@ -111,8 +111,8 @@ export class QuestionHandler extends GenerativeHandler {
         let input = quest.question;
         try {
             let table_info = forum.tableinfo;
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestGemini: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestGemini: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -120,10 +120,11 @@ export class QuestionHandler extends GenerativeHandler {
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestGemini: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,false);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestGemini: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -131,7 +132,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.query = sql;
             //then run the SQL query
             let rs = await this.doEnquiry(sql, category, quest, forum);
-            this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+            this.logger.debug(this.constructor.name+".processQuestGemini: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -140,13 +141,14 @@ export class QuestionHandler extends GenerativeHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestGemini: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestGemini: response:",text);
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 info.answer = this.parseAnswer(text);
             }
         } catch(ex: any) {
@@ -155,7 +157,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestGemini: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -173,8 +175,8 @@ export class QuestionHandler extends GenerativeHandler {
         let input = quest.question;
         try {
             let table_info = forum.tableinfo;
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestClaude: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestClaude: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -182,10 +184,10 @@ export class QuestionHandler extends GenerativeHandler {
             let model = context?.params?.model;
             if(!model || model.trim().length==0) model = API_MODEL_CLAUDE;
             let result = await claudeProcess(system_prompt, input, model);
-            this.logger.debug(this.constructor.name+".processQuest: response:",result);
+            this.logger.debug(this.constructor.name+".processQuestClaude: response:",result);
             //try to extract SQL from the response
             let sql = this.parseAnswer(result,false);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestClaude: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -193,7 +195,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.query = sql;
             //then run the SQL query
             let rs = await this.doEnquiry(sql, category, quest, forum);
-            this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+            this.logger.debug(this.constructor.name+".processQuestClaude: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -202,11 +204,11 @@ export class QuestionHandler extends GenerativeHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestClaude: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 system_prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 let result = await claudeProcess(system_prompt, input, model);
-                this.logger.debug(this.constructor.name+".processQuest: response:",result);
+                this.logger.debug(this.constructor.name+".processQuestClaude: response:",result);
                 info.answer = this.parseAnswer(result);
             }
         } catch(ex: any) {
@@ -215,7 +217,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestClaude: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -234,8 +236,8 @@ export class QuestionHandler extends GenerativeHandler {
         let input = quest.question;
         try {
             let table_info = forum.tableinfo;
-            this.logger.debug(this.constructor.name+".processQuest: forum:",forum);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestOllama: forum:",forum);
+            this.logger.debug(this.constructor.name+".processQuestOllama: correlation:",info.correlation,", category:",category+", input:",input);
             let version = await this.getDatabaseVersioning(forum);
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -243,10 +245,11 @@ export class QuestionHandler extends GenerativeHandler {
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestOllama: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,false);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestOllama: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
                 return Promise.resolve(info);
@@ -254,7 +257,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.query = sql;
             //then run the SQL query
             let rs = await this.doEnquiry(sql, category, quest, forum);
-            this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+            this.logger.debug(this.constructor.name+".processQuestOllama: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
                 this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
@@ -263,13 +266,14 @@ export class QuestionHandler extends GenerativeHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestOllama: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 prompt = prmutil.createAnswerPrompt(input, datarows, forum.prompt);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestOllama: response:",text);
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 info.answer = this.parseAnswer(text);
             }
         } catch(ex: any) {
@@ -278,7 +282,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestOllama: return:",JSON.stringify(info));
         this.notifyMessage(info,forum).catch(ex => this.logger.error(this.constructor.name,ex));
         return info;
     }
@@ -289,12 +293,12 @@ export class QuestionHandler extends GenerativeHandler {
 
     public async processQuestion(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         if(quest.agent=="GEMINI") {
-            return await this.processQuestionGemini(quest, context, model);        
+            return await this.processQuestionGemini(context, quest, model);        
         }
-        return await this.processQuestionGemini(quest, context, model);            
+        return await this.processQuestionGemini(context, quest, model);            
     }
 
-    public async processQuestionGemini(quest: QuestInfo, context?: KnContextInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
+    public async processQuestionGemini(context: KnContextInfo, quest: QuestInfo, model: KnModel = this.model) : Promise<InquiryInfo> {
         //old fashion by file system handler
         let info = { questionid: quest.questionid, correlation: quest.correlation, category: quest.category, classify: quest.classify, error: false, statuscode: "", question: quest.question, query: "", answer: "", dataset: [] };
         if(!quest.question || quest.question.length == 0) {
@@ -309,7 +313,7 @@ export class QuestionHandler extends GenerativeHandler {
             const aimodel = this.getAIModel(context);
             let input = quest.question;
             let table_info = this.getDatabaseTableInfo(category);
-            this.logger.debug(this.constructor.name+".processQuest: correlation:",info.correlation,", category:",category+", input:",input);
+            this.logger.debug(this.constructor.name+".processQuestionGemini: correlation:",info.correlation,", category:",category+", input:",input);
             let version = "";
             //create question prompt with table info
             let prmutil = new PromptUtility();
@@ -317,17 +321,18 @@ export class QuestionHandler extends GenerativeHandler {
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processQuest: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestionGemini: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,false);
-            this.logger.debug(this.constructor.name+".processQuest: sql:",sql);
+            this.logger.debug(this.constructor.name+".processQuestionGemini: sql:",sql);
             if(!this.isValidQuery(sql,info)) {
                 return Promise.resolve(info);
             }
             info.query = sql;
             //then run the SQL query
             let rs = await this.doInquiry(sql, quest, category);
-            this.logger.debug(this.constructor.name+".processQuest: rs:",rs);
+            this.logger.debug(this.constructor.name+".processQuestionGemini: rs:",rs);
             if(rs.records == 0 && API_ANSWER_RECORD_NOT_FOUND) {
                 info.answer = "Record not found.";
                 return Promise.resolve(info);
@@ -335,13 +340,14 @@ export class QuestionHandler extends GenerativeHandler {
             info.dataset = rs.rows;
             if(API_ANSWER) {
                 let datarows = JSON.stringify(rs.rows);
-                this.logger.debug(this.constructor.name+".processQuest: SQLResult:",datarows);
+                this.logger.debug(this.constructor.name+".processQuestionGemini: SQLResult:",datarows);
                 //create reply prompt from sql and result set
                 prompt = prmutil.createAnswerPrompt(input, datarows);
                 result = await aimodel.generateContent(prompt);
                 response = result.response;
                 text = response.text();
-                this.logger.debug(this.constructor.name+".processQuest: response:",text);
+                this.logger.debug(this.constructor.name+".processQuestionGemini: response:",text);
+                this.saveUsage(context,quest,result.response.usageMetadata);
                 info.answer = this.parseAnswer(text);
             }
         } catch(ex: any) {
@@ -350,22 +356,24 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processQuest: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processQuestionGemini: return:",JSON.stringify(info));
         return info;
     }
 
-    public async processAsk(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {
+    public async processAsk(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {        
+        /*
         if(typeof quest == "string") {
             return await this.processAskGemini(context, quest);
-        }
+        }*/
         console.log(this.constructor.name+":[PROCESS QUEST]",quest);
-        switch (quest.agent?.toLocaleUpperCase()) {            
+        let agent = typeof quest == "string" ? "GEMINI" : quest.agent?.toUpperCase();
+        switch (agent) {            
             case "GEMMA" :
             case "LLAMA" : {
                 return await this.processAskOllama(context, quest);
             }
             case "GEMINI" : 
-            default : { //otherwise GEMINI
+            default : { 
                 return await this.processAskGemini(context, quest);
             }
         }   
@@ -388,7 +396,8 @@ export class QuestionHandler extends GenerativeHandler {
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
-            this.logger.debug(this.constructor.name+".processAsk: response:",text);
+            this.logger.debug(this.constructor.name+".processAskGemini: response:",text);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -396,7 +405,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processAskGemini: return:",JSON.stringify(info));
         return info;
     }
 
@@ -415,7 +424,7 @@ export class QuestionHandler extends GenerativeHandler {
             let prompt = prmutil.createAskPrompt(input);
             let result = await ollamaGenerate(prompt, quest.model!);
             let response = result.response;
-            this.logger.debug(this.constructor.name+".processAsk: response:", response);
+            this.logger.debug(this.constructor.name+".processAskOllama: response:", response);
             info.answer = this.parseAnswer(response);            
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
@@ -423,7 +432,7 @@ export class QuestionHandler extends GenerativeHandler {
             info.statuscode = "ERROR";
             info.answer = this.getDBError(ex).message;
         }
-        this.logger.debug(this.constructor.name+".processAsk: return:",JSON.stringify(info));
+        this.logger.debug(this.constructor.name+".processAskOllama: return:",JSON.stringify(info));
         return info;
     }
 

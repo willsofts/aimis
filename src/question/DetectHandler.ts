@@ -120,7 +120,8 @@ export class DetectHandler extends VisionHandler {
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".processAsk: response:",text);
-            this.saveTokenUsage(context,quest,prompt,aimodel);
+            //this.saveTokenUsage(context,quest,prompt,aimodel);
+            this.saveUsage(context,quest,result.response.usageMetadata);
             info.answer = this.parseAnswer(text);
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);
