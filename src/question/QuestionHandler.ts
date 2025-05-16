@@ -361,11 +361,7 @@ export class QuestionHandler extends GenerativeHandler {
     }
 
     public async processAsk(context: KnContextInfo, quest: QuestInfo | string) : Promise<InquiryInfo> {        
-        /*
-        if(typeof quest == "string") {
-            return await this.processAskGemini(context, quest);
-        }*/
-        console.log(this.constructor.name+":[PROCESS QUEST]",quest);
+        console.log(this.constructor.name+".processAsk: quest",quest);
         let agent = typeof quest == "string" ? "GEMINI" : quest.agent?.toUpperCase();
         switch (agent) {            
             case "GEMMA" :
@@ -423,8 +419,10 @@ export class QuestionHandler extends GenerativeHandler {
             let prmutil = new PromptOLlamaUtility();
             let prompt = prmutil.createAskPrompt(input);
             let result = await ollamaGenerate(prompt, quest.model!);
+            this.logger.debug(this.constructor.name+".processAskOllama: result",result);
             let response = result.response;
             this.logger.debug(this.constructor.name+".processAskOllama: response:", response);
+            this.saveUsage(context,quest,result);
             info.answer = this.parseAnswer(response);            
         } catch(ex: any) {
             this.logger.error(this.constructor.name,ex);

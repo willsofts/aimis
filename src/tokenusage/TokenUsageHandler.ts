@@ -159,6 +159,7 @@ export class TokenUsageHandler extends TknOperateHandler {
         let tokens = 0;
         if(counter?.totalTokens) tokens = counter.totalTokens;
         if(counter?.totalTokenCount) tokens = counter.totalTokenCount;
+        if(counter?.eval_count) tokens = counter.eval_count;
         let params = { ...ctx.params };
         let context : KnContextInfo = { params: params, meta: ctx.meta, options: ctx.options };
         context.params.tokencount = tokens;

@@ -353,19 +353,18 @@ export class ChatHandler extends QuestionHandler {
             if (quest.agent?.toLocaleUpperCase() == "GEMMA"){
                 history = this.getChatHistoryGemma(category, table_info, version);              
             }
-            console.log(history);
-            //let msg = "Question: "+input;
             let msg = input;
             if(quest.property && quest.property.trim().length>0) {
                 msg = PromptUtility.getMoreInfo(quest.property)+" \n\n"+msg;
             }
             this.logging(context,quest,[history,msg]);
-            let response = await ollamaChat(history, msg, quest.model || API_MODEL_LLAMA, chat as LlamaSession);
+            quest.model = quest.model || API_MODEL_LLAMA;
+            let response = await ollamaChat(history, msg, quest.model, chat as LlamaSession);
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",response);
             let text = response?.message?.content;
-            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
+            this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response text:",text);
+            this.saveUsage(context,quest,response);
             this.logging(context,quest,[text]);
-            //(chat as LlamaSession).add(contents);
             //try to extract SQL from the response
             let sql = this.parseAnswer(text,true);
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: sql:",sql);
@@ -403,6 +402,7 @@ export class ChatHandler extends QuestionHandler {
                 let result = await ollamaGenerate(prompt, quest.model || API_MODEL_LLAMA);
                 let response = result.response; 
                 this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", response);
+                this.saveUsage(context,quest,result);
                 this.logging(context,quest,[response]);
                 info.answer = this.parseAnswer(response);
             }

@@ -271,6 +271,7 @@ export class ChatterHandler extends GenerativeHandler {
             let result = await ollamaGenerate(prompt, quest.model);
             let text = result.response; 
             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", text);
+            this.saveUsage(context,quest,result);
             this.logging(context,quest,[text]);
             let jsonstr = this.parseJSONAnswer(text);
             let json = undefined;
@@ -291,6 +292,7 @@ export class ChatterHandler extends GenerativeHandler {
                             result = await ollamaGenerate(quest.question, quest.model);
                             text = result.response;
                             this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:",text);
+                            this.saveUsage(context,quest,result);
                             this.logging(context,quest,[text]);
                             info.answer = this.parseAnswer(text);
                         } else {

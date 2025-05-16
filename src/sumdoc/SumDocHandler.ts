@@ -342,11 +342,11 @@ export class SumDocHandler extends GenerativeOperate {
         }        
     }
 
-    public getAIModel(suminfo: SummaryDocumentInfo, context?: KnContextInfo) : GenerativeModel {
+    public getAIModel(suminfo: SummaryDocumentInfo, context?: KnContextInfo) : [string,GenerativeModel] {
         let model = context?.params?.model;
         if(!model || model.trim().length==0) model = suminfo.summarymodel;
         if(!model || model.trim().length==0) model = API_MODEL;
-        return genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }});
+        return [model,genAI.getGenerativeModel({ model: model,  generationConfig: { temperature: 0 }})];
     }
 
     public async generateSummaryDocument(suminfo: SummaryDocumentInfo, context: KnContextInfo) : Promise<SummaryDocumentInfo> {
@@ -363,13 +363,13 @@ export class SumDocHandler extends GenerativeOperate {
     public async generateSummaryDocumentByGemini(suminfo: SummaryDocumentInfo, context: KnContextInfo) : Promise<SummaryDocumentInfo> {
         if(suminfo.summarystreams && suminfo.summarystreams.length>0) {
             this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: starting with stream ",suminfo.summarystreams.length);
-            const aimodel = this.getAIModel(suminfo,context);
+            const [model,aimodel] = this.getAIModel(suminfo,context);
             let prompt = await this.createSummaryPrompt(suminfo);
             let result = await aimodel.generateContent(prompt);
             let response = result.response;
             let text = response.text();
             this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: response:",text);
-            let quest = { agent: "GEMINI", model: API_MODEL, questionid: "", correlation: context.meta.session?.correlation, question: "", mime: "", image: "", category: suminfo.summaryid };
+            let quest = { agent: suminfo.summaryagent, model: model, questionid: "", correlation: context.meta.session?.correlation, question: "", mime: "", image: "", category: suminfo.summaryid };
             this.saveUsage(context,quest,result.response.usageMetadata);
             suminfo.summarydocument = text;
         }
@@ -385,6 +385,8 @@ export class SumDocHandler extends GenerativeOperate {
             let result = await ollamaGenerate(prompt, model);
             let text = result.response;
             this.logger.debug(this.constructor.name+".generateSummaryDocumentByGemini: response:",text);
+            let quest = { agent: suminfo.summaryagent, model: model, questionid: "", correlation: context.meta.session?.correlation, question: "", mime: "", image: "", category: suminfo.summaryid };
+            this.saveUsage(context,quest,result);
             suminfo.summarydocument = text;
         }
         return Promise.resolve(suminfo);

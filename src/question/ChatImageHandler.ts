@@ -226,6 +226,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let resultLlama = await ollamaImageChat(promptLlama, img_info.file, quest.model!); 
                         let responseLlama = resultLlama.message.content;
                         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseLlama);
+                        this.saveUsage(context,quest,resultLlama);
                         info.answer = this.parseAnswer(responseLlama);
                         // Do not delete image file
                         break;
@@ -236,6 +237,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let resultGemma = await ollamaGenerate(promptGemma, quest.model!);
                         let responseGemma = resultGemma.response;
                         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseGemma);
+                        this.saveUsage(context,quest,resultGemma);
                         info.answer = this.parseAnswer(responseGemma);    
                         // Do not delete image file
                         break;
@@ -245,6 +247,7 @@ export class ChatImageHandler extends ChatPDFHandler {
                         let resultLava = await ollamaImageAsk(promptLava, quest.model!, img_info.stream!);
                         let responseLava = resultLava.response;
                         this.logger.debug(this.constructor.name+".processQuestOllamaAsync: response:", responseLava);
+                        this.saveUsage(context,quest,resultLava);
                         info.answer = this.parseAnswer(responseLava);
                         // Do not delete image file
                         break;
