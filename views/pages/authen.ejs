@@ -4,6 +4,7 @@
 		<title>Authentication</title>		
 		<%- include('../asset/meta') %>		
 		<% if(auth?.isAuthenticated && data.body?.authtoken) {%>
+		<script type="text/javascript" src="<%=meta.cdn_url%>/cryptojs/secure-ls.min.js"></script>
 		<script type="text/javascript" src="<%=meta.cdn_url%>/js/fslib.js"></script>
 		<script type="text/javascript" nonce="YXNzdXJl" >
 			var $ACCESS_TOKEN = {authtoken: '<%=data.body.authtoken%>'};
