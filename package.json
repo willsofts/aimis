@@ -34,7 +34,7 @@
     "@willsofts/will-api": "^1.0.13",
     "@willsofts/will-core": "^1.1.33",
     "@willsofts/will-db": "^1.0.63",
-    "@willsofts/will-lib": "^1.0.30",
+    "@willsofts/will-lib": "^1.0.31",
     "@willsofts/will-run": "^1.0.13",
     "@willsofts/will-serv": "^1.0.59",
     "@willsofts/will-sql": "^1.0.36",
