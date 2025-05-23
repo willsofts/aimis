@@ -216,8 +216,11 @@ export class ChatterHandler extends GenerativeHandler {
                     }
                 } else {
                     checkforum = true;
-                    forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: find forum from category",json.category_name,"forum",forum);
+                    let category_name = json.category_name.trim();
+                    let idx = category_name.indexOf(" ");
+                    if(idx>=0) category_name = category_name.substring(idx+1);
+                    forum = configure.forumlists.find((item:any) => item.forumid == category_name);
+                    this.logger.debug(this.constructor.name+".processQuestGeminiAsync: find forum from category",category_name,"forum",forum);
                 }
                 if(checkforum) {
                     if(forum) {
@@ -304,8 +307,11 @@ export class ChatterHandler extends GenerativeHandler {
                     }
                 } else {
                     checkforum = true;
-                    forum = configure.forumlists.find((item:any) => item.forumid == json.category_name);
-                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: find forum from category",json.category_name,"forum",forum);
+                    let category_name = json.category_name.trim();
+                    let idx = category_name.indexOf(" ");
+                    if(idx>=0) category_name = category_name.substring(idx+1);
+                    forum = configure.forumlists.find((item:any) => item.forumid == category_name);
+                    this.logger.debug(this.constructor.name+".processQuestOllamaAsync: find forum from category",category_name,"forum",forum);
                 }
                 if(checkforum) {
                     if(forum) {
