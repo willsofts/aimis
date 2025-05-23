@@ -356,3 +356,59 @@ reponse:
 ```
 
 (url depending on your host deployment)
+
+
+##### 4. reset
+Since chat has histories in order to clear it by invoke reset api
+
+1. reset chat history
+
+| Classification | Description |
+| -------- | ----------- |
+| url | http://localhost:8080/api/chat/reset |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
+
+| Parameter | Description |
+| -------- | ----------- |
+| correlation | this is correlation id or session id from response or user defined|
+| category | this is your key from forum insert or setting |
+
+2. reset chat note history
+
+| Classification | Description |
+| -------- | ----------- |
+| url | http://localhost:8080/api/chatnote/reset |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
+
+| Parameter | Description |
+| -------- | ----------- |
+| correlation | this is correlation id or session id from response or user defined|
+| category | this is your key from forum note insert or setting |
+
+3. reset classify chat history
+
+| Classification | Description |
+| -------- | ----------- |
+| url | http://localhost:8080/api/chatter/reset |
+| method | post |
+
+| Header | Description |
+| -------- | ----------- |
+| Content-Type | application/json |
+| AuthToken | API token (This can obtain from administrator or setting by Access Token)|
+
+| Parameter | Description |
+| -------- | ----------- |
+| correlation | this is correlation id or session id from response or user defined|
+| category | this is your key from classfiy quest setting |
+
