@@ -93,7 +93,7 @@ const FetchService : ServiceSchema = {
             ctx.meta.$responseRaw = true; 
             ctx.meta.$responseType = "application/json";    
             const packageconfig = require("../../package.json");
-            return { name: packageconfig.name, version: packageconfig.version };
+            return { name: packageconfig.name, version: packageconfig.version, description: packageconfig.description };
         },
     },
 };
