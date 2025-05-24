@@ -1,3 +1,7 @@
+2025-05-24
+version: 1.0.39
++ check blank of category name in classify setting
+
 2025-05-15
 version: 1.0.38
 + support rag async call in order to prevent error time out of long time process
