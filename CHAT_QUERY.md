@@ -31,8 +31,8 @@ After setting, try to obtain forum `ID` from entry in order to use in next step
 | correlation | this is correlation id default is session id|
 | category | this is your key from forum insert or setting |
 | query | this is your question to ask |
-| agent | this is AI agent usage default is `GEMINI` |
-| model | this is AI model usage default is `gemini-1.5-flash` |
+| agent | this is AI agent usage default is `GEMINI`. (see [Supported Model](./README.md#supported-model)) |
+| model | this is AI model usage default is `gemini-2.0-flash`. (see [Supported Model](./README.md#supported-model)) |
 | property | this is private properties or specific info. |
 | async | `true`/`false` if `true` it take as background process |
 

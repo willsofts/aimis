@@ -119,6 +119,17 @@ ex.
 | POSTGRES | postgresql://postgres:root@localhost:5432/testdb |
 | ODBC | DRIVER={MySQL ODBC 8.0 Unicode Driver};SERVER=localhost;DATABASE=testdb;HOST=localhost;PORT=3306;UID=root;PWD=root; |
 
+## Supported Model
+
+| Agent | Model |
+| -------- | ----------- |
+| GEMINI | gemini-2.0-flash |
+| GEMINI | gemini-1.5-flash |
+| GEMINI | gemini-2.5-flash-preview-05-20 |
+| LLAMA | llama3.1 |
+| GEMMA | gemma2 |
+| GEMMA | gemma3:12b |
+
 
 ## Chat With Query
 See [Chat Query](./CHAT_QUERY.md)

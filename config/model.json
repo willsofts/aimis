@@ -1,0 +1,8 @@
+[
+    { "agent": "GEMINI", "model": "gemini-2.0-flash", "name": "Gemini 2.0 Flash" },
+    { "agent": "GEMINI", "model": "gemini-1.5-flash", "name": "Gemini 1.5 Flash" },
+    { "agent": "GEMINI", "model": "gemini-2.5-flash-preview-05-20", "name": "Gemini 2.5 Flash Preview-05-20" },
+    { "agent": "LLAMA", "model": "llama3.1", "name": "Llama 3.1 8B" },
+    { "agent": "GEMMA", "model": "gemma2", "name": "Gemma 2 9B" },
+    { "agent": "GEMMA", "model": "gemma3:12b", "name": "Gemma 3 12B" }
+]

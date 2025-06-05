@@ -1,6 +1,6 @@
 {
   "name": "aimis",
-  "version": "1.0.39",
+  "version": "1.0.40",
   "description": "This project introduction to use AI API Interface",
   "main": "index.js",
   "scripts": {

@@ -1,3 +1,7 @@
+2025-06-05
+version: 1.0.40
++ support more model: gemini-2.5-flash-preview-05-20 and gemma3:12b
+
 2025-05-24
 version: 1.0.39
 + check blank of category name in classify setting
