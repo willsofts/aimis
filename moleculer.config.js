@@ -1,4 +1,5 @@
-var os = require("os");
+const os = require("os");
+//const MiddlewareTracing = require("./middleware.tracing");
 
 module.exports = {
     nodeID: "aimis-"+os.hostname().toLowerCase() + "-" + process.pid,
@@ -10,8 +11,8 @@ module.exports = {
                 color: true,
                 formatter: "full",
             } 
-        },
-		/*
+        },                   
+        /*
         {
             type: "File",
             options: {
@@ -49,9 +50,10 @@ module.exports = {
                 host: "localhost",
                 port: 6832,
                 tracerOptions: {},
-                defaultTags: [{"module.name":"mext"}]
+                defaultTags: [{"module.name":"aimis"}]
             }
         }
     },   
     */
+    //middlewares: [MiddlewareTracing]
 };
