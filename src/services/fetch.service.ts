@@ -2,6 +2,9 @@ import { v4 as uuid } from 'uuid';
 import { ServiceSchema } from "moleculer";
 import { JSONReply } from "@willsofts/will-api";
 import { Utilities, Configure } from "@willsofts/will-util";
+var os = require("os");
+
+const packageconfig = require("../../package.json");
 
 const FetchService : ServiceSchema = {
     name: "fetch",
@@ -73,8 +76,7 @@ const FetchService : ServiceSchema = {
             return response;
         },
         ollamacheck(ctx: any){            
-            let pname = "API_OLLAMA_HOST";
-            let ollama_url = Configure.getConfig(pname);            
+            let ollama_url = Configure.getConfig("API_OLLAMA_HOST");            
             return fetch(ollama_url, {
                 method: 'GET'
             })
@@ -92,8 +94,14 @@ const FetchService : ServiceSchema = {
         version(ctx: any) {
             ctx.meta.$responseRaw = true; 
             ctx.meta.$responseType = "application/json";    
-            const packageconfig = require("../../package.json");
             return { name: packageconfig.name, version: packageconfig.version, description: packageconfig.description };
+        },
+        async info(ctx: any) {
+            let sid = ctx.meta?.session?.id ?? uuid();
+            const result = await ctx.call("fetch.version");
+            ctx.meta.$responseRaw = true; 
+            ctx.meta.$responseType = "application/json";    
+            return { sid: sid, hostname: os.hostname(), ...result };
         },
     },
 };
