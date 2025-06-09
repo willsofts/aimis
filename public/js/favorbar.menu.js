@@ -140,12 +140,13 @@
 			}
 			function load_prog_item() {
 				let authtoken = getAccessorToken();
+				let requestid = getRequestID();
 				let fs_user = $("#main_user").val();
 				jQuery.ajax({
 					url: API_URL+"/api/menu/prog",
 					type: "POST",
 					data: { userid: fs_user },
-					headers : { "authtoken": authtoken },
+					headers : { "authtoken": authtoken, "x-request-id": requestid },
 					dataType: "json",
 					contentType: defaultContentType,
 					error : function(transport,status,errorThrown) { 

@@ -1691,6 +1691,24 @@ function saveAccessorInfo(json) {
 function removeAccessorInfo() {
 	removeStorage("accessorinfo");
 }
+let fs_requestid = null;
+function getRequestID() {
+	if(!fs_requestid) {
+		fs_requestid = generateUUID();
+	}
+	return fs_requestid;
+}
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  } else {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+}
 function setupDiffie(json) {
 	console.log("setupDiffie",this.getAccessorToken());
     let info = json.body.info;
@@ -1700,12 +1718,14 @@ function setupDiffie(json) {
         dh.generator = info.generator;
         dh.otherPublicKey = info.publickey;
         dh.compute();
-        dh.updatePublicKey((success) => {
-			if(success) {
-				info.handshake = "C"; //confirm
-				saveAccessorInfo(json.body);		
-			}
-		});
+		if(!(String(META_INFO.DISABLE_DIFFIE)=="true")) {
+			dh.updatePublicKey((success) => {
+				if(success) {
+					info.handshake = "C"; //confirm
+					saveAccessorInfo(json.body);		
+				}
+			});
+		}
         info.privatekey = dh.privateKey;
         info.publickey = dh.publicKey;
         info.sharedkey = dh.sharedKey;
@@ -1789,7 +1809,8 @@ function serializeParameters(parameters, addonParameters, raw) {
 	}
 	console.log("serialize: parameters",parameters);
 	console.log("serialize: jsondata",jsondata);
-	return { cipherdata: cipherdata, jsondata: jsondata, headers : { "data-type": cipherdata?"json/cipher":"", language: fs_default_language } };
+	let headers = { "data-type": cipherdata?"json/cipher":"", language: fs_default_language };	
+	return { cipherdata: cipherdata, jsondata: jsondata, headers : headers };
 }
 function decryptCipherData(headers, data) {
 	let accepttype = headers["accept-type"];

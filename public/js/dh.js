@@ -94,15 +94,20 @@ DH.prototype.getAccessorToken = function() {
 	}
 	return "";
 };
-	
+
+DH.prototype.getRequestID = function() {
+	return getRequestID();
+};
+
 DH.prototype.requestPublicKey = function(dh,callback,aurl) {
 	if(!aurl) aurl = "/api/crypto/dh";
 	let authtoken = this.getAccessorToken();
+	let requestid = this.getRequestID();
 	jQuery.ajax({
 		url: aurl,
 		type: "POST",
 		dataType: "json",
-		headers : { "authtoken": authtoken },
+		headers : { "authtoken": authtoken, "x-request-id": requestid },
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		error : function(transport,status,errorThrown) {
 			console.log(errorThrown);
@@ -126,6 +131,7 @@ DH.prototype.requestPublicKey = function(dh,callback,aurl) {
 DH.prototype.submitPublicKey = function(callback,aurl) {
 	if(!aurl) aurl = "/api/crypto/dh";
 	let authtoken = this.getAccessorToken();
+	let requestid = this.getRequestID();
 	jQuery.ajax({
 		url: aurl,
 		type: "POST",
@@ -133,7 +139,7 @@ DH.prototype.submitPublicKey = function(callback,aurl) {
 			publickey: this.publicKey
 		},
 		dataType: "json",
-		headers : { "authtoken": authtoken },
+		headers : { "authtoken": authtoken, "x-request-id": requestid },
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		error : function(transport,status,errorThrown) {
 			console.log(errorThrown);
@@ -149,6 +155,7 @@ DH.prototype.submitPublicKey = function(callback,aurl) {
 DH.prototype.updatePublicKey = function(callback,aurl) {
 	if(!aurl) aurl = "/api/crypto/update";
 	let authtoken = this.getAccessorToken();
+	let requestid = this.getRequestID();
 	jQuery.ajax({
 		url: aurl,
 		type: "POST",
@@ -156,7 +163,7 @@ DH.prototype.updatePublicKey = function(callback,aurl) {
 			publickey: this.publicKey
 		},
 		dataType: "json",
-		headers : { "authtoken": authtoken },
+		headers : { "authtoken": authtoken, "x-request-id": requestid },
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		error : function(transport,status,errorThrown) {
 			console.log(errorThrown);

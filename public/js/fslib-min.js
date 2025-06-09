@@ -234,7 +234,11 @@ function getAccessorToken(){let json=getAccessorInfo();if(json&&json.authtoken){
 if(API_TOKEN&&API_TOKEN!="")return API_TOKEN;return"";}
 function saveAccessorInfo(json){setStorage("accessorinfo",JSON.stringify(json));}
 function removeAccessorInfo(){removeStorage("accessorinfo");}
-function setupDiffie(json){console.log("setupDiffie",this.getAccessorToken());let info=json.body.info;if(info){const dh=new DH();dh.prime=info.prime;dh.generator=info.generator;dh.otherPublicKey=info.publickey;dh.compute();dh.updatePublicKey((success)=>{if(success){info.handshake="C";saveAccessorInfo(json.body);}});info.privatekey=dh.privateKey;info.publickey=dh.publicKey;info.sharedkey=dh.sharedKey;info.otherpublickey=dh.otherPublicKey;info.handshake="";saveAccessorInfo(json.body);}}
+let fs_requestid=null;function getRequestID(){if(!fs_requestid){fs_requestid=generateUUID();}
+return fs_requestid;}
+function generateUUID(){if(typeof crypto!=='undefined'&&typeof crypto.randomUUID==='function'){return crypto.randomUUID();}else{return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){const r=(Math.random()*16)|0;const v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});}}
+function setupDiffie(json){console.log("setupDiffie",this.getAccessorToken());let info=json.body.info;if(info){const dh=new DH();dh.prime=info.prime;dh.generator=info.generator;dh.otherPublicKey=info.publickey;dh.compute();if(!(String(META_INFO.DISABLE_DIFFIE)=="true")){dh.updatePublicKey((success)=>{if(success){info.handshake="C";saveAccessorInfo(json.body);}});}
+info.privatekey=dh.privateKey;info.publickey=dh.publicKey;info.sharedkey=dh.sharedKey;info.otherpublickey=dh.otherPublicKey;info.handshake="";saveAccessorInfo(json.body);}}
 function getDH(){let json=getAccessorInfo();console.log("getDH: json",json);if(json&&json.info){let info=json.info;if(!info.handshake||info.handshake==""||info.handshake=="F")return null;if(info.prime&&info.generator&&info.publickey&&info.privatekey&&info.sharedkey&&info.otherpublickey){const dh=new DH();dh.prime=info.prime;dh.generator=info.generator;dh.otherPublicKey=info.publickey;dh.privateKey=info.privatekey;dh.publicKey=info.publickey;dh.sharedKey=info.sharedkey;dh.otherPublicKey=info.otherpublickey;return dh;}}
 return null;}
 function sendMessageInterface(){let info=getAccessorInfo();let msg={type:"storage",archetype:"willsofts",API_URL:API_URL,BASE_URL:BASE_URL,API_TOKEN:API_TOKEN,BASE_STORAGE:BASE_STORAGE,SECURE_STORAGE:SECURE_STORAGE,BASE_CSS:BASE_CSS,accessorinfo:info};sendMessageToFrame(msg);}
@@ -244,7 +248,7 @@ return json;}
 function serializeDataForm(aform,addonForm,raw){return serializeParameters(serializeToJSON(aform),serializeToJSON(addonForm),raw);}
 function serializeParameters(parameters,addonParameters,raw){if(addonParameters){Object.assign(parameters,addonParameters);}
 let jsondata={};let cipherdata=false;if(raw||fs_default_raw_parameters){jsondata=parameters;}else{let dh=getDH();if(dh){cipherdata=true;jsondata.ciphertext=dh.encrypt(JSON.stringify(parameters));}else{jsondata=parameters;}}
-console.log("serialize: parameters",parameters);console.log("serialize: jsondata",jsondata);return{cipherdata:cipherdata,jsondata:jsondata,headers:{"data-type":cipherdata?"json/cipher":"",language:fs_default_language}};}
+console.log("serialize: parameters",parameters);console.log("serialize: jsondata",jsondata);let headers={"data-type":cipherdata?"json/cipher":"",language:fs_default_language};return{cipherdata:cipherdata,jsondata:jsondata,headers:headers};}
 function decryptCipherData(headers,data){let accepttype=headers["accept-type"];let dh=getDH();if(accepttype=="json/cipher"){let json=$.parseJSON(data);if(dh&&json.body.data&&typeof json.body.data==="string"){let jsondatatext=dh.decrypt(json.body.data);console.log("jsondatatext",jsondatatext);let jsondata=$.parseJSON(jsondatatext);json.body=jsondata;return json;}}
 if(accepttype=="text/cipher"){let jsontext=dh.decrypt(data);console.log("jsontext",jsontext);if(jsontext){let json=$.parseJSON(jsontext);return json;}}
 return data;}
