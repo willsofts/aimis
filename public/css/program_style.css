@@ -36,8 +36,14 @@ td.inner-column-right { vertical-align:top; padding-top: 15px; }
 input[type=checkbox] { height: 20px; width: 20px; }
 input[type=radio] { height: 20px; width: 20px; }
 .input-table-layer { margin-left: 5px; }
-#insertbutton { margin-top: 5px; margin-right: 10px; }
-#searchbutton { margin-top: 5px; margin-right: 30px; }
+#insertbutton { min-width: 90px; }
+#insertbuttonnum { min-width: 90px; }
+#searchbutton { margin-right: 30px; min-width: 90px; }
+#resetbutton { min-width: 90px; }
+#savebutton { min-width: 90px; }
+#updatebutton { min-width: 90px; }
+#cancelbutton { min-width: 90px; }
+#canceldialogbutton { min-width: 90px; }
 a.image-file-linker { vertical-align: top; margin-right: 2px;}
 .display-group { white-space: nowrap; }
 #fs_completedcontrollayer {
@@ -61,7 +67,6 @@ a.increase-linker { margin-right: 3px; }
 
 #fsfontcontrollayer { display:none; }
 #fsprogramcontrollayer { padding-right:10px; }
-#fsprogramidlinker { color: white; text-decoration: none; }
 #fsprogramidlinker:hover { color: lightgray; }
 h3.program-header-title { display: none; }
 div.entry-key-layer { padding: 5px; }
@@ -85,7 +90,6 @@ div.entry-key-layer { padding: 5px; }
 }
 #gobacklayer { text-align: center; font-size: 20px; }
 
-.pt-page th a { color: white; }
 .pt-page th a:hover, a:focus { color: #FF9933; }
 
 .input-group-container { width: 90% }
