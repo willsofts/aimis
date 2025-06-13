@@ -79,11 +79,11 @@
 			var firstIdx = mask.indexOf("(");
 			var lastIdx = mask.indexOf(")");
 			if(firstIdx>=0 && lastIdx>=0) {
-				var count = mask.substring(firstIdx+1,lastIdx);
-				var buf = mask.substring(0,firstIdx);
-				var str2 = mask.substring(lastIdx+1);
-				var cntr = eval(count);
-				for(var i=0;i<cntr;i++) buf += str2.charAt(0);
+				let count = mask.substring(firstIdx+1,lastIdx);
+				let buf = mask.substring(0,firstIdx);
+				let str2 = mask.substring(lastIdx+1);
+				let cntr = parseInt(count);
+				for(let i=0;i<cntr;i++) buf += str2.charAt(0);
 				buf += str2.substring(1);
 				mask = buf;
 			}
