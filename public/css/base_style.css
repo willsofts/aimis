@@ -6,6 +6,7 @@ body {
 	background-position: top center;
 	background-color: #E7F7F7;
 }
+a { text-decoration: none; }
 .portalbody-on { margin-top: 50px; }
 .portalbody-off { margin-top: 0px; }
 
@@ -433,3 +434,10 @@ div.bc-layer { position: fixed; bottom: 0; right: 0; margin-right: 15px; margin-
 div.bc-layer a { text-decoration: none; }	  
 a.bc-close { position: absolute; top: 0%; right: 0%; margin-right: 4px; }
 a.bc-close:hover { color: darkgray; }
+
+button.btn-closing:before { 
+	font-family: FontAwesome;
+	content: "\f00d";	
+}
+button.close { font-size: 2rem; }
+.modal-header .close { padding-top: 0px; }
