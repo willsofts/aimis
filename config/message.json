@@ -215,6 +215,10 @@
 		  "TH": "การดำเนินการไม่สำเร็จ",
 		  "EN": "Process fail"
 		},
+		{ "code":"fsalert", "TH": "คำเตือน", "EN": "Alert"},
+		{ "code":"fswarn", "TH": "คำเตือน", "EN": "Warning"},
+		{ "code":"fsconfirm", "TH": "ยืนยัน", "EN": "Confirmation"},
+		{ "code":"fsinfo", "TH": "ข้อความ", "EN": "Information"},
 		{
 		  "code": "8021",
 		  "TH": "ท่านไม่มีสิทธิ์ดูรายการนี้",
