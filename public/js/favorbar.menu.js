@@ -2,11 +2,11 @@
 			var fs_favor_prog_ary;
 			function showNewFavorItem() {
 				$("#favorcoverbarmenu").show();
-				$("#favornewitemlayer").show();
+				$("#favornewitemlayer").addClass("show");
 			}
 			function hideNewFavorItem() {
 				$("#favorcoverbarmenu").hide();
-				$("#favornewitemlayer").hide();
+				$("#favornewitemlayer").removeClass("show");
 			}
 			function addBlankMenuItem(alink) {
 				let seqno = alink.attr("seqno");
@@ -21,7 +21,7 @@
 			function setupOpenLink(alink) {
 				let pid = alink.attr("pid");
 				let url = alink.attr("url");
-				if(pid && pid!="") alink.click(function() { open_page(pid,url,null,alink.attr("data-path"),alink); });
+				if(pid && pid!="") alink.click(function() { open_page(pid,url,null,alink.attr("data-path"),alink.attr("data-new"),alink.attr("data-method")); });
 			}
 			function setupTodo(alink) {
 				if(!CDN_URL) CDN_URL = "";
@@ -89,6 +89,8 @@
 								}
 								$img.attr("src",CDN_URL+"/img/apps/"+iconfile);
 								$newlink.attr("data-path",row.progpath?row.progpath:"");
+								$newlink.attr("data-new",row.newflag?row.newflag:"");
+								$newlink.attr("data-method",row.openmethod?row.openmethod:"");
 							}
 							$newlink.insertBefore(alink);
 							setupOpenLink($newlink);

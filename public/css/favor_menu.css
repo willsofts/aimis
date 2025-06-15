@@ -203,7 +203,6 @@
 .favor-menu-icon { width: 300px; height: 25px; }
 .favor-new-item { 
 	color: #FFFFFF; 
-	background-color: #87CEFA; 
 }
 #favorbarmenu { 
 	margin-top: 5px; 
@@ -220,4 +219,11 @@
 	height: 320px; 
 	opacity: 0.5; 
 	/* 3x3 = -310/320/9, 3x4 = -310/420/12, 3x5 = -310/520/15  */
+}
+#favornewitemlayer { display: none; }
+#favornewitemlayer.show { display: flex; }
+#favornewitem { 
+  margin-top: 2px;
+  margin-left: 2px;
+  min-height: 26px;
 }
