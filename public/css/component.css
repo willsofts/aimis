@@ -174,11 +174,10 @@ html, body { height: 100%; }
 	}
 }
 
-.pt-page h1 { background-color: #ED7D31;  left: 0px; }
-.pt-page th { background-color: #ED7D31; color: white; }
+.pt-page h1 { left: 0px; }
+.pt-page th { color: white; }
 .pt-page-header { 
 	height: 30px; 
-	background-color: #ED7D31; 
 	color: #FFFFFF; 
 	font-weight: bold; 
 	width: 100%; 
